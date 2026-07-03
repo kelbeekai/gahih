@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: commonHeadContent('로그인')}"></th:block>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: siteHeader(${null})}"></div>
+
+<main class="site-container">
+    <section class="card">
+        <h2 class="card-title">로그인</h2>
+
+        <form th:action="@{/members/login}" th:object="${memberLoginRequest}" method="post">
+
+            <input type="hidden" name="redirectURL" th:value="${redirectURL}">
+
+            <div class="global-error" th:if="${#fields.hasGlobalErrors()}">
+                <div th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
+            </div>
+            <div class="global-error" th:if="${errorMessage}">
+                <div th:text="${errorMessage}"></div>
+            </div>
+            <div class="success-message" th:if="${successMessage}">
+                <div th:text="${successMessage}"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="loginId">아이디</label>
+                <input class="form-control" type="text" id="loginId" th:field="*{loginId}">
+                <div class="field-error" th:errors="*{loginId}"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">비밀번호</label>
+                <input class="form-control" type="password" id="password" th:field="*{password}">
+                <div class="field-error" th:errors="*{password}"></div>
+            </div>
+
+            <div class="form-group">
+                <a th:href="@{/members/find-username}">아이디 찾기</a>
+                &nbsp;|&nbsp;
+                <a th:href="@{/members/find-password}">비밀번호 찾기</a>
+            </div>
+
+            <button class="btn btn-primary" type="submit">로그인</button>
+        </form>
+    </section>
+
+    <section class="card">
+        <p class="text-muted">
+            탈퇴 유예 상태의 회원은 로그인 후 복구 안내 화면으로 이동합니다.
+        </p>
+    </section>
+</main>
+
+<div th:replace="~{fragments/header :: siteFooter}"></div>
+</body>
+</html>

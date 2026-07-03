@@ -1,0 +1,42 @@
+/* =========================================================
+   Comment: 댓글 작성/수정 폼
+   - textarea 크기
+   - 작성/수정 버튼 정렬
+   - disabled 상태
+   ========================================================= */
+
+.comment-content-edit {
+    margin: 8px 0;
+}
+
+.comment-edit-textarea,
+.mention-aware-textarea {
+    width: 100%;
+    min-height: 100px;
+    resize: vertical;
+}
+
+.comment-submit-btn {
+    margin-top: 8px;
+}
+
+.comment-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.comment-owner-actions,
+.comment-edit-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.comment-owner-actions {
+    margin-top: 12px;
+}
+
+.comment-edit-actions {
+    margin-top: 8px;
+}
+

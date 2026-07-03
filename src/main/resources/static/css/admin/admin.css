@@ -1,0 +1,43 @@
+/* =========================================================
+   Admin: 관리자 테이블 레이아웃
+   - 관리자 화면은 컬럼이 많으므로 넓은 min-width 허용
+   - table-wrapper에서 가로 스크롤 처리
+   ========================================================= */
+
+.admin-container .common-table {
+    min-width: 1080px;
+}
+
+.admin-container .table-cell-title {
+    max-width: 320px;
+}
+
+.admin-container .table-cell-text {
+    max-width: 300px;
+}
+
+.admin-container .table-cell-reason {
+    max-width: 260px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-container .table-cell-action {
+    min-width: 220px;
+}
+
+/* =========================================================
+   Admin: 보조 표시
+   ========================================================= */
+
+.admin-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.admin-danger-note {
+    color: var(--color-danger);
+    font-weight: 700;
+}

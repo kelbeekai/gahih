@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="recentComments">
+    <section class="card">
+        <h3 class="card-title">최근 작성 댓글</h3>
+
+        <div class="table-wrapper" th:if="${!#lists.isEmpty(memberDetail.recentComments)}">
+            <table class="common-table">
+                <thead>
+                <tr>
+                    <th class="table-cell-id">ID</th>
+                    <th class="table-cell-category">국가</th>
+                    <th class="table-cell-title">게시글</th>
+                    <th class="table-cell-text">댓글</th>
+                    <th class="table-cell-date">작성일</th>
+                    <th class="table-cell-status">상태</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="comment : ${memberDetail.recentComments}">
+                    <td class="table-cell-id" th:text="${comment.id}"></td>
+                    <td class="table-cell-category" th:text="${comment.communityName}"></td>
+                    <td class="table-cell-title">
+                        <a th:href="@{/c/{communityCode}/posts/{id}(
+                                    communityCode=${comment.communityCode},
+                                    id=${comment.postId},
+                                    source=${T(com.gahih.domain.post.enumtype.PostDetailSource).ADMIN_MEMBER_DETAIL},
+                                    returnUrl=${memberDetailReturnUrl}
+                            )} + '#comments'"
+                           th:text="${comment.postTitle}"></a>
+                    </td>
+                    <td class="table-cell-text" th:text="${comment.contentSummary}"></td>
+                    <td class="table-cell-date">
+                        <span th:text="${#temporals.format(comment.displayTime, 'yyyy-MM-dd HH:mm')}"></span>
+                        <span th:if="${comment.edited}" class="detail-small-muted detail-inline-spaced">(수정됨)</span>
+                    </td>
+                    <td class="table-cell-status" th:text="${comment.status}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p th:if="${#lists.isEmpty(memberDetail.recentComments)}">최근 작성 댓글이 없습니다.</p>
+    </section>
+</th:block>
+
+</html>

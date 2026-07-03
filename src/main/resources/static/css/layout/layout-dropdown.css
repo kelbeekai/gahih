@@ -1,0 +1,77 @@
+/* =========================================================
+   Header 드롭다운
+   - 국가 선택
+   - 사용자 메뉴
+   ========================================================= */
+
+.header-dropdown {
+    position: relative;
+}
+
+.header-dropdown summary {
+    cursor: pointer;
+    list-style: none;
+    color: var(--color-text);
+    font-weight: 600;
+}
+
+.header-dropdown summary::-webkit-details-marker {
+    display: none;
+}
+
+.header-dropdown summary::after {
+    content: " ▼";
+    font-size: 0.72em;
+    color: var(--color-muted);
+}
+
+.header-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 200;
+
+    min-width: 160px;
+    padding: 8px;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-md);
+}
+
+.user-dropdown .header-dropdown-menu {
+    right: 0;
+    left: auto;
+}
+
+.header-dropdown-menu a,
+.dropdown-empty {
+    display: block;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+    font-size: 0.92rem;
+}
+
+.header-dropdown-menu a:hover {
+    background: rgba(31,111,97,0.08);
+}
+
+.dropdown-empty {
+    color: var(--color-muted);
+}
+
+.utility-logout-button {
+    border: none;
+    background: transparent;
+    color: var(--color-muted);
+    cursor: pointer;
+    padding: 0;
+    font-size: 0.9rem;
+}
+
+.utility-logout-button:hover {
+    color: var(--color-primary);
+}
+

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: commonHeadContent('신고 활동 회원')}"></th:block>
+    <script defer th:src="@{/js/page-size.js}"></script>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: siteHeader(${loginMember})}"></div>
+
+<main class="site-container admin-container">
+    <section class="card">
+        <h2 class="card-title">신고 활동 회원</h2>
+    </section>
+
+    <section class="card">
+        <form id="reporterActivitySearchForm" th:action="@{/admin/reporter-activities}" method="get" class="search-form">
+            <input type="hidden" name="page" th:value="${activityPage.number + 1}">
+            <input type="hidden" data-role="current-page" th:value="${activityPage.number + 1}">
+            <input type="hidden" data-role="current-size" th:value="${activityPage.size}">
+
+            <div class="form-group">
+                <label class="form-label" for="searchType">검색 항목</label>
+                <select class="form-control" id="searchType" name="searchType">
+                    <option th:each="searchType : ${searchTypes}"
+                            th:value="${searchType.name()}"
+                            th:text="${searchType.name()}"
+                            th:selected="${condition.searchType == searchType}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="keyword">검색어</label>
+                <input class="form-control"
+                       id="keyword"
+                       type="text"
+                       name="keyword"
+                       th:value="${condition.keyword}"
+                       placeholder="회원 ID, 아이디, 닉네임 검색">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="communityCode">국가</label>
+                <select class="form-control" id="communityCode" name="communityCode">
+                    <option value="" th:selected="${condition.communityCode == null or condition.communityCode == ''}">
+                        전체
+                    </option>
+                    <option th:each="community : ${communities}"
+                            th:value="${community.code}"
+                            th:text="${community.name}"
+                            th:selected="${condition.communityCode == community.code}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="sort">정렬</label>
+                <select class="form-control" id="sort" name="sort">
+                    <option value="TOTAL_REPORT_DESC" th:selected="${condition.sort == T(com.gahih.domain.report.enumtype.AdminReporterActivitySortType).TOTAL_REPORT_DESC}">총 신고 수 순</option>
+                    <option value="PENDING_REPORT_DESC" th:selected="${condition.sort == T(com.gahih.domain.report.enumtype.AdminReporterActivitySortType).PENDING_REPORT_DESC}">미처리 신고 수 순</option>
+                    <option value="ACTION_TAKEN_DESC" th:selected="${condition.sort == T(com.gahih.domain.report.enumtype.AdminReporterActivitySortType).ACTION_TAKEN_DESC}">조치 완료 신고 수 순</option>
+                    <option value="NO_ACTION_NEEDED_DESC" th:selected="${condition.sort == T(com.gahih.domain.report.enumtype.AdminReporterActivitySortType).NO_ACTION_NEEDED_DESC}">무조치 종료 신고 수 순</option>
+                    <option value="LATEST_REPORT_DESC" th:selected="${condition.sort == T(com.gahih.domain.report.enumtype.AdminReporterActivitySortType).LATEST_REPORT_DESC}">최근 신고 순</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="size">목록 수</label>
+                <select class="form-control" id="size" name="size" data-role="page-size-select">
+                    <option value="20" th:selected="${condition.safeSize == 20}">20개씩</option>
+                    <option value="40" th:selected="${condition.safeSize == 40}">40개씩</option>
+                    <option value="60" th:selected="${condition.safeSize == 60}">60개씩</option>
+                </select>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-primary" type="submit">검색</button>
+                <a class="btn btn-secondary" th:href="@{/admin/reporter-activities}">초기화</a>
+            </div>
+        </form>
+    </section>
+
+    <section class="card">
+        <div class="table-wrapper admin-table-wrap">
+            <table class="common-table">
+                <thead>
+                    <tr>
+                        <th class="table-cell-id">회원 ID</th>
+                        <th class="table-cell-writer">아이디</th>
+                        <th class="table-cell-writer">닉네임</th>
+                        <th class="table-cell-status">권한</th>
+                        <th class="table-cell-status">상태</th>
+                        <th class="table-cell-category">주요 신고 국가</th>
+                        <th class="table-cell-text">국가별 요약</th>
+                        <th class="table-cell-number">총 신고 수</th>
+                        <th class="table-cell-number">미처리</th>
+                        <th class="table-cell-number">조치 완료</th>
+                        <th class="table-cell-status">조치완료율</th>
+                        <th class="table-cell-number">무조치 종료</th>
+                        <th class="table-cell-status">무조치종료율</th>
+                        <th class="table-cell-date">최근 신고 시각</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${activityPage.isEmpty()}">
+                        <td colspan="14">신고 활동 회원이 없습니다.</td>
+                    </tr>
+
+                    <tr th:each="activity : ${activityPage.content}">
+                        <td class="table-cell-id">
+                            <a th:href="@{/admin/members/{id}(
+                                    id=${activity.reporterId},
+                                    returnUrl=${'/admin/reporter-activities?searchType=' + condition.searchType
+                                    + '&keyword=' + (condition.keyword != null ? condition.keyword : '')
+                                    + '&communityCode=' + (condition.communityCode != null ? condition.communityCode : '')
+                                    + '&sort=' + condition.sort
+                                    + '&size=' + condition.safeSize
+                                    + '&page=' + (activityPage.number + 1)}
+                                )}"
+                               th:text="${activity.reporterId}"></a>
+                        </td>
+
+                        <td class="table-cell-writer">
+                            <span class="table-title-text" th:text="${activity.displayUsername}"></span>
+                        </td>
+
+                        <td class="table-cell-writer">
+                            <span class="table-title-text">
+                                <a th:href="@{/admin/members/{id}(
+                                        id=${activity.reporterId},
+                                        returnUrl=${'/admin/reporter-activities?searchType=' + condition.searchType
+                                        + '&keyword=' + (condition.keyword != null ? condition.keyword : '')
+                                        + '&communityCode=' + (condition.communityCode != null ? condition.communityCode : '')
+                                        + '&sort=' + condition.sort
+                                        + '&size=' + condition.safeSize
+                                        + '&page=' + (activityPage.number + 1)}
+                                    )}"
+                                   th:text="${activity.displayNickname}"></a>
+                            </span>
+                        </td>
+
+                        <td class="table-cell-status" th:text="${activity.role}"></td>
+                        <td class="table-cell-status" th:text="${activity.displayStatus}"></td>
+                        <td class="table-cell-category" th:text="${activity.mainCommunityName}">전역</td>
+
+                        <td class="table-cell-text">
+                            <span class="table-title-text" th:text="${activity.communitySummary}">전역</span>
+                        </td>
+
+                        <td class="table-cell-number" th:text="${activity.totalReportCount}"></td>
+                        <td class="table-cell-number" th:text="${activity.pendingReportCount}"></td>
+                        <td class="table-cell-number" th:text="${activity.actionTakenCount}"></td>
+                        <td class="table-cell-status" th:text="${activity.actionTakenRate}"></td>
+                        <td class="table-cell-number" th:text="${activity.noActionNeededCount}"></td>
+                        <td class="table-cell-status" th:text="${activity.noActionNeededRate}"></td>
+                        <td class="table-cell-date" th:text="${activity.latestReportAt == null ? '-' : #temporals.format(activity.latestReportAt, 'yyyy-MM-dd HH:mm')}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card" th:if="${!activityPage.isEmpty()}">
+        <p th:text="|총 ${activityPage.totalElements}건 · ${activityPage.number + 1}/${activityPage.totalPages} 페이지|"></p>
+
+        <div class="actions"
+             th:replace="~{fragments/pagination :: pager(
+                ${activityPage},
+                @{/admin/reporter-activities},
+                ${'searchType=' + condition.searchType
+                    + '&keyword=' + (condition.keyword != null ? condition.keyword : '')
+                    + '&communityCode=' + (condition.communityCode != null ? condition.communityCode : '')
+                    + '&sort=' + condition.sort
+                    + '&size=' + condition.safeSize}
+             )}">
+        </div>
+    </section>
+</main>
+
+<script th:inline="javascript">
+    window.addEventListener('DOMContentLoaded', function () {
+        PageSizeManager.initPageSizeForm('reporterActivitySearchForm');
+    });
+</script>
+
+<div th:replace="~{fragments/header :: siteFooter}"></div>
+</body>
+</html>

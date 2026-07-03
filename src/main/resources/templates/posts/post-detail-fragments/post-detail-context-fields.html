@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="detailContextHiddenFields(detailContext)">
+    <input type="hidden" name="source" th:value="${detailContext.source}">
+    <input type="hidden" name="returnUrl" th:value="${detailContext.returnUrl}">
+    <input type="hidden" name="categoryId" th:value="${detailContext.categoryId}">
+    <input type="hidden" name="keyword" th:value="${detailContext.keyword}">
+    <input type="hidden" name="secret" th:value="${detailContext.secret}">
+    <input type="hidden" name="sort" th:value="${detailContext.sort}">
+    <input type="hidden" name="onlyWithAttachments" th:value="${detailContext.onlyWithAttachments}">
+    <input type="hidden" name="page" th:value="${detailContext.safePage}">
+    <input type="hidden" name="size" th:value="${detailContext.safeSize}">
+</th:block>
+
+<th:block th:fragment="commentContextHiddenFields(commentCondition)">
+    <input type="hidden" name="commentSort" th:value="${commentCondition.sort}">
+    <input type="hidden" name="commentPage" th:value="${commentCondition.safePage}">
+</th:block>
+
+</html>

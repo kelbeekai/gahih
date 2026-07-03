@@ -1,0 +1,120 @@
+/* =========================================================
+   Component: 테이블 기본 구조
+   - table-wrapper는 좁은 화면에서 가로 스크롤 담당
+   - common-table은 모든 목록/관리 테이블의 기본 형태
+   ========================================================= */
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.common-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    background: white;
+}
+
+.common-table th,
+.common-table td {
+    padding: 12px;
+
+    border-bottom: 1px solid var(--color-border);
+
+    text-align: left;
+}
+
+.common-table th {
+    background: #F9FAFB;
+    font-weight: 700;
+}
+
+.common-table tr:hover {
+    background: rgba(0,0,0,0.02);
+}
+
+/* =========================================================
+   Table: 공통 목록/관리 테이블 정책
+   - 기본 줄바꿈 방지
+   - 제목/긴 텍스트는 한 줄 + ... 처리
+   - 작은 화면에서는 table-wrapper로 가로 스크롤
+   ========================================================= */
+
+.common-table {
+    min-width: 760px;
+}
+
+.common-table th,
+.common-table td {
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.table-cell-id {
+    width: 64px;
+    text-align: center;
+}
+
+.table-cell-category {
+    width: 110px;
+}
+
+.table-cell-title {
+    min-width: 260px;
+    max-width: 420px;
+}
+
+.table-cell-title a,
+.table-cell-title .table-title-text {
+    display: inline-block;
+    max-width: 100%;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    vertical-align: middle;
+}
+
+.table-cell-writer {
+    width: 120px;
+}
+
+.table-cell-number {
+    width: 76px;
+    text-align: center;
+}
+
+.table-cell-date {
+    width: 160px;
+}
+
+.table-cell-status {
+    width: 100px;
+}
+
+.table-cell-action {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.table-cell-text {
+    max-width: 320px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.table-cell-text .table-title-text,
+.table-cell-writer .table-title-text {
+    display: inline-block;
+    max-width: 100%;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    vertical-align: middle;
+}

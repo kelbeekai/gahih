@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: commonHeadContent('이용 제한 안내')}"></th:block>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: siteHeader(${loginMember})}"></div>
+
+<main class="site-container">
+    <section class="card">
+        <h2 class="card-title">이용이 제한된 회원입니다</h2>
+
+        <p>
+            현재 회원님의 계정은 운영 정책에 따라 이용이 정지된 상태입니다.
+        </p>
+
+        <p th:if="${suspendedInfo.reason != null and !suspendedInfo.reason.isBlank()}">
+            회원님은 <strong th:text="${suspendedInfo.reason}"></strong> 사유로 이용이 정지되었습니다.
+        </p>
+
+        <p th:if="${suspendedInfo.reason == null or suspendedInfo.reason.isBlank()}">
+            회원님은 운영 정책 위반으로 인해 이용이 정지되었습니다.
+        </p>
+
+        <section class="card">
+            <table>
+                <tbody>
+                <tr>
+                    <th>정지 시작 시각</th>
+                    <td th:text="${#temporals.format(suspendedInfo.suspendedAt, 'yyyy-MM-dd HH:mm')}"></td>
+                </tr>
+                <tr th:if="${!suspendedInfo.permanent}">
+                    <th>정지 해제 예정 시각</th>
+                    <td th:text="${#temporals.format(suspendedInfo.suspendedUntil, 'yyyy-MM-dd HH:mm')}"></td>
+                </tr>
+                <tr th:if="${!suspendedInfo.permanent}">
+                    <th>남은 정지 기간</th>
+                    <td th:text="|${suspendedInfo.remainingDays}일|"></td>
+                </tr>
+                <tr th:if="${suspendedInfo.permanent}">
+                    <th>정지 유형</th>
+                    <td>영구정지</td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <p>
+            이용 정지된 회원은 <strong>마이페이지</strong>와
+            <strong>이용문의 게시판</strong>만 이용할 수 있습니다.
+        </p>
+
+        <p class="text-muted">
+            정지 사유에 대한 소명이나 문의가 필요하다면 이용문의 게시판을 이용해주세요.
+        </p>
+
+        <div class="actions">
+            <a class="btn btn-secondary" th:href="@{/mypage}">마이페이지로 이동</a>
+
+            <a class="btn btn-primary"
+               th:each="category : ${inquiryCategories}"
+               th:href="@{/c/{communityCode}/posts(
+                    communityCode=${category.countryCommunity.code},
+                    categoryId=${category.id}
+               )}"
+               th:text="|${category.countryCommunity.name} 이용문의|">
+                이용문의
+            </a>
+
+            <a class="btn btn-secondary" th:href="@{/}">국가 선택으로 이동</a>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{fragments/header :: siteFooter}"></div>
+</body>
+</html>

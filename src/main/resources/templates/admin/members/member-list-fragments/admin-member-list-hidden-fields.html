@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="memberSearchHiddenFields(condition)">
+    <input type="hidden" name="searchType" th:value="${condition.searchTypeName}">
+    <input type="hidden" name="keyword" th:value="${condition.keyword}">
+    <input type="hidden" name="role" th:value="${condition.role}">
+    <input type="hidden" name="status" th:value="${condition.status}">
+    <input type="hidden" name="sort" th:value="${condition.sortName}">
+    <input type="hidden" name="size" th:value="${condition.safeSize}">
+    <input type="hidden" name="page" th:value="${condition.safePage}">
+</th:block>
+
+</html>

@@ -1,0 +1,331 @@
+/* =========================================================
+   Header: 전체 헤더 뼈대
+   - sticky 사용 안 함
+   - 1층 유틸 헤더 + 2층 메인 헤더 구조
+   ========================================================= */
+
+.site-header {
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+}
+
+/* =========================================================
+   Header 1층: 유틸 바
+   - 국가 선택 드롭다운
+   - 로그인/회원가입
+   - 닉네임 드롭다운
+   - 로그아웃
+   - TODAY / TOTAL
+   ========================================================= */
+
+.site-utility-bar {
+    border-bottom: 1px solid var(--color-border);
+    background: #F9FAFB;
+}
+
+.site-utility-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 6px 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    font-size: 0.9rem;
+}
+
+.site-utility-user {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.site-visitor-stats {
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   Header 드롭다운
+   - 국가 선택
+   - 사용자 메뉴
+   ========================================================= */
+
+.header-dropdown {
+    position: relative;
+}
+
+.header-dropdown summary {
+    cursor: pointer;
+    list-style: none;
+    color: var(--color-text);
+    font-weight: 600;
+}
+
+.header-dropdown summary::-webkit-details-marker {
+    display: none;
+}
+
+.header-dropdown summary::after {
+    content: " ▼";
+    font-size: 0.72em;
+    color: var(--color-muted);
+}
+
+.header-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 200;
+
+    min-width: 160px;
+    padding: 8px;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-md);
+}
+
+.user-dropdown .header-dropdown-menu {
+    right: 0;
+    left: auto;
+}
+
+.header-dropdown-menu a,
+.dropdown-empty {
+    display: block;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+    font-size: 0.92rem;
+}
+
+.header-dropdown-menu a:hover {
+    background: rgba(31,111,97,0.08);
+}
+
+.dropdown-empty {
+    color: var(--color-muted);
+}
+
+.utility-logout-button {
+    border: none;
+    background: transparent;
+    color: var(--color-muted);
+    cursor: pointer;
+    padding: 0;
+    font-size: 0.9rem;
+}
+
+.utility-logout-button:hover {
+    color: var(--color-primary);
+}
+
+/* =========================================================
+   Header 2층: 로고 + 게시판 네비게이션
+   - 로고는 2층에 배치
+   - 게시판 메뉴는 한 줄 유지
+   - 넘치면 가로 스크롤 + 좌우 버튼
+   ========================================================= */
+
+.site-main-header {
+    background: var(--color-surface);
+}
+
+.site-main-header-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 16px 20px 0;
+}
+
+.site-title {
+    margin: 0 0 14px;
+}
+
+.site-title a {
+    font-size: 1.7rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    letter-spacing: -0.04em;
+}
+
+.board-nav {
+    display: flex;
+    align-items: center;
+
+    border-top: 1px solid var(--color-border);
+    background: var(--color-primary);
+}
+
+.board-nav-scroll {
+    flex: 1;
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+    gap: 2px;
+
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+}
+
+.board-nav-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.board-nav-scroll a {
+    flex: 0 0 auto;
+
+    padding: 12px 16px;
+
+    color: white;
+    font-weight: 700;
+    font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+.board-nav-scroll a:hover {
+    background: var(--color-primary-dark);
+    color: white;
+}
+
+.board-nav-scroll-button {
+    flex: 0 0 auto;
+
+    width: 36px;
+    height: 44px;
+
+    border: none;
+    background: var(--color-primary-dark);
+    color: white;
+
+    font-size: 1.4rem;
+    cursor: pointer;
+}
+
+.board-nav-scroll-button:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+
+/* =========================================================
+   Floating scroll buttons
+   - 최상단/최하단 이동
+   ========================================================= */
+
+.floating-scroll-buttons {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 300;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.floating-scroll-buttons button {
+    width: 42px;
+    height: 42px;
+
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+
+    background: var(--color-surface);
+    color: var(--color-primary);
+
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+}
+
+.floating-scroll-buttons button:hover {
+    background: rgba(31,111,97,0.08);
+}
+
+/* =========================================================
+   Layout: 본문 컨테이너
+   ========================================================= */
+
+.site-container {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 24px 20px 80px;
+}
+
+.admin-container {
+    max-width: 1280px;
+}
+
+.page-section {
+    margin-bottom: 24px;
+}
+
+/* =========================================================
+   Footer
+   ========================================================= */
+
+.site-footer {
+    margin-top: 60px;
+
+    padding: 32px 20px;
+
+    border-top: 1px solid var(--color-border);
+
+    background: var(--color-surface);
+}
+
+.site-footer-links {
+    display: flex;
+    gap: 16px;
+
+    flex-wrap: wrap;
+
+    margin-bottom: 16px;
+}
+
+.site-footer-links a {
+    color: var(--color-muted);
+    font-size: 0.95rem;
+}
+
+.site-footer-notice {
+    color: var(--color-muted);
+    font-size: 0.9rem;
+}
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+
+@media (max-width: 640px) {
+    .site-utility-inner {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .site-utility-user {
+        justify-content: flex-start;
+    }
+
+    .site-main-header-inner {
+        padding: 14px 12px 0;
+    }
+
+    .board-nav-scroll a {
+        padding: 11px 13px;
+        font-size: 0.9rem;
+    }
+
+    .floating-scroll-buttons {
+        right: 14px;
+        bottom: 14px;
+    }
+}

@@ -1,0 +1,28 @@
+/* =========================================================
+   Responsive
+   ========================================================= */
+
+@media (max-width: 640px) {
+    .site-utility-inner {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .site-utility-user {
+        justify-content: flex-start;
+    }
+
+    .site-main-header-inner {
+        padding: 14px 12px 0;
+    }
+
+    .board-nav-scroll a {
+        padding: 11px 13px;
+        font-size: 0.9rem;
+    }
+
+    .floating-scroll-buttons {
+        right: 14px;
+        bottom: 14px;
+    }
+}

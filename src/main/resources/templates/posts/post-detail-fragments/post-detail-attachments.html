@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="attachments">
+    <div th:if="${postDetail.attachmentSectionVisible}" class="detail-block-spaced">
+        <h3>첨부파일</h3>
+
+        <div th:if="${#lists.isEmpty(postDetail.attachments)}">첨부파일이 없습니다.</div>
+
+        <div th:if="${postDetail.attachmentDownloadAllowed and !#lists.isEmpty(postDetail.attachments)}"
+             class="detail-block-bottom-spaced">
+            <a class="btn btn-secondary btn-small"
+               th:href="@{/c/{communityCode}/posts/{postId}/attachments/download-all(
+                            communityCode=${currentCommunity.code},
+                            postId=${postDetail.id},
+                            fromCreate=${fromCreate}
+                       )}">
+                전체 다운로드
+            </a>
+            <span class="detail-small-muted detail-inline-spaced"
+                  th:text="| (다운로드 ${postDetail.zipDownloadCount}회)|"></span>
+        </div>
+
+        <div th:if="${!postDetail.attachmentDownloadAllowed and !#lists.isEmpty(postDetail.attachments)}"
+             class="detail-muted detail-block-bottom-spaced">
+            삭제 또는 블라인드 처리된 게시글은 첨부파일 다운로드를 할 수 없습니다.
+        </div>
+
+        <ul th:if="${!#lists.isEmpty(postDetail.attachments)}">
+            <li th:each="attachment : ${postDetail.attachments}" class="attachment-list-item">
+                <span th:if="${attachment.deleted}" th:text="${attachment.originalFileName}"></span>
+
+                <th:block th:if="${!attachment.deleted and postDetail.attachmentDownloadAllowed}">
+                    <span th:text="${attachment.icon}" class="icon-marker">📎</span>
+
+                    <a class="attachment-file-name"
+                       th:href="@{/c/{communityCode}/posts/attachments/{attachmentId}/download(
+                                    communityCode=${currentCommunity.code},
+                                    attachmentId=${attachment.id},
+                                    fromCreate=${fromCreate}
+                               )}"
+                       th:text="${attachment.originalFileName}">
+                    </a>
+
+                    <span th:if="${attachment.extension != ''}"
+                          th:text="|[${attachment.extension}]|"
+                          class="detail-small-muted detail-inline-spaced"></span>
+
+                    <span th:text="|(${attachment.fileSize} bytes)|"
+                          class="detail-inline-spaced"></span>
+
+                    <span th:text="|다운로드 ${attachment.downloadCount}회|"
+                          class="detail-small-muted detail-inline-spaced"></span>
+
+                    <form th:if="${isAdmin}"
+                          th:action="@{/c/{communityCode}/posts/{postId}/attachments/{attachmentId}/admin-delete(
+                                        communityCode=${currentCommunity.code},
+                                        postId=${postDetail.id},
+                                        attachmentId=${attachment.id}
+                                  )}"
+                          method="post"
+                          class="inline-form detail-inline-spaced"
+                          onsubmit="return confirm('정말 첨부파일을 삭제하시겠습니까? 이는 되돌릴 수 없습니다.');">
+                        <input type="hidden" name="fromCreate" th:value="${fromCreate}">
+
+                        <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
+                        <button class="btn btn-danger btn-small" type="submit">관리자 첨부 삭제</button>
+                    </form>
+                </th:block>
+
+                <th:block th:if="${!attachment.deleted and !postDetail.attachmentDownloadAllowed}">
+                    <span th:text="${attachment.icon}" class="icon-marker">📎</span>
+                    <span class="attachment-file-name" th:text="${attachment.originalFileName}"></span>
+
+                    <span th:if="${attachment.extension != ''}"
+                          th:text="|[${attachment.extension}]|"
+                          class="detail-small-muted detail-inline-spaced"></span>
+
+                    <span th:text="|(${attachment.fileSize} bytes)|"
+                          class="detail-inline-spaced"></span>
+
+                    <span th:text="|다운로드 ${attachment.downloadCount}회|"
+                          class="detail-small-muted detail-inline-spaced"></span>
+
+                    <span class="detail-small-muted detail-inline-spaced">(다운로드 불가)</span>
+
+                    <form th:if="${isAdmin}"
+                          th:action="@{/c/{communityCode}/posts/{postId}/attachments/{attachmentId}/admin-delete(
+                                        communityCode=${currentCommunity.code},
+                                        postId=${postDetail.id},
+                                        attachmentId=${attachment.id}
+                                  )}"
+                          method="post"
+                          class="inline-form detail-inline-spaced"
+                          onsubmit="return confirm('정말 첨부파일을 삭제하시겠습니까? 이는 되돌릴 수 없습니다.');">
+                        <input type="hidden" name="fromCreate" th:value="${fromCreate}">
+
+                        <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
+                        <button class="btn btn-danger btn-small" type="submit">관리자 첨부 삭제</button>
+                    </form>
+                </th:block>
+
+                <details th:if="${attachment.canReport}" class="inline-details-spaced">
+                    <summary>신고</summary>
+                    <form th:action="@{/reports}"
+                          method="post"
+                          class="inline-report-form"
+                          onsubmit="return confirm('이 첨부파일을 신고하시겠습니까? 취소할 수 없습니다.');">
+
+                        <input type="hidden" name="targetType" value="ATTACHMENT">
+                        <input type="hidden" name="targetId" th:value="${attachment.id}">
+                        <input type="hidden" name="redirectUrl" th:value="${reportRedirectUrl}">
+                        <select class="form-control" name="reasonType">
+                            <option value="INAPPROPRIATE_ATTACHMENT">부적절한 첨부파일</option>
+                            <option value="PRIVACY_EXPOSURE">개인정보 노출</option>
+                            <option value="VIOLENCE_OR_ILLEGAL">폭력/불법</option>
+                            <option value="OTHER">기타</option>
+                        </select>
+                        <button class="btn btn-danger btn-small" type="submit">제출</button>
+                    </form>
+                </details>
+            </li>
+        </ul>
+
+        <div th:if="${!#lists.isEmpty(postDetail.attachments)}" class="detail-block-spaced">
+            <h4>이미지 미리보기</h4>
+
+            <div th:if="${postDetail.attachments.?[image].isEmpty()}">이미지 첨부파일이 없습니다.</div>
+
+            <div th:if="${!postDetail.attachments.?[image].isEmpty()}"
+                 class="attachment-preview-grid">
+                <div th:each="attachment : ${postDetail.attachments.?[image]}"
+                     class="attachment-preview-item">
+                    <th:block th:if="${postDetail.attachmentDownloadAllowed}">
+                        <a th:href="@{/c/{communityCode}/posts/attachments/{attachmentId}/download(
+                                        communityCode=${currentCommunity.code},
+                                        attachmentId=${attachment.id},
+                                        fromCreate=${fromCreate}
+                                   )}">
+                            <img th:src="@{/c/{communityCode}/posts/attachments/{attachmentId}/preview(
+                                            communityCode=${currentCommunity.code},
+                                            attachmentId=${attachment.id}
+                                         )}"
+                                 th:alt="${attachment.originalFileName}"
+                                 class="post-preview-image">
+                        </a>
+                    </th:block>
+
+                    <th:block th:if="${!postDetail.attachmentDownloadAllowed}">
+                        <img th:src="@{/c/{communityCode}/posts/attachments/{attachmentId}/preview(
+                                            communityCode=${currentCommunity.code},
+                                            attachmentId=${attachment.id}
+                                         )}"
+                             th:alt="${attachment.originalFileName}"
+                             class="post-preview-image">
+                    </th:block>
+
+                    <div class="attachment-file-name" th:text="${attachment.originalFileName}"></div>
+                    <div th:if="${!postDetail.attachmentDownloadAllowed}"
+                         class="detail-small-muted detail-block-tiny-spaced">
+                        다운로드 불가
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+</html>

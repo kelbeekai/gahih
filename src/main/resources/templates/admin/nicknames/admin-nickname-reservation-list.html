@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: commonHeadContent('닉네임 예약 현황')}"></th:block>
+    <script defer th:src="@{/js/page-size.js}"></script>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: siteHeader(${loginMember})}"></div>
+
+<main class="site-container admin-container">
+    <section class="card">
+        <h2 class="card-title">닉네임 예약 현황</h2>
+    </section>
+
+    <section class="card">
+        <form id="adminNicknameReservationSearchForm" th:action="@{/admin/nickname-reservations}" method="get" class="search-form">
+            <input type="hidden" name="page" th:value="${reservationPage.number + 1}">
+            <input type="hidden" data-role="current-page" th:value="${reservationPage.number + 1}">
+            <input type="hidden" data-role="current-size" th:value="${reservationPage.size}">
+
+            <div class="form-group">
+                <label class="form-label" for="searchType">검색 항목</label>
+                <select class="form-control" id="searchType" name="searchType">
+                    <option th:each="searchType : ${searchTypes}"
+                            th:value="${searchType.name()}"
+                            th:text="${searchType.displayName}"
+                            th:selected="${condition.searchType == searchType}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="keyword">검색어</label>
+                <input class="form-control"
+                       id="keyword"
+                       type="text"
+                       name="keyword"
+                       th:value="${condition.keyword}"
+                       placeholder="닉네임 또는 사유 검색">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="reasonType">사유</label>
+                <select class="form-control" id="reasonType" name="reasonType">
+                    <option value="">전체</option>
+                    <option value="NICKNAME_CHANGED" th:selected="${condition.reasonType == 'NICKNAME_CHANGED'}">닉네임 변경</option>
+                    <option value="MEMBER_FINALIZED" th:selected="${condition.reasonType == 'MEMBER_FINALIZED'}">최종 종료</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="sort">정렬</label>
+                <select class="form-control" id="sort" name="sort">
+                    <option th:each="sortType : ${sortTypes}"
+                            th:value="${sortType.name()}"
+                            th:text="${sortType.displayName}"
+                            th:selected="${condition.sort == sortType}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="size">목록 수</label>
+                <select class="form-control" id="size" name="size" data-role="page-size-select">
+                    <option value="20" th:selected="${condition.safeSize == 20}">20개씩</option>
+                    <option value="40" th:selected="${condition.safeSize == 40}">40개씩</option>
+                    <option value="60" th:selected="${condition.safeSize == 60}">60개씩</option>
+                </select>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-primary" type="submit">검색</button>
+                <a class="btn btn-secondary" th:href="@{/admin/nickname-reservations}">초기화</a>
+                <a class="btn btn-secondary" th:href="@{/admin}">관리자 홈</a>
+            </div>
+        </form>
+    </section>
+
+    <section class="card">
+        <div class="table-wrapper admin-table-wrap">
+            <table class="common-table">
+                <thead>
+                    <tr>
+                        <th class="table-cell-id">ID</th>
+                        <th class="table-cell-writer">닉네임</th>
+                        <th class="table-cell-status">사유</th>
+                        <th class="table-cell-date">만료 예정일</th>
+                        <th class="table-cell-date">생성 시각</th>
+                        <th class="table-cell-status">남은 기간</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${reservationPage.isEmpty()}">
+                    <td colspan="6">현재 예약된 닉네임이 없습니다.</td>
+                </tr>
+
+                <tr th:each="reservation : ${reservationPage.content}">
+                    <td class="table-cell-id" th:text="${reservation.id}"></td>
+
+                    <td class="table-cell-writer">
+                        <span class="table-title-text" th:text="${reservation.nickname}"></span>
+                    </td>
+
+                    <td class="table-cell-status" th:text="${reservation.displayReasonType}"></td>
+                    <td class="table-cell-date" th:text="${#temporals.format(reservation.expiresAt, 'yyyy-MM-dd HH:mm')}"></td>
+                    <td class="table-cell-date" th:text="${#temporals.format(reservation.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                    <td class="table-cell-status" th:text="${reservation.remainingTimeText}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card" th:if="${!reservationPage.isEmpty()}">
+        <p th:text="|총 ${reservationPage.totalElements}건 · ${reservationPage.number + 1}/${reservationPage.totalPages} 페이지|"></p>
+
+        <div class="actions"
+             th:replace="~{fragments/pagination :: pager(
+                ${reservationPage},
+                @{/admin/nickname-reservations},
+                ${'searchType=' + condition.searchType
+                    + '&keyword=' + (condition.keyword != null ? condition.keyword : '')
+                    + '&reasonType=' + (condition.reasonType != null ? condition.reasonType : '')
+                    + '&sort=' + condition.sort
+                    + '&size=' + condition.safeSize}
+             )}">
+        </div>
+    </section>
+</main>
+
+<script th:inline="javascript">
+    window.addEventListener('DOMContentLoaded', function () {
+        PageSizeManager.initPageSizeForm('adminNicknameReservationSearchForm');
+    });
+</script>
+
+<div th:replace="~{fragments/header :: siteFooter}"></div>
+</body>
+</html>

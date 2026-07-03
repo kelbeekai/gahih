@@ -1,0 +1,39 @@
+/* =========================================================
+   Component: 나눔·매매 거래 UI
+   - 거래 상태 배지
+   - 거래 유형 폼 안내
+   ========================================================= */
+
+.trade-status-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-right: 6px;
+    padding: 2px 6px;
+
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+
+    font-size: 0.82em;
+    font-weight: 700;
+    line-height: 1.25;
+    white-space: nowrap;
+}
+
+.trade-status-open {
+    border-color: rgba(31, 111, 97, 0.35);
+    background: rgba(31, 111, 97, 0.08);
+    color: var(--color-primary);
+}
+
+.trade-status-closed {
+    border-color: rgba(107, 114, 128, 0.35);
+    background: rgba(107, 114, 128, 0.08);
+    color: var(--color-muted);
+}
+
+.trade-status-closed + .table-title-text a,
+.trade-status-closed ~ .table-title-text a {
+    color: var(--color-muted);
+}

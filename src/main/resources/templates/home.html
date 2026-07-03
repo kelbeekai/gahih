@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: commonHeadContent('가힣 - 국가 선택')}"></th:block>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: siteHeader(${loginMember})}"></div>
+
+<main class="site-container">
+    <section class="card">
+        <h2 class="card-title">가힣 커뮤니티</h2>
+        <p>입장할 국가 커뮤니티를 선택해주세요.</p>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">국가 커뮤니티 선택</h2>
+
+        <ul class="board-summary-list">
+            <li th:each="community : ${communities}">
+                <strong th:text="${community.name}">국가명</strong>
+                <span class="text-muted" th:text="${community.continentName}">대륙</span>
+                <a class="btn btn-primary btn-small"
+                   th:href="@{/c/{communityCode}(communityCode=${community.code})}">
+                    입장하기
+                </a>
+            </li>
+        </ul>
+    </section>
+
+    <section class="card" th:if="${loginMember == null}">
+        <h2 class="card-title">회원 기능</h2>
+        <p>
+            <a class="btn btn-primary" th:href="@{/members/signup}">회원가입</a>
+            <a class="btn btn-secondary" th:href="@{/members/login}">로그인</a>
+        </p>
+    </section>
+</main>
+
+<div th:replace="~{fragments/header :: siteFooter}"></div>
+</body>
+</html>

@@ -1,0 +1,50 @@
+/* =========================================================
+   Page: 게시글 상세
+   - 상세 상단 메타/액션 정렬
+   - 첨부파일 목록/미리보기
+   - 상세 목록 컨텍스트 안내
+   ========================================================= */
+
+.detail-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.attachment-list {
+    margin-top: 12px;
+}
+
+.attachment-list-item {
+    margin: 8px 0;
+}
+
+.attachment-file-name {
+    display: inline-block;
+    max-width: 420px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    vertical-align: middle;
+}
+
+.attachment-preview-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.attachment-preview-item {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+}
+
+.context-description {
+    color: var(--color-muted);
+    margin-bottom: 12px;
+}

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: commonHeadContent('내가 쓴 글')}"></th:block>
+    <script defer th:src="@{/js/common/page-size.js}"></script>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: siteHeader(${loginMember})}"></div>
+
+<main class="site-container">
+    <section class="card">
+        <h2 class="card-title">내가 쓴 글</h2>
+
+        <p class="text-muted" th:if="${member != null and member.suspended}">
+            이용 제한 상태에서는 이용문의 게시판에 작성한 글만 확인할 수 있습니다.
+        </p>
+    </section>
+
+    <section class="card">
+        <form id="myPostSearchForm"
+              th:action="@{/c/{communityCode}/mypage/posts(communityCode=${currentCommunity.code})}"
+              method="get"
+              class="search-form">
+            <input type="hidden" name="page" th:value="${postPage.number + 1}">
+            <input type="hidden" data-role="current-page" th:value="${postPage.number + 1}">
+            <input type="hidden" data-role="current-size" th:value="${postPage.size}">
+
+            <div class="form-group">
+                <label class="form-label" for="categoryId">카테고리</label>
+                <select class="form-control" id="categoryId" name="categoryId">
+                    <option value="">전체</option>
+                    <option th:each="category : ${categories}"
+                            th:value="${category.id}"
+                            th:text="${category.name}"
+                            th:selected="${condition.categoryId != null and condition.categoryId == category.id}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="keyword">검색</label>
+                <input class="form-control"
+                       id="keyword"
+                       type="text"
+                       name="keyword"
+                       th:value="${condition.keyword}"
+                       placeholder="제목, 내용 검색">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="sort">정렬</label>
+                <select class="form-control" id="sort" name="sort">
+                    <option value="LATEST"
+                            th:selected="${condition.sort == T(com.gahih.domain.member.enumtype.MyPostSortType).LATEST}">
+                        최신순
+                    </option>
+                    <option value="OLDEST"
+                            th:selected="${condition.sort == T(com.gahih.domain.member.enumtype.MyPostSortType).OLDEST}">
+                        오래된순
+                    </option>
+                    <option value="VIEWS"
+                            th:selected="${condition.sort == T(com.gahih.domain.member.enumtype.MyPostSortType).VIEWS}">
+                        조회수순
+                    </option>
+                    <option value="LIKE_COUNT"
+                            th:selected="${condition.sort == T(com.gahih.domain.member.enumtype.MyPostSortType).LIKE_COUNT}">
+                        좋아요순
+                    </option>
+                    <option value="DISLIKE_COUNT"
+                            th:selected="${condition.sort == T(com.gahih.domain.member.enumtype.MyPostSortType).DISLIKE_COUNT}">
+                        싫어요순
+                    </option>
+                    <option value="COMMENT_COUNT"
+                            th:selected="${condition.sort == T(com.gahih.domain.member.enumtype.MyPostSortType).COMMENT_COUNT}">
+                        댓글순
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="size">목록 수</label>
+                <select class="form-control" id="size" name="size" data-role="page-size-select">
+                    <option value="20" th:selected="${condition.safeSize == 20}">20개씩</option>
+                    <option value="40" th:selected="${condition.safeSize == 40}">40개씩</option>
+                    <option value="60" th:selected="${condition.safeSize == 60}">60개씩</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="secret">비밀글</label>
+                <select class="form-control" id="secret" name="secret">
+                    <option value="" th:selected="${condition.secret == null}">전체</option>
+                    <option value="true" th:selected="${condition.secret == true}">비밀글만</option>
+                    <option value="false" th:selected="${condition.secret == false}">일반글만</option>
+                </select>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-primary" type="submit">검색</button>
+                <a class="btn btn-secondary"
+                   th:href="@{/c/{communityCode}/mypage/posts(communityCode=${currentCommunity.code})}">
+                    초기화
+                </a>
+            </div>
+        </form>
+    </section>
+
+    <section class="card">
+        <div class="table-wrapper">
+            <table class="common-table">
+                <thead>
+                    <tr>
+                        <th class="table-cell-category">카테고리</th>
+                        <th class="table-cell-title">제목</th>
+                        <th class="table-cell-number">조회수</th>
+                        <th class="table-cell-number">좋아요</th>
+                        <th class="table-cell-number">싫어요</th>
+                        <th class="table-cell-date">작성일</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${postPage.isEmpty()}">
+                    <td colspan="6">작성한 게시글이 없습니다.</td>
+                </tr>
+
+                <tr th:each="post : ${postPage.content}">
+                    <td th:text="${post.categoryName}"></td>
+                    <td class="table-cell-category" th:text="${post.categoryName}"></td>
+                    <td class="table-cell-title">
+                        <span th:if="${post.deletedOrBlinded}"
+                              class="status-label"
+                              th:text="${'[' + post.statusLabel + ']'}"></span>
+                        <span th:if="${post.pinned}" class="icon-marker">📌</span>
+                        <span th:if="${post.secret}" class="icon-marker">🔒</span>
+
+                        <span class="table-title-text">
+                            <a th:href="@{/c/{communityCode}/posts/{id}(
+                                    communityCode=${currentCommunity.code},
+                                    id=${post.postId},
+                                    source=${T(com.gahih.domain.post.enumtype.PostDetailSource).MY_POSTS},
+                                    categoryId=${condition.categoryId},
+                                    keyword=${condition.keyword},
+                                    secret=${condition.secret},
+                                    sort=${condition.sort},
+                                    page=${condition.safePage},
+                                    size=${condition.safeSize}
+                                )}"
+                               th:text="${post.displayTitle}"></a>
+                        </span>
+
+                        <span th:if="${post.hasAttachments}" th:text="|📎|"></span>
+                        <span th:if="${post.hasComments}" th:text="|(${post.commentCount})|"></span>
+                    </td>
+                    <td class="table-cell-number" th:text="${post.viewCount}"></td>
+                    <td class="table-cell-number" th:text="${post.likeCount}"></td>
+                    <td class="table-cell-number" th:text="${post.dislikeCount}"></td>
+                    <td class="table-cell-date">
+                    <td th:text="${post.viewCount}"></td>
+                    <td th:text="${post.likeCount}"></td>
+                    <td th:text="${post.dislikeCount}"></td>
+                    <td>
+                        <span th:text="${#temporals.format(post.displayTime, 'yyyy-MM-dd HH:mm')}"></span>
+                        <span th:if="${post.edited}"
+                              class="detail-small-muted detail-inline-spaced">
+                            (수정됨)
+                        </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card" th:if="${!postPage.isEmpty()}">
+        <p th:text="|총 ${postPage.totalElements}건 · ${postPage.number + 1}/${postPage.totalPages} 페이지|"></p>
+
+        <div class="actions"
+             th:replace="~{fragments/pagination :: pager(
+                ${postPage},
+                @{/c/{communityCode}/mypage/posts(communityCode=${currentCommunity.code})},
+                ${'categoryId=' + (condition.categoryId != null ? condition.categoryId : '')
+                    + '&keyword=' + (condition.keyword != null ? condition.keyword : '')
+                    + '&secret=' + (condition.secret != null ? condition.secret : '')
+                    + '&sort=' + condition.sort
+                    + '&size=' + condition.safeSize}
+             )}">
+        </div>
+    </section>
+</main>
+
+<script th:inline="javascript">
+    window.addEventListener('DOMContentLoaded', function () {
+        PageSizeManager.initPageSizeForm('myPostSearchForm');
+    });
+</script>
+<div th:replace="~{fragments/header :: siteFooter}"></div>
+</body>
+</html>

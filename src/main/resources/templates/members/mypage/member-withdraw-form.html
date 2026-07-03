@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: commonHeadContent('회원 탈퇴')}"></th:block>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: siteHeader(${loginMember})}"></div>
+
+<main class="site-container">
+    <section class="card">
+        <h2 class="card-title">회원 탈퇴</h2>
+
+        <p class="text-muted">
+            탈퇴하면 계정은 30일 동안 탈퇴 유예 상태(WITHDRAWN)로 전환됩니다.
+            유예 기간 동안에는 일반 서비스 이용이 제한되며, 복구 화면에서 계정을 되돌릴 수 있습니다.
+        </p>
+
+        <form th:action="@{/mypage/withdraw}"
+              method="post"
+              th:object="${memberWithdrawRequest}"
+              onsubmit="return confirm('정말 탈퇴하시겠습니까? 탈퇴 후 30일 동안은 복구 가능하지만 일반 서비스 이용은 제한됩니다.');">
+
+
+            <div class="global-error" th:if="${#fields.hasGlobalErrors()}">
+                <div th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">비밀번호 확인</label>
+                <input class="form-control" type="password" id="password" th:field="*{password}">
+                <div class="field-error" th:errors="*{password}"></div>
+            </div>
+
+            <button class="btn btn-danger" type="submit">탈퇴하기</button>
+        </form>
+    </section>
+</main>
+
+<div th:replace="~{fragments/header :: siteFooter}"></div>
+</body>
+</html>

@@ -1,0 +1,42 @@
+/* =========================================================
+   Component: 상태/알림 메시지
+   - 성공 메시지, 보조 안내문, 숨김 처리
+   ========================================================= */
+
+.success-message {
+    margin-bottom: 20px;
+
+    padding: 14px 16px;
+
+    border-radius: var(--radius-sm);
+
+    border: 1px solid rgba(31,111,97,0.3);
+
+    background: rgba(31,111,97,0.08);
+
+    color: var(--color-primary);
+}
+
+.text-muted {
+    color: var(--color-muted);
+}
+
+.field-info {
+    color: var(--color-muted);
+    font-size: 0.92rem;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.status-label {
+    margin-right: 6px;
+    color: var(--color-danger);
+    font-size: 0.9em;
+}
+
+.icon-marker {
+    margin-right: 6px;
+}
+

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="commentForm">
+    <section class="card" th:if="${postDetail.viewable and postDetail.commentAllowed and loginMember != null}">
+        <h3 class="card-title">댓글 작성</h3>
+
+        <form th:action="@{/c/{communityCode}/posts/{postId}/comments(
+                communityCode=${currentCommunity.code},
+                postId=${postDetail.id}
+              )}"
+              th:object="${commentCreateRequest}"
+              method="post">
+            <input type="hidden" name="fromCreate" th:value="${fromCreate}">
+
+            <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
+            <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: commentContextHiddenFields(${commentCondition})}"></th:block>
+
+            <div>
+                <textarea th:field="*{content}"
+                          placeholder="댓글을 입력하세요"
+                          class="form-control mention-aware-textarea"
+                          th:attr="data-focus-comment=${focusComment},
+                                   data-mention-limit-enabled=${@commentMentionService.isMentionLimitEnabled()},
+                                   data-max-mentions=${@commentMentionService.getMaxMentionCount()},
+                                   data-mention-regex=${@commentMentionService.getMentionRegexForClient()},
+                                   data-mention-targets=${#strings.arrayJoin(mentionableNicknames.toArray(), '||')}"></textarea>
+
+                <div class="mention-guide hidden">
+                    <span class="mention-count-text">태그 0명</span>
+                </div>
+
+                <div class="mention-limit-error hidden">
+                    댓글에서 태그는 최대 <span th:text="${@commentMentionService.getMaxMentionCount()}">3</span>명까지만 가능합니다.
+                </div>
+
+                <div class="mention-preview hidden">
+                    <div class="mention-preview-label">태그 미리보기</div>
+                    <div class="mention-preview-content"></div>
+                </div>
+
+                <div class="field-error" th:errors="*{content}"></div>
+            </div>
+
+            <button type="submit" class="btn btn-primary comment-submit-btn">댓글 등록</button>
+        </form>
+    </section>
+
+    <section class="card" th:if="${postDetail.commentAllowed and loginMember == null}">
+        <p>
+            댓글을 작성하려면
+            <a class="btn btn-primary btn-small" th:href="${commentLoginRedirectUrl}">로그인</a>
+            해주세요.
+        </p>
+    </section>
+</th:block>
+
+</html>

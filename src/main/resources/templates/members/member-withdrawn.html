@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: commonHeadContent('탈퇴 유예 안내')}"></th:block>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: siteHeader(${loginMember})}"></div>
+
+<main class="site-container">
+    <section class="card"
+             id="withdrawn-page"
+             th:attr="data-expire-at=${#temporals.format(withdrawnInfo.withdrawExpireAt, 'yyyy-MM-dd''T''HH:mm:ss')},
+                      data-server-now=${#temporals.format(serverNow, 'yyyy-MM-dd''T''HH:mm:ss')},
+                      data-expired=${withdrawnInfo.expired}">
+
+        <h2 class="card-title">탈퇴 유예 상태입니다</h2>
+
+        <p>
+            <strong th:text="${withdrawnInfo.nickname}">닉네임</strong>
+            님의 계정은 현재 탈퇴 유예 상태입니다.
+        </p>
+
+        <p th:if="${withdrawnInfo.withdrawnAt != null}">
+            탈퇴 신청 시각:
+            <span th:text="${#temporals.format(withdrawnInfo.withdrawnAt, 'yyyy-MM-dd HH:mm')}"></span>
+        </p>
+
+        <p th:if="${withdrawnInfo.withdrawExpireAt != null}">
+            복구 가능 만료 시각:
+            <span th:text="${#temporals.format(withdrawnInfo.withdrawExpireAt, 'yyyy-MM-dd HH:mm')}"></span>
+        </p>
+
+        <p th:if="${!withdrawnInfo.expired}">
+            남은 복구 가능 기간:
+            <strong id="withdraw-countdown">계산 중...</strong>
+        </p>
+
+        <div th:if="${!withdrawnInfo.expired}">
+            <p class="text-muted">
+                유예 기간 동안에는 일반 서비스 이용이 제한되며, 계정 복구만 가능합니다.
+            </p>
+
+            <form th:action="@{/members/restore}" method="post">
+                <button class="btn btn-primary" id="restore-button" type="submit">계정 복구하기</button>
+            </form>
+        </div>
+
+        <div th:if="${withdrawnInfo.expired}">
+            <p class="text-muted">
+                탈퇴 유예 기간이 만료되었습니다. 복구가 불가능합니다.
+            </p>
+        </div>
+    </section>
+</main>
+
+<script defer th:src="@{/js/members/member-withdrawn-countdown.js}"></script>
+<div th:replace="~{fragments/header :: siteFooter}"></div>
+</body>
+</html>

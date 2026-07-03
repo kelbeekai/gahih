@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="comments">
+    <section id="comments" class="card" th:if="${postDetail.viewable and (postDetail.commentAllowed or !#lists.isEmpty(comments))}">
+        <div  class="detail-header-row">
+            <h3 class="card-title">댓글</h3>
+
+            <form th:action="@{/c/{communityCode}/posts/{id}(
+                    communityCode=${currentCommunity.code},
+                    id=${postDetail.id}
+                  )}"
+                  method="get"
+                  style="margin: 0;">
+                <input type="hidden" name="fromCreate" th:value="${fromCreate}">
+                <input type="hidden" name="source" th:value="${detailContext.source}">
+                <input type="hidden" name="returnUrl" th:value="${detailContext.returnUrl}">
+                <input type="hidden" name="categoryId" th:value="${detailContext.categoryId}">
+                <input type="hidden" name="keyword" th:value="${detailContext.keyword}">
+                <input type="hidden" name="secret" th:value="${detailContext.secret}">
+                <input type="hidden" name="sort" th:value="${detailContext.sort}">
+                <input type="hidden" name="onlyWithAttachments" th:value="${detailContext.onlyWithAttachments}">
+                <input type="hidden" name="page" th:value="${detailContext.safePage}">
+                <input type="hidden" name="size" th:value="${detailContext.safeSize}">
+                <input type="hidden" name="commentPage" value="1">
+
+                <select class="form-control" name="commentSort" onchange="this.form.submit()">
+                    <option value="LIKE_COUNT"
+                            th:selected="${commentCondition.sort.name() == 'LIKE_COUNT'}">
+                        좋아요순
+                    </option>
+                    <option value="LATEST"
+                            th:selected="${commentCondition.sort.name() == 'LATEST'}">
+                        최신순
+                    </option>
+                    <option value="OLDEST"
+                            th:selected="${commentCondition.sort.name() == 'OLDEST'}">
+                        오래된순
+                    </option>
+                </select>
+            </form>
+        </div>
+
+        <div th:if="${#lists.isEmpty(comments)}">
+            <p>아직 댓글이 없습니다.</p>
+        </div>
+
+        <div th:each="comment : ${comments}" class="comment-item" th:attr="data-comment-id=${comment.id}">
+            <p>
+                <button th:if="${comment.mentionableWriter}"
+                        type="button"
+                        class="mention-insert-btn mention-text-btn"
+                        th:attr="data-mention=${comment.writerNickname}"
+                        th:text="${comment.writerNickname}">
+                </button>
+                <span th:unless="${comment.mentionableWriter}"
+                      class="text-strong"
+                      th:text="${comment.writerNickname}"></span>
+
+                <span th:text="${#temporals.format(comment.displayTime, 'yyyy-MM-dd HH:mm')}"></span>
+                <span th:if="${comment.edited}"
+                      class="detail-small-muted detail-inline-spaced">
+                    (수정됨)
+                </span>
+            </p>
+
+            <div th:if="${comment.canReportWriter}"
+                 class="detail-block-small-spaced">
+                <details class="inline-details">
+                    <summary>작성자 신고</summary>
+                    <form th:action="@{/reports}"
+                          method="post"
+                          class="inline-report-form"
+                          onsubmit="return confirm('이 회원을 신고하시겠습니까? 취소할 수 없습니다.');">
+
+                        <input type="hidden" name="targetType" value="MEMBER">
+                        <input type="hidden" name="targetId" th:value="${comment.writerId}">
+                        <input type="hidden" name="redirectUrl" th:value="${reportRedirectUrl}">
+                        <select class="form-control" name="reasonType">
+                            <option value="ABUSE_OR_HARASSMENT">욕설/괴롭힘</option>
+                            <option value="INAPPROPRIATE_NICKNAME">부적절한 닉네임</option>
+                            <option value="IMPERSONATION_OR_FRAUD">사칭/사기</option>
+                            <option value="OTHER">기타</option>
+                        </select>
+                        <button class="btn btn-danger btn-small" type="submit">제출</button>
+                    </form>
+                </details>
+            </div>
+
+            <p class="comment-content-view" th:utext="${comment.renderedContent}"></p>
+
+            <div th:if="${!comment.deletedOrBlinded}">
+                <form th:action="@{/c/{communityCode}/posts/{postId}/comments/{commentId}/edit(
+                        communityCode=${currentCommunity.code},
+                        postId=${postDetail.id},
+                        commentId=${comment.id}
+                      )}"
+                      method="post"
+                      class="comment-content-edit hidden">
+                    <input type="hidden" name="fromCreate" th:value="${fromCreate}">
+
+                    <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
+                    <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: commentContextHiddenFields(${commentCondition})}"></th:block>
+                    <textarea name="content"
+                              th:text="${comment.content}"
+                              placeholder="댓글을 수정하세요"
+                              class="form-control comment-edit-textarea mention-aware-textarea"
+                              th:attr="data-mention-limit-enabled=${@commentMentionService.isMentionLimitEnabled()},
+                                       data-max-mentions=${@commentMentionService.getMaxMentionCount()},
+                                       data-mention-regex=${@commentMentionService.getMentionRegexForClient()},
+                                       data-mention-targets=${#strings.arrayJoin(mentionableNicknames.toArray(), '||')}"></textarea>
+
+                    <div class="mention-guide hidden">
+                        <span class="mention-count-text">태그 0명</span>
+                    </div>
+
+                    <div class="mention-limit-error hidden">
+                        댓글에서 태그는 최대 <span th:text="${@commentMentionService.getMaxMentionCount()}">3</span>명까지만 가능합니다.
+                    </div>
+
+                    <div class="mention-preview hidden">
+                        <div class="mention-preview-label">태그 미리보기</div>
+                        <div class="mention-preview-content"></div>
+                    </div>
+
+                    <div class="comment-edit-actions">
+                        <button type="submit" class="btn btn-primary btn-small comment-submit-btn">수정 저장</button>
+                        <button type="button"
+                                class="btn btn-secondary btn-small comment-edit-cancel-btn"
+                                th:attr="data-comment-id=${comment.id}">
+                            취소
+                        </button>
+                    </div>
+                </form>
+
+                <div th:if="${postDetail.reactionAllowed}" class="detail-block-small-spaced">
+                    <span>좋아요 <strong th:text="${comment.likeCount}">0</strong></span>
+                    <span class="detail-inline-spaced">싫어요 <strong th:text="${comment.dislikeCount}">0</strong></span>
+
+                    <div class="detail-block-small-spaced">
+                        <form th:action="@{/c/{communityCode}/comments/{commentId}/like(
+                                communityCode=${currentCommunity.code},
+                                commentId=${comment.id}
+                              )}"
+                              method="post"
+                              class="inline-form">
+                            <input type="hidden" name="postId" th:value="${postDetail.id}">
+                            <input type="hidden" name="fromCreate" th:value="${fromCreate}">
+
+                            <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
+                            <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: commentContextHiddenFields(${commentCondition})}"></th:block>
+                            <button class="btn btn-secondary btn-small"
+                                    type="submit"
+                                    th:text="${comment.liked} ? '👍 좋아요 취소' : '👍 좋아요'">
+                                👍 좋아요
+                            </button>
+                        </form>
+
+                        <form th:action="@{/c/{communityCode}/comments/{commentId}/dislike(
+                                communityCode=${currentCommunity.code},
+                                commentId=${comment.id}
+                              )}"
+                              method="post"
+                              class="inline-form detail-inline-spaced">
+                            <input type="hidden" name="postId" th:value="${postDetail.id}">
+                            <input type="hidden" name="fromCreate" th:value="${fromCreate}">
+
+                            <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
+                            <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: commentContextHiddenFields(${commentCondition})}"></th:block>
+                            <button class="btn btn-secondary btn-small"
+                                    type="submit"
+                                    th:text="${comment.disliked} ? '👎 싫어요 취소' : '👎 싫어요'">
+                                👎 싫어요
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div th:if="${loginMember != null and loginMember.id == comment.writerId}"
+                     class="comment-owner-actions">
+                    <button type="button"
+                            class="btn btn-secondary btn-small comment-edit-open-btn"
+                            th:attr="data-comment-id=${comment.id}">
+                        댓글 수정
+                    </button>
+
+                    <form th:action="@{/c/{communityCode}/posts/{postId}/comments/{commentId}/delete(
+                            communityCode=${currentCommunity.code},
+                            postId=${postDetail.id},
+                            commentId=${comment.id}
+                          )}"
+                          method="post"
+                          class="inline-form"
+                          onsubmit="return confirm('정말 댓글을 삭제하시겠습니까?');">
+                        <input type="hidden" name="fromCreate" th:value="${fromCreate}">
+
+                        <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
+                        <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: commentContextHiddenFields(${commentCondition})}"></th:block>
+                        <button class="btn btn-danger btn-small" type="submit">댓글 삭제</button>
+                    </form>
+                </div>
+            </div>
+
+            <div th:if="${comment.canReportComment}"
+                 class="detail-block-small-spaced">
+                <details class="inline-details">
+                    <summary>댓글 신고</summary>
+                    <form th:action="@{/reports}"
+                          method="post"
+                          class="inline-report-form"
+                          onsubmit="return confirm('이 댓글을 신고하시겠습니까? 취소할 수 없습니다.');">
+
+                        <input type="hidden" name="targetType" value="COMMENT">
+                        <input type="hidden" name="targetId" th:value="${comment.id}">
+                        <input type="hidden" name="redirectUrl" th:value="${reportRedirectUrl}">
+                        <select class="form-control" name="reasonType">
+                            <option value="SPAM">스팸/광고</option>
+                            <option value="ABUSE_OR_HARASSMENT">욕설/괴롭힘</option>
+                            <option value="SEXUAL_OR_OBSCENE">음란/선정성</option>
+                            <option value="VIOLENCE_OR_ILLEGAL">폭력/불법</option>
+                            <option value="OTHER">기타</option>
+                        </select>
+                        <button class="btn btn-danger btn-small" type="submit">제출</button>
+                    </form>
+                </details>
+            </div>
+
+            <div th:if="${isAdmin}" class="detail-block-small-spaced">
+                <form th:if="${comment.canAdminBlind}"
+                      th:action="@{/c/{communityCode}/admin/comments/{commentId}/blind(
+                            communityCode=${currentCommunity.code},
+                            commentId=${comment.id}
+                      )}"
+                      method="post"
+                      class="inline-form">
+                    <input type="hidden" name="postId" th:value="${postDetail.id}">
+                    <input type="hidden" name="fromCreate" th:value="${fromCreate}">
+
+                    <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
+                    <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: commentContextHiddenFields(${commentCondition})}"></th:block>
+                    <button class="btn btn-danger btn-small" type="submit">관리자 댓글 블라인드</button>
+                </form>
+
+                <form th:if="${comment.canAdminRestore}"
+                      th:action="@{/c/{communityCode}/admin/comments/{commentId}/restore(
+                            communityCode=${currentCommunity.code},
+                            commentId=${comment.id}
+                      )}"
+                      method="post"
+                      class="inline-form detail-inline-spaced">
+                    <input type="hidden" name="postId" th:value="${postDetail.id}">
+                    <input type="hidden" name="fromCreate" th:value="${fromCreate}">
+
+                    <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
+                    <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: commentContextHiddenFields(${commentCondition})}"></th:block>
+                    <button class="btn btn-secondary btn-small" type="submit">댓글 복구</button>
+                </form>
+
+                <form th:if="${comment.canAdminDelete}"
+                      th:action="@{/c/{communityCode}/admin/comments/{commentId}/delete(
+                            communityCode=${currentCommunity.code},
+                            commentId=${comment.id}
+                      )}"
+                      method="post"
+                      class="inline-form detail-inline-spaced">
+                    <input type="hidden" name="postId" th:value="${postDetail.id}">
+                    <input type="hidden" name="fromCreate" th:value="${fromCreate}">
+
+                    <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
+                    <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: commentContextHiddenFields(${commentCondition})}"></th:block>
+                    <button class="btn btn-danger btn-small" type="submit">관리자 댓글 삭제</button>
+                </form>
+
+                <form th:if="${comment.canAdminHardDelete}"
+                      th:action="@{/c/{communityCode}/admin/comments/{commentId}/hard-delete(
+                            communityCode=${currentCommunity.code},
+                            commentId=${comment.id}
+                      )}"
+                      method="post"
+                      class="inline-form detail-inline-spaced"
+                      data-reason-required="true"
+                      data-reason-label="댓글 영구삭제 사유"
+                      data-reason-message="댓글 영구삭제 사유를 입력해주세요."
+                      data-confirm-message="이 댓글을 영구 삭제하시겠습니까? 되돌릴 수 없습니다.">
+                    <input type="hidden" name="postId" th:value="${postDetail.id}">
+                    <input type="hidden" name="fromCreate" th:value="${fromCreate}">
+
+                    <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
+                    <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: commentContextHiddenFields(${commentCondition})}"></th:block>
+                    <button class="btn btn-danger btn-small" type="submit">영구삭제</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="actions detail-block-small-spaced"
+             th:if="${commentPage != null and !commentPage.isEmpty()}"
+             th:replace="~{fragments/pagination :: namedPager(
+                ${commentPage},
+                @{/c/{communityCode}/posts/{id}(
+                    communityCode=${currentCommunity.code},
+                    id=${postDetail.id}
+                )},
+                'commentPage',
+                ${'fromCreate=' + fromCreate
+                    + '&source=' + detailContext.source
+                    + '&returnUrl=' + (detailContext.returnUrl != null ? detailContext.returnUrl : '')
+                    + '&categoryId=' + (detailContext.categoryId != null ? detailContext.categoryId : '')
+                    + '&keyword=' + (detailContext.keyword != null ? detailContext.keyword : '')
+                    + '&secret=' + (detailContext.secret != null ? detailContext.secret : '')
+                    + '&sort=' + (detailContext.sort != null ? detailContext.sort : '')
+                    + '&onlyWithAttachments=' + (detailContext.onlyWithAttachments != null ? detailContext.onlyWithAttachments : '')
+                    + '&page=' + detailContext.safePage
+                    + '&size=' + detailContext.safeSize
+                    + '&commentSort=' + commentCondition.sort}
+             )}">
+        </div>
+    </section>
+</th:block>
+
+</html>

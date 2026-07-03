@@ -1,0 +1,16 @@
+/* =========================================================
+   Page: 홈/커뮤니티 소개 카드
+   ========================================================= */
+
+.board-intro-card {
+    min-height: 140px;
+}
+
+.board-summary-list {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.board-summary-list li {
+    margin-bottom: 8px;
+}

@@ -1,0 +1,52 @@
+/* =========================================================
+   Header: 전체 헤더 뼈대
+   - sticky 사용 안 함
+   - 1층 유틸 헤더 + 2층 메인 헤더 구조
+   ========================================================= */
+
+.site-header {
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+}
+
+/* =========================================================
+   Header 1층: 유틸 바
+   - 국가 선택 드롭다운
+   - 로그인/회원가입
+   - 닉네임 드롭다운
+   - 로그아웃
+   - TODAY / TOTAL
+   ========================================================= */
+
+.site-utility-bar {
+    border-bottom: 1px solid var(--color-border);
+    background: #F9FAFB;
+}
+
+.site-utility-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 6px 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    font-size: 0.9rem;
+}
+
+.site-utility-user {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.site-visitor-stats {
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+

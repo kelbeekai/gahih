@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: commonHeadContent('신고 관리')}"></th:block>
+    <script defer th:src="@{/js/common/page-size.js}"></script>
+    <script defer th:src="@{/js/admin-action-reason.js}"></script>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: siteHeader(${loginMember})}"></div>
+
+<main class="site-container admin-container">
+    <section class="card">
+        <h2 class="card-title" th:if="${currentCommunity == null}">
+            전체 신고 관리
+        </h2>
+
+        <h2 class="card-title"
+            th:if="${currentCommunity != null}"
+            th:text="|${currentCommunity.name} 신고 관리|">
+            국가 신고 관리
+        </h2>
+
+        <p class="text-muted" th:if="${currentCommunity != null}">
+            현재 커뮤니티에서 발생한 게시글, 댓글, 첨부파일, 회원 신고를 보여줍니다.
+        </p>
+    </section>
+
+    <section class="card">
+        <form id="adminReportSearchForm"
+              th:action="${currentCommunity != null}
+                  ? @{/c/{communityCode}/admin/reports(communityCode=${currentCommunity.code})}
+                  : @{/admin/reports}"
+              method="get"
+              class="search-form">
+            <input type="hidden" name="page" th:value="${reportPage.number + 1}">
+            <input type="hidden" data-role="current-page" th:value="${reportPage.number + 1}">
+            <input type="hidden" data-role="current-size" th:value="${reportPage.size}">
+
+            <div class="form-group">
+                <label class="form-label" for="targetType">대상 타입</label>
+                <select class="form-control" id="targetType" name="targetType">
+                    <option value="" th:selected="${condition.targetType == null}">전체</option>
+                    <option th:each="type : ${targetTypes}"
+                            th:value="${type.name()}"
+                            th:text="${type.description}"
+                            th:selected="${condition.targetType == type}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="status">상태</label>
+                <select class="form-control" id="status" name="status">
+                    <option value="" th:selected="${condition.status == null}">전체</option>
+                    <option th:each="statusValue : ${statuses}"
+                            th:value="${statusValue.name()}"
+                            th:text="${statusValue.description}"
+                            th:selected="${condition.status == statusValue}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="searchType">검색 기준</label>
+                <select class="form-control" id="searchType" name="searchType">
+                    <option th:each="type : ${searchTypes}"
+                            th:value="${type.name()}"
+                            th:text="${type.description}"
+                            th:selected="${condition.searchType == type}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="keyword">검색어</label>
+                <input class="form-control"
+                       id="keyword"
+                       type="text"
+                       name="keyword"
+                       th:value="${condition.keyword}"
+                       placeholder="대상명, 작성자, 대상 ID, 상위 게시글 제목 검색">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="sort">정렬</label>
+                <select class="form-control" id="sort" name="sort">
+                    <option th:each="sortType : ${sortTypes}"
+                            th:value="${sortType.name()}"
+                            th:text="${sortType.description}"
+                            th:selected="${condition.sort == sortType}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="size">목록 수</label>
+                <select class="form-control" id="size" name="size" data-role="page-size-select">
+                    <option value="20" th:selected="${condition.safeSize == 20}">20개씩</option>
+                    <option value="40" th:selected="${condition.safeSize == 40}">40개씩</option>
+                    <option value="60" th:selected="${condition.safeSize == 60}">60개씩</option>
+                </select>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-primary" type="submit">적용</button>
+                <a class="btn btn-secondary"
+                   th:if="${currentCommunity != null}"
+                   th:href="@{/c/{communityCode}/admin/reports(communityCode=${currentCommunity.code})}">
+                    초기화
+                </a>
+
+                <a class="btn btn-secondary"
+                   th:if="${currentCommunity == null}"
+                   th:href="@{/admin/reports}">
+                    초기화
+                </a>
+            </div>
+        </form>
+    </section>
+
+    <th:block th:fragment="reportSearchHiddenFields(condition)">
+        <input type="hidden" name="targetType" th:value="${condition.targetType}">
+        <input type="hidden" name="status" th:value="${condition.status}">
+        <input type="hidden" name="searchType" th:value="${condition.searchType}">
+        <input type="hidden" name="keyword" th:value="${condition.keyword}">
+        <input type="hidden" name="sort" th:value="${condition.sort}">
+        <input type="hidden" name="size" th:value="${condition.safeSize}">
+        <input type="hidden" name="page" th:value="${reportPage.number + 1}">
+    </th:block>
+
+    <section class="card">
+        <div class="table-wrapper admin-table-wrap">
+            <table class="common-table">
+                <thead>
+                    <tr>
+                        <th class="table-cell-id">ID</th>
+                        <th class="table-cell-category" th:if="${currentCommunity == null}">국가</th>
+                        <th class="table-cell-status">대상 타입</th>
+                        <th class="table-cell-id">대상 ID</th>
+                        <th class="table-cell-title">대상명</th>
+                        <th class="table-cell-writer">작성자</th>
+                        <th class="table-cell-number">총 신고</th>
+                        <th class="table-cell-number">미조치</th>
+                        <th class="table-cell-status">상태</th>
+                        <th class="table-cell-date">마지막 신고</th>
+                        <th class="table-cell-action">이동</th>
+                        <th class="table-cell-action">관리</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${reportPage.isEmpty()}">
+                    <td colspan="12">신고된 대상이 없습니다.</td>
+                </tr>
+
+                <tr th:each="report : ${reportPage.content}">
+                    <td class="table-cell-id" th:text="${report.id}"></td>
+                    <td class="table-cell-category" th:if="${currentCommunity == null}" th:text="${report.displayCommunityName}">국가</td>
+                    <td class="table-cell-status" th:text="${report.targetType.description}"></td>
+                    <td class="table-cell-id" th:text="${report.targetId}"></td>
+
+                    <td class="table-cell-title">
+                        <span class="table-title-text" th:text="${report.displayTargetName}"></span>
+                    </td>
+
+                    <td class="table-cell-writer" th:text="${report.writerNicknameSnapshot} ?: '-'"></td>
+                    <td class="table-cell-number" th:text="${report.totalReportCount}"></td>
+                    <td class="table-cell-number" th:text="${report.pendingReportCount}"></td>
+                    <td class="table-cell-status" th:text="${report.status.description}"></td>
+                    <td class="table-cell-date" th:text="${report.lastReportedAt != null ? #temporals.format(report.lastReportedAt, 'yyyy-MM-dd HH:mm') : '-'}"></td>
+                    <td class="table-cell-action">
+                        <a class="btn btn-secondary btn-small"
+                           th:if="${report.memberTarget}"
+                           th:href="@{/admin/members/{id}(
+                                id=${report.targetId},
+                                returnUrl=${currentCommunity != null
+                                    ? '/c/' + currentCommunity.code + '/admin/reports?targetType=' + (condition.targetType != null ? condition.targetType.name() : '') + '&status=' + (condition.status != null ? condition.status.name() : '') + '&searchType=' + condition.searchType + '&keyword=' + (condition.keyword != null ? condition.keyword : '') + '&sort=' + condition.sort + '&size=' + condition.safeSize + '&page=' + (reportPage.number + 1)
+                                    : '/admin/reports?targetType=' + (condition.targetType != null ? condition.targetType.name() : '') + '&status=' + (condition.status != null ? condition.status.name() : '') + '&searchType=' + condition.searchType + '&keyword=' + (condition.keyword != null ? condition.keyword : '') + '&sort=' + condition.sort + '&size=' + condition.safeSize + '&page=' + (reportPage.number + 1)}
+                           )}">
+                            회원 상세
+                        </a>
+
+                        <a class="btn btn-secondary btn-small"
+                           th:if="${report.postTarget}"
+                           th:href="@{/c/{communityCode}/posts/{id}(
+                                communityCode=${currentCommunity != null ? currentCommunity.code : report.communityCode},
+                                id=${report.targetId},
+                                source=${T(com.gahih.domain.post.enumtype.PostDetailSource).ADMIN_REPORTS},
+                                returnUrl=${currentCommunity != null
+                                    ? '/c/' + currentCommunity.code + '/admin/reports?targetType=' + (condition.targetType != null ? condition.targetType.name() : '') + '&status=' + (condition.status != null ? condition.status.name() : '') + '&searchType=' + condition.searchType + '&keyword=' + (condition.keyword != null ? condition.keyword : '') + '&sort=' + condition.sort + '&size=' + condition.safeSize + '&page=' + (reportPage.number + 1)
+                                    : '/admin/reports?targetType=' + (condition.targetType != null ? condition.targetType.name() : '') + '&status=' + (condition.status != null ? condition.status.name() : '') + '&searchType=' + condition.searchType + '&keyword=' + (condition.keyword != null ? condition.keyword : '') + '&sort=' + condition.sort + '&size=' + condition.safeSize + '&page=' + (reportPage.number + 1)}
+                           )}">
+                            게시글 이동
+                        </a>
+
+                        <a class="btn btn-secondary btn-small"
+                           th:if="${report.commentTarget or report.attachmentTarget}"
+                           th:href="${report.parentPostId != null and report.communityCode != null
+                                ? '/c/' + (currentCommunity != null ? currentCommunity.code : report.communityCode)
+                                    + '/posts/' + report.parentPostId
+                                    + '?source=ADMIN_REPORTS'
+                                    + '&returnUrl=' + #uris.escapePath(currentCommunity != null
+                                        ? '/c/' + currentCommunity.code + '/admin/reports?targetType=' + (condition.targetType != null ? condition.targetType.name() : '') + '&status=' + (condition.status != null ? condition.status.name() : '') + '&searchType=' + condition.searchType + '&keyword=' + (condition.keyword != null ? condition.keyword : '') + '&sort=' + condition.sort + '&size=' + condition.safeSize + '&page=' + (reportPage.number + 1)
+                                        : '/admin/reports?targetType=' + (condition.targetType != null ? condition.targetType.name() : '') + '&status=' + (condition.status != null ? condition.status.name() : '') + '&searchType=' + condition.searchType + '&keyword=' + (condition.keyword != null ? condition.keyword : '') + '&sort=' + condition.sort + '&size=' + condition.safeSize + '&page=' + (reportPage.number + 1))
+                                : (currentCommunity != null ? '/c/' + currentCommunity.code + '/admin/reports' : '/admin/reports')}">
+                            게시글 이동
+                        </a>
+                    </td>
+                    <td class="table-cell-action">
+                        <form th:if="${report.pending and currentCommunity == null}"
+                              th:action="@{/admin/reports/{targetType}/{targetId}/no-action(
+                                    targetType=${report.targetType.name()},
+                                    targetId=${report.targetId}
+                              )}"
+                              method="post"
+                              class="inline-form"
+                              data-reason-required="false"
+                              data-reason-label="조치 필요 없음 사유"
+                              data-reason-optional-message="조치 필요 없음 사유를 입력하세요. 비워두면 사유 없이 처리됩니다."
+                              data-confirm-message="이 신고 대상을 조치 필요 없음으로 처리하시겠습니까?">
+
+                            <th:block th:replace="~{admin/reports :: reportSearchHiddenFields(${condition})}"></th:block>
+                            <button class="btn btn-secondary btn-small" type="submit">조치 필요 없음</button>
+                        </form>
+
+                        <form th:if="${report.pending and currentCommunity != null}"
+                              th:action="@{/c/{communityCode}/admin/reports/{targetType}/{targetId}/no-action(
+                                    communityCode=${currentCommunity.code},
+                                    targetType=${report.targetType.name()},
+                                    targetId=${report.targetId}
+                              )}"
+                              method="post"
+                              class="inline-form"
+                              data-reason-required="false"
+                              data-reason-label="조치 필요 없음 사유"
+                              data-reason-optional-message="조치 필요 없음 사유를 입력하세요. 비워두면 사유 없이 처리됩니다."
+                              data-confirm-message="이 신고 대상을 조치 필요 없음으로 처리하시겠습니까?">
+
+                            <th:block th:replace="~{admin/reports :: reportSearchHiddenFields(${condition})}"></th:block>
+                            <button class="btn btn-secondary btn-small" type="submit">조치 필요 없음</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card" th:if="${!reportPage.isEmpty()}">
+        <p th:text="|총 ${reportPage.totalElements}건 · ${reportPage.number + 1}/${reportPage.totalPages} 페이지|"></p>
+
+        <th:block th:if="${currentCommunity != null}">
+            <div class="actions"
+                 th:replace="~{fragments/pagination :: pager(
+                    ${reportPage},
+                    @{/c/{communityCode}/admin/reports(communityCode=${currentCommunity.code})},
+                    ${'targetType=' + (condition.targetType != null ? condition.targetType : '')
+                        + '&status=' + (condition.status != null ? condition.status : '')
+                        + '&searchType=' + condition.searchType
+                        + '&keyword=' + (condition.keyword != null ? condition.keyword : '')
+                        + '&sort=' + condition.sort
+                        + '&size=' + condition.safeSize}
+                 )}">
+            </div>
+        </th:block>
+
+        <th:block th:if="${currentCommunity == null}">
+            <div class="actions"
+                 th:replace="~{fragments/pagination :: pager(
+                    ${reportPage},
+                    @{/admin/reports},
+                    ${'targetType=' + (condition.targetType != null ? condition.targetType : '')
+                        + '&status=' + (condition.status != null ? condition.status : '')
+                        + '&searchType=' + condition.searchType
+                        + '&keyword=' + (condition.keyword != null ? condition.keyword : '')
+                        + '&sort=' + condition.sort
+                        + '&size=' + condition.safeSize}
+                 )}">
+            </div>
+        </th:block>
+    </section>
+
+    <section class="card">
+        <div class="actions">
+            <a class="btn btn-secondary"
+               th:if="${currentCommunity != null}"
+               th:href="@{/c/{communityCode}/admin(communityCode=${currentCommunity.code})}">
+                국가 관리자 홈으로
+            </a>
+
+            <a class="btn btn-secondary"
+               th:if="${currentCommunity == null}"
+               th:href="@{/admin}">
+                관리자 홈으로
+            </a>
+        </div>
+    </section>
+</main>
+
+<script th:inline="javascript">
+    window.addEventListener('DOMContentLoaded', function () {
+        PageSizeManager.initPageSizeForm('adminReportSearchForm');
+    });
+</script>
+
+<div th:replace="~{fragments/header :: siteFooter}"></div>
+</body>
+</html>

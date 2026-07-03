@@ -1,0 +1,35 @@
+/* =========================================================
+   Floating scroll buttons
+   - 최상단/최하단 이동
+   ========================================================= */
+
+.floating-scroll-buttons {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 300;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.floating-scroll-buttons button {
+    width: 42px;
+    height: 42px;
+
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+
+    background: var(--color-surface);
+    color: var(--color-primary);
+
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+}
+
+.floating-scroll-buttons button:hover {
+    background: rgba(31,111,97,0.08);
+}
+

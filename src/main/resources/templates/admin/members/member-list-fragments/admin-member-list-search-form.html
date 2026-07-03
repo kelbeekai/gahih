@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="adminMemberSearchForm">
+    <section class="card">
+        <form id="adminMemberSearchForm" th:action="@{/admin/members}" method="get" class="search-form">
+            <input type="hidden" name="page" th:value="${memberPage.number + 1}">
+            <input type="hidden" data-role="current-page" th:value="${memberPage.number + 1}">
+            <input type="hidden" data-role="current-size" th:value="${memberPage.size}">
+
+            <div class="form-group">
+                <label class="form-label" for="searchType">검색 항목</label>
+                <select class="form-control" id="searchType" name="searchType">
+                    <option th:each="searchType : ${searchTypes}"
+                            th:value="${searchType.name()}"
+                            th:text="${searchType.name()}"
+                            th:selected="${condition.searchType == searchType}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="keyword">검색어</label>
+                <input class="form-control"
+                       id="keyword"
+                       type="text"
+                       name="keyword"
+                       th:value="${condition.keyword}"
+                       placeholder="아이디, 닉네임, 이메일, 권한, 상태 검색">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="role">권한 필터</label>
+                <select class="form-control" id="role" name="role">
+                    <option value="">전체</option>
+                    <option th:each="role : ${roles}"
+                            th:value="${role.name()}"
+                            th:text="${role.name()}"
+                            th:selected="${condition.role == role}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="status">상태 필터</label>
+                <select class="form-control" id="status" name="status">
+                    <option value="">전체</option>
+                    <option th:each="status : ${statuses}"
+                            th:value="${status.name()}"
+                            th:text="${status.name()}"
+                            th:selected="${condition.status == status}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="sort">정렬</label>
+                <select class="form-control" id="sort" name="sort">
+                    <option value="LATEST" th:selected="${condition.sort == T(com.gahih.domain.admin.enumtype.AdminMemberSortType).LATEST}">최신 가입순</option>
+                    <option value="OLDEST" th:selected="${condition.sort == T(com.gahih.domain.admin.enumtype.AdminMemberSortType).OLDEST}">오래된 순</option>
+                    <option value="NICKNAME" th:selected="${condition.sort == T(com.gahih.domain.admin.enumtype.AdminMemberSortType).NICKNAME}">닉네임순</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="size">목록 수</label>
+                <select class="form-control" id="size" name="size" data-role="page-size-select">
+                    <option value="20" th:selected="${condition.safeSize == 20}">20개씩</option>
+                    <option value="40" th:selected="${condition.safeSize == 40}">40개씩</option>
+                    <option value="60" th:selected="${condition.safeSize == 60}">60개씩</option>
+                </select>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-primary" type="submit">검색</button>
+                <a class="btn btn-secondary" th:href="@{/admin/members}">초기화</a>
+            </div>
+        </form>
+    </section>
+</th:block>
+
+</html>

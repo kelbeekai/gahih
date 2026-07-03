@@ -1,0 +1,55 @@
+/* =========================================================
+   Component: 폼
+   - 입력 그룹, 라벨, 입력창, 필드 오류, 전역 오류
+   ========================================================= */
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-weight: 600;
+}
+
+.form-control {
+    width: 100%;
+
+    padding: 12px;
+
+    border: 1px solid var(--color-border);
+
+    border-radius: var(--radius-sm);
+
+    background: white;
+}
+
+textarea.form-control {
+    min-height: 140px;
+}
+
+.field-error {
+    margin-top: 6px;
+
+    color: var(--color-danger);
+
+    font-size: 0.92rem;
+}
+
+.global-error {
+    margin-bottom: 20px;
+
+    padding: 14px 16px;
+
+    border-radius: var(--radius-sm);
+
+    border: 1px solid rgba(192,57,43,0.3);
+
+    background: rgba(192,57,43,0.08);
+
+    color: var(--color-danger);
+}
+

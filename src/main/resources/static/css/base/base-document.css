@@ -1,0 +1,22 @@
+/* =========================================================
+   Base: 문서/본문 기본 스타일
+   - 기본 배경색, 글자색, 폰트, 줄간격
+   ========================================================= */
+
+html {
+    font-size: 16px;
+}
+
+body {
+    margin: 0;
+    background: var(--color-bg);
+    color: var(--color-text);
+
+    font-family:
+        "Pretendard",
+        "Noto Sans KR",
+        sans-serif;
+
+    line-height: 1.6;
+}
+

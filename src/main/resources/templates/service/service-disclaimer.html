@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: commonHeadContent('면책문구')}"></th:block>
+</head>
+<body>
+<div th:replace="~{fragments/header :: siteHeader(${loginMember})}"></div>
+
+<main class="site-container">
+    <section class="card">
+        <h2 class="card-title">면책문구</h2>
+        <p class="text-muted">가힣 서비스 이용 시 참고해야 할 책임 범위 안내입니다.</p>
+    </section>
+
+    <section class="card">
+        <h3 class="card-title">1. 게시물 책임</h3>
+        <p>회원이 작성한 게시글과 댓글의 책임은 작성자 본인에게 있습니다.</p>
+
+        <h3 class="card-title">2. 정보의 정확성</h3>
+        <p>커뮤니티에 게시된 정보는 참고용이며, 중요한 결정은 반드시 별도 확인 후 진행해야 합니다.</p>
+
+        <h3 class="card-title">3. 외부 거래와 분쟁</h3>
+        <p>회원 간 거래, 구인구직, 주거 정보 등에서 발생하는 분쟁에 대해 서비스는 직접적인 책임을 지지 않습니다.</p>
+    </section>
+</main>
+
+<div th:replace="~{fragments/header :: siteFooter}"></div>
+</body>
+</html>

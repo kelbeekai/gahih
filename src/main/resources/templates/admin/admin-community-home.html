@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: commonHeadContent(${currentCommunity.name + ' 관리자 페이지'})}"></th:block>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: siteHeader(${loginMember})}"></div>
+
+<main class="site-container admin-container">
+    <section class="card">
+        <h2 class="card-title" th:text="|${currentCommunity.name} 관리자 페이지|">
+            국가 관리자 페이지
+        </h2>
+
+        <p class="text-muted">
+            현재 커뮤니티의 게시글과 댓글을 관리합니다.
+        </p>
+
+        <div class="actions">
+            <a class="btn btn-secondary"
+               th:href="@{/c/{communityCode}/admin/posts(communityCode=${currentCommunity.code})}">
+                게시글 관리
+            </a>
+
+            <a class="btn btn-secondary"
+               th:href="@{/c/{communityCode}/admin/comments(communityCode=${currentCommunity.code})}">
+                댓글 관리
+            </a>
+
+            <a class="btn btn-secondary"
+               th:href="@{/c/{communityCode}/admin/reports(communityCode=${currentCommunity.code})}">
+                신고 관리
+            </a>
+
+            <a class="btn btn-secondary"
+               th:href="@{/admin/logs(targetCommunityCode=${currentCommunity.code})}">
+                이 커뮤니티 관련 관리자 로그
+            </a>
+
+            <a class="btn btn-secondary"
+               th:href="@{/admin}">
+                전역 관리자 페이지
+            </a>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{fragments/header :: siteFooter}"></div>
+</body>
+</html>

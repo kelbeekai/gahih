@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: commonHeadContent('게시글 관리')}"></th:block>
+    <script defer th:src="@{/js/common/page-size.js}"></script>
+    <script defer th:src="@{/js/admin/admin-action-reason.js}"></script>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: siteHeader(${loginMember})}"></div>
+
+<main class="site-container admin-container">
+    <section class="card">
+        <h2 class="card-title" th:if="${currentCommunity == null}">
+            전체 게시글 관리
+        </h2>
+
+        <h2 class="card-title"
+            th:if="${currentCommunity != null}"
+            th:text="|${currentCommunity.name} 게시글 관리|">
+            국가 게시글 관리
+        </h2>
+    </section>
+
+    <section class="card">
+        <form id="adminPostSearchForm"
+              th:action="${currentCommunity != null}
+              ? @{/c/{communityCode}/admin/posts(communityCode=${currentCommunity.code})}
+              : @{/admin/posts}"
+              method="get"
+              class="search-form">
+            <input type="hidden" name="page" th:value="${postPage.number + 1}">
+            <input type="hidden" data-role="current-page" th:value="${postPage.number + 1}">
+            <input type="hidden" data-role="current-size" th:value="${postPage.size}">
+            <div class="form-group">
+                <label class="form-label" for="categoryId">카테고리</label>
+                <select class="form-control" id="categoryId" name="categoryId">
+                    <option value="">전체</option>
+                    <option th:each="category : ${categories}"
+                            th:value="${category.id}"
+                            th:text="${currentCommunity != null
+                                ? category.name
+                                : '[' + category.countryCommunity.name + '] ' + category.name}"
+                            th:selected="${condition.categoryId != null and condition.categoryId == category.id}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="keyword">검색</label>
+                <input class="form-control"
+                       id="keyword"
+                       type="text"
+                       name="keyword"
+                       th:value="${condition.keyword}"
+                       placeholder="제목, 내용, 작성자 검색">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="sort">정렬</label>
+                <select class="form-control" id="sort" name="sort">
+                    <option value="LATEST"
+                            th:selected="${condition.sort == T(com.gahih.domain.admin.enumtype.AdminPostSortType).LATEST}">
+                        최신순
+                    </option>
+                    <option value="OLDEST"
+                            th:selected="${condition.sort == T(com.gahih.domain.admin.enumtype.AdminPostSortType).OLDEST}">
+                        오래된순
+                    </option>
+                    <option value="VIEWS"
+                            th:selected="${condition.sort == T(com.gahih.domain.admin.enumtype.AdminPostSortType).VIEWS}">
+                        조회수순
+                    </option>
+                    <option value="LIKE_COUNT"
+                            th:selected="${condition.sort == T(com.gahih.domain.admin.enumtype.AdminPostSortType).LIKE_COUNT}">
+                        좋아요순
+                    </option>
+                    <option value="DISLIKE_COUNT"
+                            th:selected="${condition.sort == T(com.gahih.domain.admin.enumtype.AdminPostSortType).DISLIKE_COUNT}">
+                        싫어요순
+                    </option>
+                    <option value="COMMENT_COUNT"
+                            th:selected="${condition.sort == T(com.gahih.domain.admin.enumtype.AdminPostSortType).COMMENT_COUNT}">
+                        댓글순
+                    </option>
+                    <option value="ATTACHMENT_DOWNLOADS"
+                            th:selected="${condition.sort == T(com.gahih.domain.admin.enumtype.AdminPostSortType).ATTACHMENT_DOWNLOADS}">
+                        첨부 다운로드순
+                    </option>
+                    <option value="ZIP_DOWNLOADS"
+                            th:selected="${condition.sort == T(com.gahih.domain.admin.enumtype.AdminPostSortType).ZIP_DOWNLOADS}">
+                        ZIP 다운로드순
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="size">목록 수</label>
+                <select class="form-control" id="size" name="size" data-role="page-size-select">
+                    <option value="20" th:selected="${condition.safeSize == 20}">20개씩</option>
+                    <option value="40" th:selected="${condition.safeSize == 40}">40개씩</option>
+                    <option value="60" th:selected="${condition.safeSize == 60}">60개씩</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="secret">비밀글</label>
+                <select class="form-control" id="secret" name="secret">
+                    <option value="" th:selected="${condition.secret == null}">전체</option>
+                    <option value="true" th:selected="${condition.secret == true}">비밀글만</option>
+                    <option value="false" th:selected="${condition.secret == false}">일반글만</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox"
+                           name="onlyWithAttachments"
+                           value="true"
+                           th:checked="${condition.onlyWithAttachments}">
+                    첨부파일 여부
+                </label>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-primary" type="submit">적용</button>
+                <a class="btn btn-secondary"
+                   th:if="${currentCommunity != null}"
+                   th:href="@{/c/{communityCode}/admin/posts(communityCode=${currentCommunity.code})}">
+                    초기화
+                </a>
+
+                <a class="btn btn-secondary"
+                   th:if="${currentCommunity == null}"
+                   th:href="@{/admin/posts}">
+                    초기화
+                </a>
+            </div>
+        </form>
+    </section>
+
+    <th:block th:fragment="postsSearchHiddenFields(condition)">
+        <input type="hidden" name="categoryId" th:value="${condition.categoryId}">
+        <input type="hidden" name="keyword" th:value="${condition.keyword}">
+        <input type="hidden" name="secret" th:value="${condition.secret}">
+        <input type="hidden" name="sort" th:value="${condition.sort}">
+        <input type="hidden" name="onlyWithAttachments" th:value="${condition.onlyWithAttachments}">
+        <input type="hidden" name="size" th:value="${condition.safeSize}">
+        <input type="hidden" name="page" th:value="${postPage.number + 1}">
+    </th:block>
+
+    <section class="card">
+        <div class="table-wrapper admin-table-wrap">
+            <table class="common-table">
+                <thead>
+                    <tr>
+                        <th class="table-cell-id">ID</th>
+                        <th class="table-cell-status">고정</th>
+                        <th class="table-cell-category" th:if="${currentCommunity == null}">국가</th>
+                        <th class="table-cell-category">카테고리</th>
+                        <th class="table-cell-title">제목</th>
+                        <th class="table-cell-writer">작성자</th>
+                        <th class="table-cell-number">조회수</th>
+                        <th class="table-cell-number">좋아요</th>
+                        <th class="table-cell-number">싫어요</th>
+                        <th class="table-cell-date">작성일</th>
+                        <th class="table-cell-number">첨부파일</th>
+                        <th class="table-cell-number">첨부 다운로드</th>
+                        <th class="table-cell-number">ZIP 다운로드</th>
+                        <th class="table-cell-status">신고(미조치/총)</th>
+                        <th class="table-cell-action">관리</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                <tr th:each="post : ${pinnedPosts}"
+                    style="background-color: #fff8e1;">
+                    <td class="table-cell-id" th:text="${post.id}"></td>
+                    <td class="table-cell-status">📌</td>
+                    <td class="table-cell-category" th:if="${currentCommunity == null}" th:text="${post.communityName}">국가</td>
+                    <td class="table-cell-category" th:text="${post.categoryName}"></td>
+                    <td class="table-cell-title">
+                        <span th:if="${post.deletedOrBlinded}"
+                              class="status-label"
+                              th:text="${'[' + post.statusLabel + ']'}"></span>
+                                            <span th:if="${post.secret}" class="icon-marker">🔒</span>
+
+                        <span class="table-title-text">
+                            <a th:href="@{/c/{communityCode}/posts/{id}(
+                                    communityCode=${currentCommunity != null ? currentCommunity.code : post.communityCode},
+                                    id=${post.id},
+                                    source=${T(com.gahih.domain.post.enumtype.PostDetailSource).ADMIN_POSTS},
+                                    categoryId=${condition.categoryId},
+                                    keyword=${condition.keyword},
+                                    secret=${condition.secret},
+                                    sort=${condition.sort},
+                                    onlyWithAttachments=${condition.onlyWithAttachments},
+                                    page=${postPage.number + 1},
+                                    size=${condition.safeSize}
+                                )}"
+                               th:text="${post.displayTitle}"></a>
+                        </span>
+
+                        <span th:if="${post.hasAttachments}" th:text="|📎|"></span>
+                        <span th:if="${post.hasComments}" th:text="| (${post.commentCount})|"></span>
+                    </td>
+                    <td class="table-cell-writer" th:text="${post.writerNickname}"></td>
+                    <td class="table-cell-number" th:text="${post.viewCount}"></td>
+                    <td class="table-cell-number" th:text="${post.likeCount}"></td>
+                    <td class="table-cell-number" th:text="${post.dislikeCount}"></td>
+                    <td class="table-cell-date">
+                        <span th:text="${#temporals.format(post.displayTime, 'yyyy-MM-dd HH:mm')}"></span>
+                        <span th:if="${post.edited}"
+                              class="detail-small-muted detail-inline-spaced">
+                            (수정됨)
+                        </span>
+                    </td>
+                    <td class="table-cell-number">
+                        <span th:if="${!post.hasAttachments}">없음</span>
+                        <span th:if="${post.hasAttachments}" th:text="|${post.attachmentCount}개|"></span>
+                    </td>
+                    <td class="table-cell-number" th:text="|${post.attachmentDownloadCount}회|"></td>
+                    <td class="table-cell-number" th:text="|${post.zipDownloadCount}회|"></td>
+                    <td class="table-cell-status" th:text="${post.reportSummary}"></td>
+                    <td class="table-cell-action">
+                        <form th:action="${currentCommunity != null}
+                            ? @{/c/{communityCode}/admin/posts/{id}/unpin(
+                                communityCode=${currentCommunity.code},
+                                id=${post.id}
+                              )}
+                            : @{/admin/posts/{id}/unpin(id=${post.id})}"
+                                  method="post"
+                                  class="inline-form">
+
+                            <th:block th:replace="~{admin/posts/list :: postsSearchHiddenFields(${condition})}"></th:block>
+                            <button class="btn btn-secondary btn-small" type="submit">고정 해제</button>
+                        </form>
+                    </td>
+                </tr>
+
+                <tr th:if="${postPage.isEmpty()}">
+                    <td colspan="16">등록된 게시글이 없습니다.</td>
+                </tr>
+
+                <tr th:each="post : ${postPage.content}">
+                    <td class="table-cell-id" th:text="${post.id}"></td>
+                    <td class="table-cell-status">
+                        <span th:if="${post.pinned}">📌</span>
+                        <span th:if="${!post.pinned}">-</span>
+                    </td>
+                    <td class="table-cell-category" th:if="${currentCommunity == null}" th:text="${post.communityName}">국가</td>
+                    <td class="table-cell-category" th:text="${post.categoryName}"></td>
+                    <td class="table-cell-title">
+                        <span th:if="${post.deletedOrBlinded}"
+                              class="status-label"
+                              th:text="${'[' + post.statusLabel + ']'}"></span>
+                        <span th:if="${post.secret}" class="icon-marker">🔒</span>
+
+                        <span class="table-title-text">
+                            <a th:href="@{/c/{communityCode}/posts/{id}(
+                                    communityCode=${currentCommunity != null ? currentCommunity.code : post.communityCode},
+                                    id=${post.id},
+                                    source=${T(com.gahih.domain.post.enumtype.PostDetailSource).ADMIN_POSTS},
+                                    categoryId=${condition.categoryId},
+                                    keyword=${condition.keyword},
+                                    secret=${condition.secret},
+                                    sort=${condition.sort},
+                                    onlyWithAttachments=${condition.onlyWithAttachments},
+                                    page=${postPage.number + 1},
+                                    size=${condition.safeSize}
+                                )}"
+                               th:text="${post.displayTitle}"></a>
+                        </span>
+
+                        <span th:if="${post.hasAttachments}" th:text="|📎|"></span>
+                        <span th:if="${post.hasComments}" th:text="| (${post.commentCount})|"></span>
+                    </td>
+                    <td class="table-cell-writer" th:text="${post.writerNickname}"></td>
+                    <td class="table-cell-number" th:text="${post.viewCount}"></td>
+                    <td class="table-cell-number" th:text="${post.likeCount}"></td>
+                    <td class="table-cell-number" th:text="${post.dislikeCount}"></td>
+                    <td class="table-cell-date">
+                        <span th:text="${#temporals.format(post.displayTime, 'yyyy-MM-dd HH:mm')}"></span>
+                        <span th:if="${post.edited}"
+                              class="detail-small-muted detail-inline-spaced">
+                            (수정됨)
+                        </span>
+                    </td>
+                    <td class="table-cell-number">
+                        <span th:if="${!post.hasAttachments}">없음</span>
+                        <span th:if="${post.hasAttachments}" th:text="|${post.attachmentCount}개|">0개</span>
+                    </td>
+                    <td class="table-cell-number" th:text="|${post.attachmentDownloadCount}회|">0회</td>
+                    <td class="table-cell-number" th:text="|${post.zipDownloadCount}회|">0회</td>
+                    <td class="table-cell-status" th:text="${post.reportSummary}"></td>
+                    <td class="table-cell-action">
+                        <form th:if="${post.pinned}"
+                              th:action="${currentCommunity != null}
+                                ? @{/c/{communityCode}/admin/posts/{id}/unpin(
+                                    communityCode=${currentCommunity.code},
+                                    id=${post.id}
+                                  )}
+                                : @{/admin/posts/{id}/unpin(id=${post.id})}"
+                              method="post"
+                              class="inline-form">
+
+                            <th:block th:replace="~{admin/posts/list :: postsSearchHiddenFields(${condition})}"></th:block>
+                            <button class="btn btn-secondary btn-small" type="submit">고정 해제</button>
+                        </form>
+
+                        <form th:if="${post.canPin}"
+                              th:action="${currentCommunity != null}
+                                ? @{/c/{communityCode}/admin/posts/{id}/pin(
+                                    communityCode=${currentCommunity.code},
+                                    id=${post.id}
+                                  )}
+                                : @{/admin/posts/{id}/pin(id=${post.id})}"
+                              method="post"
+                              class="inline-form">
+
+                            <th:block th:replace="~{admin/posts/list :: postsSearchHiddenFields(${condition})}"></th:block>
+                            <button class="btn btn-secondary btn-small" type="submit">고정</button>
+                        </form>
+
+                        <form th:if="${post.canBlind}"
+                              th:action="${currentCommunity != null}
+                                ? @{/c/{communityCode}/admin/posts/{id}/blind(
+                                    communityCode=${currentCommunity.code},
+                                    id=${post.id}
+                                  )}
+                                : @{/admin/posts/{id}/blind(id=${post.id})}"
+                              method="post"
+                              class="inline-form">
+
+                            <th:block th:replace="~{admin/posts/list :: postsSearchHiddenFields(${condition})}"></th:block>
+                            <button class="btn btn-danger btn-small" type="submit">블라인드</button>
+                        </form>
+
+                        <form th:if="${post.canRestore}"
+                              th:action="${currentCommunity != null}
+                                ? @{/c/{communityCode}/admin/posts/{id}/restore(
+                                    communityCode=${currentCommunity.code},
+                                    id=${post.id}
+                                  )}
+                                : @{/admin/posts/{id}/restore(id=${post.id})}"
+                              method="post"
+                              class="inline-form">
+
+                            <th:block th:replace="~{admin/posts/list :: postsSearchHiddenFields(${condition})}"></th:block>
+                            <button class="btn btn-secondary btn-small" type="submit">복구</button>
+                        </form>
+
+                        <form th:if="${post.canAdminDelete}"
+                              th:action="${currentCommunity != null}
+                                ? @{/c/{communityCode}/admin/posts/{id}/delete(
+                                    communityCode=${currentCommunity.code},
+                                    id=${post.id}
+                                  )}
+                                : @{/admin/posts/{id}/delete(id=${post.id})}"
+                              method="post"
+                              class="inline-form">
+
+                            <th:block th:replace="~{admin/posts/list :: postsSearchHiddenFields(${condition})}"></th:block>
+                            <button class="btn btn-danger btn-small" type="submit">삭제</button>
+                        </form>
+
+                        <form th:if="${post.canHardDelete}"
+                              th:action="${currentCommunity != null}
+                                ? @{/c/{communityCode}/admin/posts/{id}/hard-delete(
+                                    communityCode=${currentCommunity.code},
+                                    id=${post.id}
+                                  )}
+                                : @{/admin/posts/{id}/hard-delete(id=${post.id})}"
+                              method="post"
+                              class="inline-form"
+                              data-reason-required="true"
+                              data-reason-label="게시글 영구삭제 사유"
+                              data-reason-message="게시글 영구삭제 사유를 입력해주세요."
+                              data-confirm-message="이 게시글을 영구 삭제하시겠습니까? 되돌릴 수 없습니다.">
+
+                            <th:block th:replace="~{admin/posts/list :: postsSearchHiddenFields(${condition})}"></th:block>
+                            <button class="btn btn-danger btn-small" type="submit">영구삭제</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card" th:if="${!postPage.isEmpty()}">
+        <p th:text="|총 ${postPage.totalElements}건 · ${postPage.number + 1}/${postPage.totalPages} 페이지|"></p>
+
+        <th:block th:if="${currentCommunity != null}">
+            <div class="actions"
+                 th:replace="~{fragments/pagination :: pager(
+                    ${postPage},
+                    @{/c/{communityCode}/admin/posts(communityCode=${currentCommunity.code})},
+                    ${'categoryId=' + (condition.categoryId != null ? condition.categoryId : '')
+                        + '&keyword=' + (condition.keyword != null ? condition.keyword : '')
+                        + '&secret=' + (condition.secret != null ? condition.secret : '')
+                        + '&sort=' + condition.sort
+                        + '&onlyWithAttachments=' + condition.onlyWithAttachments
+                        + '&size=' + condition.safeSize}
+                 )}">
+            </div>
+        </th:block>
+
+        <th:block th:if="${currentCommunity == null}">
+            <div class="actions"
+                 th:replace="~{fragments/pagination :: pager(
+                    ${postPage},
+                    @{/admin/posts},
+                    ${'categoryId=' + (condition.categoryId != null ? condition.categoryId : '')
+                        + '&keyword=' + (condition.keyword != null ? condition.keyword : '')
+                        + '&secret=' + (condition.secret != null ? condition.secret : '')
+                        + '&sort=' + condition.sort
+                        + '&onlyWithAttachments=' + condition.onlyWithAttachments
+                        + '&size=' + condition.safeSize}
+                 )}">
+            </div>
+        </th:block>
+    </section>
+</main>
+<script th:inline="javascript">
+    window.addEventListener('DOMContentLoaded', function () {
+        PageSizeManager.initPageSizeForm('adminPostSearchForm');
+    });
+</script>
+<div th:replace="~{fragments/header :: siteFooter}"></div>
+</body>
+</html>

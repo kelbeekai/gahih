@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: commonHeadContent('게시글 상세')}"></th:block>
+    <script defer th:src="@{/js/posts/comment.js}"></script>
+    <script defer th:src="@{/js/admin/admin-action-reason.js}"></script>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: siteHeader(${loginMember})}"></div>
+
+<main class="site-container">
+
+    <section th:if="${errorMessage}" class="card">
+        <div class="global-error" th:text="${errorMessage}"></div>
+    </section>
+
+    <section class="card">
+        <th:block th:replace="~{posts/detail-fragments/post-header :: postHeader}"></th:block>
+
+        <th:block th:if="${postDetail.viewable}">
+
+            <th:block th:replace="~{posts/detail-fragments/post-reaction :: postReaction}"></th:block>
+
+            <th:block th:replace="~{posts/detail-fragments/attachments :: attachments}"></th:block>
+
+            <th:block th:replace="~{posts/detail-fragments/post-actions :: postActions}"></th:block>
+        </th:block>
+    </section>
+
+    <th:block th:replace="~{posts/detail-fragments/comments :: comments}"></th:block>
+
+    <th:block th:replace="~{posts/detail-fragments/comment-form :: commentForm}"></th:block>
+
+    <th:block th:replace="~{posts/detail-fragments/navigation :: navigation}"></th:block>
+
+    <th:block th:replace="~{posts/detail-fragments/context-list :: contextList}"></th:block>
+</main>
+
+<div th:replace="~{fragments/header :: siteFooter}"></div>
+</body>
+
+</html>

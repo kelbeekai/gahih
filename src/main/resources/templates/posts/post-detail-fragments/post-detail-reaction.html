@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="postReaction">
+    <div th:if="${postDetail.reactionAllowed}" class="detail-block-spaced">
+        <span>좋아요 <strong th:text="${postDetail.likeCount}">0</strong></span>
+        <span class="detail-inline-spaced">싫어요 <strong th:text="${postDetail.dislikeCount}">0</strong></span>
+
+        <div class="detail-block-small-spaced">
+            <form th:action="@{/c/{communityCode}/posts/{postId}/like(
+                    communityCode=${currentCommunity.code},
+                    postId=${postDetail.id}
+                  )}"
+                  method="post"
+                  class="inline-form">
+                <input type="hidden" name="fromCreate" th:value="${fromCreate}">
+
+                <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
+                <button class="btn btn-secondary btn-small"
+                        type="submit"
+                        th:text="${postDetail.liked} ? '👍 좋아요 취소' : '👍 좋아요'">
+                    👍 좋아요
+                </button>
+            </form>
+
+            <form th:action="@{/c/{communityCode}/posts/{postId}/dislike(
+                    communityCode=${currentCommunity.code},
+                    postId=${postDetail.id}
+                  )}"
+                  method="post"
+                  class="inline-form detail-inline-spaced">
+                <input type="hidden" name="fromCreate" th:value="${fromCreate}">
+
+                <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
+                <button class="btn btn-secondary btn-small"
+                        type="submit"
+                        th:text="${postDetail.disliked} ? '👎 싫어요 취소' : '👎 싫어요'">
+                    👎 싫어요
+                </button>
+            </form>
+        </div>
+    </div>
+</th:block>
+
+</html>

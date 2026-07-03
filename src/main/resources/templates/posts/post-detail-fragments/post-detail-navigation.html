@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="navigation">
+    <section class="card" th:if="${detailContext.listLikeSource}">
+        <div class="actions">
+            <th:block th:if="${postNavigation.hasPrevious()}">
+                <a class="btn btn-secondary"
+                   th:href="@{/c/{communityCode}/posts/{id}(
+                        communityCode=${currentCommunity.code},
+                        id=${postNavigation.previousPost.postId},
+                        source=${detailContext.source},
+                        returnUrl=${detailContext.returnUrl},
+                        categoryId=${detailContext.categoryId},
+                        keyword=${detailContext.keyword},
+                        secret=${detailContext.secret},
+                        sort=${detailContext.sort},
+                        onlyWithAttachments=${detailContext.onlyWithAttachments},
+                        page=${postNavigation.previousPost.page},
+                        size=${detailContext.safeSize}
+                    )}">
+                    이전 글
+                </a>
+            </th:block>
+            <th:block th:unless="${postNavigation.hasPrevious()}">
+            <span class="disabled-link">
+                이전 글
+            </span>
+            </th:block>
+
+            <th:block th:if="${postNavigation.hasNext()}">
+                <a class="btn btn-secondary detail-inline-spaced"
+                   th:href="@{/c/{communityCode}/posts/{id}(
+                        communityCode=${currentCommunity.code},
+                        id=${postNavigation.nextPost.postId},
+                        source=${detailContext.source},
+                        returnUrl=${detailContext.returnUrl},
+                        categoryId=${detailContext.categoryId},
+                        keyword=${detailContext.keyword},
+                        secret=${detailContext.secret},
+                        sort=${detailContext.sort},
+                        onlyWithAttachments=${detailContext.onlyWithAttachments},
+                        page=${postNavigation.nextPost.page},
+                        size=${detailContext.safeSize}
+                    )}">
+                    다음 글
+                </a>
+            </th:block>
+            <th:block th:unless="${postNavigation.hasNext()}">
+            <span class="disabled-link detail-inline-spaced">
+                다음 글
+            </span>
+            </th:block>
+        </div>
+    </section>
+
+    <section class="card">
+        <div class="actions">
+            <a class="btn btn-secondary" th:href="${listRedirectUrl}">목록으로</a>
+            <a class="btn btn-secondary detail-inline-spaced" th:href="@{/}">홈으로</a>
+        </div>
+    </section>
+</th:block>
+
+</html>

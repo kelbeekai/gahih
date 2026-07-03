@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: commonHeadContent('관리자 로그')}"></th:block>
+    <script defer th:src="@{/js/common/page-size.js}"></script>
+    <script defer th:src="@{/js/admin/admin-log-search.js}"></script>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: siteHeader(${loginMember})}"></div>
+
+<main class="site-container admin-container">
+    <section class="card">
+        <h2 class="card-title">관리자 로그</h2>
+    </section>
+
+    <section class="card">
+        <form id="adminLogSearchForm" th:action="@{/admin/logs}" method="get" class="search-form">
+            <input type="hidden" name="page" th:value="${logPage.number + 1}">
+            <input type="hidden" data-role="current-page" th:value="${logPage.number + 1}">
+            <input type="hidden" data-role="current-size" th:value="${logPage.size}">
+
+            <div class="form-group">
+                <label class="form-label" for="searchType">검색 항목</label>
+                <select class="form-control" id="searchType" name="searchType">
+                    <option th:each="searchType : ${searchTypes}"
+                            th:value="${searchType.name()}"
+                            th:text="${searchType.displayName}"
+                            th:selected="${condition.searchType == searchType}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="action">로그 타입</label>
+                <select class="form-control" id="action" name="action">
+                    <option value="">전체</option>
+                    <option th:each="action : ${actions}"
+                            th:value="${action}"
+                            th:text="${action}"
+                            th:selected="${condition.action == action}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="targetType">대상 타입</label>
+                <select class="form-control" id="targetType" name="targetType">
+                    <option value="">전체</option>
+                    <option th:each="targetType : ${targetTypes}"
+                            th:value="${targetType.name()}"
+                            th:text="${targetType.name()}"
+                            th:selected="${condition.targetType == targetType}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="targetCommunityCode">국가</label>
+                <select class="form-control" id="targetCommunityCode" name="targetCommunityCode">
+                    <option value="" th:selected="${condition.targetCommunityCode == null or condition.targetCommunityCode == ''}">
+                        전체
+                    </option>
+                    <option th:each="community : ${communities}"
+                            th:value="${community.code}"
+                            th:text="${community.name}"
+                            th:selected="${condition.targetCommunityCode == community.code}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="period">기간</label>
+                <select class="form-control" id="period" name="period">
+                    <option th:each="periodType : ${periodTypes}"
+                            th:value="${periodType.name()}"
+                            th:text="${periodType.displayName}"
+                            th:selected="${condition.period == periodType}">
+                    </option>
+                </select>
+            </div>
+
+            <div id="custom-date-range" class="form-group" style="display:none;">
+                <label for="startDate">시작일</label>
+                <input class="form-control" id="startDate" type="date" name="startDate" th:value="${condition.startDate}">
+                <label for="endDate" style="margin-left: 8px;">종료일</label>
+                <input class="form-control" id="endDate" type="date" name="endDate" th:value="${condition.endDate}">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="sort">정렬</label>
+                <select class="form-control" id="sort" name="sort">
+                    <option value="LATEST"
+                            th:selected="${condition.sort == T(com.gahih.domain.admin.enumtype.AdminLogSortType).LATEST}">
+                        최신순
+                    </option>
+                    <option value="OLDEST"
+                            th:selected="${condition.sort == T(com.gahih.domain.admin.enumtype.AdminLogSortType).OLDEST}">
+                        오래된순
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="size">목록 수</label>
+                <select class="form-control" id="size" name="size" data-role="page-size-select">
+                    <option value="20" th:selected="${condition.safeSize == 20}">20개씩</option>
+                    <option value="40" th:selected="${condition.safeSize == 40}">40개씩</option>
+                    <option value="60" th:selected="${condition.safeSize == 60}">60개씩</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="keyword">검색어</label>
+                <input class="form-control"
+                       id="keyword"
+                       type="text"
+                       name="keyword"
+                       th:value="${condition.keyword}"
+                       placeholder="관리자, 액션, 대상 ID, 대상 이름, 사유 검색">
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-primary" type="submit">검색</button>
+                <a class="btn btn-secondary" th:href="@{/admin/logs}">초기화</a>
+            </div>
+        </form>
+    </section>
+
+    <section class="card">
+        <div class="table-wrapper admin-table-wrap">
+            <table class="common-table">
+                <thead>
+                    <tr>
+                        <th class="table-cell-id">ID</th>
+                        <th class="table-cell-writer">관리자</th>
+                        <th class="table-cell-status">액션</th>
+                        <th class="table-cell-status">대상 타입</th>
+                        <th class="table-cell-category">국가</th>
+                        <th class="table-cell-id">대상 ID</th>
+                        <th class="table-cell-title">대상 이름</th>
+                        <th class="table-cell-reason">사유</th>
+                        <th class="table-cell-text">변경 전</th>
+                        <th class="table-cell-text">변경 후</th>
+                        <th class="table-cell-date">시간</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${logPage.isEmpty()}">
+                    <td colspan="11">저장된 관리자 로그가 없습니다.</td>
+                </tr>
+
+                <tr th:each="log : ${logPage.content}">
+                    <td class="table-cell-id" th:text="${log.id}"></td>
+
+                    <td class="table-cell-writer">
+                        <span class="table-title-text">
+                            <span th:text="${log.adminNickname}"></span>
+                            (<span th:text="${log.adminUsername}"></span>)
+                        </span>
+                    </td>
+
+                    <td class="table-cell-status" th:text="${log.action}"></td>
+                    <td class="table-cell-status" th:text="${log.targetType}"></td>
+                    <td class="table-cell-category" th:text="${log.displayTargetCommunityName}">전역</td>
+                    <td class="table-cell-id" th:text="${log.targetId != null ? log.targetId : '-'}"></td>
+
+                    <td class="table-cell-title">
+                        <span class="table-title-text" th:text="${log.targetName != null ? log.targetName : '-'}"></span>
+                    </td>
+
+                    <td class="table-cell-reason">
+                        <span th:if="${!log.hasReason}" class="field-info">-</span>
+                        <span th:if="${log.hasReason}"
+                              class="table-title-text"
+                              th:text="${log.reason}">
+                        </span>
+                    </td>
+                    <td class="table-cell-text">
+                        <span th:if="${!log.hasBeforeSnapshot}" class="field-info">-</span>
+                        <details th:if="${log.hasBeforeSnapshot}">
+                            <summary>보기</summary>
+                            <pre style="max-width: 320px; white-space: pre-wrap; word-break: break-word; margin-top: 8px;"
+                                 th:text="${log.prettyBeforeSnapshot}"></pre>
+                        </details>
+                    </td>
+                    <td class="table-cell-text">
+                        <span th:if="${!log.hasAfterSnapshot}" class="field-info">-</span>
+                        <details th:if="${log.hasAfterSnapshot}">
+                            <summary>보기</summary>
+                            <pre style="max-width: 320px; white-space: pre-wrap; word-break: break-word; margin-top: 8px;"
+                                 th:text="${log.prettyAfterSnapshot}"></pre>
+                        </details>
+                    </td>
+                    <td class="table-cell-date" th:text="${#temporals.format(log.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card" th:if="${!logPage.isEmpty()}">
+        <p th:text="|총 ${logPage.totalElements}건 · ${logPage.number + 1}/${logPage.totalPages} 페이지|"></p>
+
+        <div class="actions"
+             th:replace="~{fragments/pagination :: pager(
+                ${logPage},
+                @{/admin/logs},
+                ${'searchType=' + condition.searchType
+                    + '&keyword=' + (condition.keyword != null ? condition.keyword : '')
+                    + '&action=' + (condition.action != null ? condition.action : '')
+                    + '&targetType=' + (condition.targetType != null ? condition.targetType : '')
+                    + '&targetCommunityCode=' + (condition.targetCommunityCode != null ? condition.targetCommunityCode : '')
+                    + '&period=' + condition.period
+                    + '&startDate=' + (condition.startDate != null ? condition.startDate : '')
+                    + '&endDate=' + (condition.endDate != null ? condition.endDate : '')
+                    + '&sort=' + condition.sort
+                    + '&size=' + condition.safeSize}
+             )}">
+        </div>
+    </section>
+</main>
+
+<script th:inline="javascript">
+    window.addEventListener('DOMContentLoaded', function () {
+        PageSizeManager.initPageSizeForm('adminLogSearchForm');
+        AdminLogSearchManager.init('adminLogSearchForm');
+    });
+</script>
+
+<div th:replace="~{fragments/header :: siteFooter}"></div>
+</body>
+</html>

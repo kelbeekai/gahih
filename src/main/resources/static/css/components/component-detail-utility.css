@@ -1,0 +1,43 @@
+/* =========================================================
+   Component: 상세 화면 보조 유틸리티
+   - 상세 페이지 내부 간격/강조/비활성 링크 표현
+   ========================================================= */
+
+.detail-muted {
+    color: var(--color-muted);
+}
+
+.detail-small-muted {
+    color: var(--color-muted);
+    font-size: 0.9em;
+}
+
+.detail-inline-spaced {
+    margin-left: 8px;
+}
+
+.detail-block-spaced {
+    margin-top: 20px;
+}
+
+.detail-block-small-spaced {
+    margin-top: 8px;
+}
+
+.disabled-link {
+    color: #999;
+    cursor: default;
+}
+
+.text-strong {
+    font-weight: 700;
+}
+
+.detail-block-bottom-spaced {
+    margin-bottom: 12px;
+}
+
+.detail-block-tiny-spaced {
+    margin-top: 4px;
+}
+

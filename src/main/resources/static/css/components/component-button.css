@@ -1,0 +1,54 @@
+/* =========================================================
+   Component: 버튼
+   - 기본/주요/보조/위험/소형 버튼
+   ========================================================= */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+
+    border: none;
+
+    border-radius: var(--radius-sm);
+
+    padding: 10px 16px;
+
+    cursor: pointer;
+
+    transition: background var(--transition-fast);
+}
+
+.btn-primary {
+    background: var(--color-primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--color-primary-dark);
+}
+
+.btn-secondary {
+    background: #E5E7EB;
+    color: var(--color-text);
+}
+
+.btn-secondary:hover {
+    background: #D1D5DB;
+}
+
+.btn-danger {
+    background: var(--color-danger);
+    color: white;
+}
+
+.btn-danger:hover {
+    opacity: 0.9;
+}
+
+.btn-small {
+    padding: 6px 10px;
+    font-size: 0.9rem;
+}

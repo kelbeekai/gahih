@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: commonHeadContent('내 정보 수정')}"></th:block>
+    <th:block th:replace="~{fragments/layout :: csrfMeta}"></th:block>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: siteHeader(${loginMember})}"></div>
+
+<main class="site-container">
+    <section class="card">
+        <h2 class="card-title">내 정보 수정</h2>
+
+        <form th:action="@{/mypage/edit}" th:object="${memberUpdateRequest}" method="post"
+              id="editForm"
+              th:attr="data-original-email=${originalEmail},data-email-verified=${emailChangeVerified}">
+
+
+            <div class="global-error" th:if="${#fields.hasGlobalErrors()}">
+                <div th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="nickname">닉네임</label>
+                <input class="form-control" type="text" id="nickname" th:field="*{nickname}">
+                <div class="field-error" th:errors="*{nickname}"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="email">이메일</label>
+                <input class="form-control" type="email" id="email" th:field="*{email}">
+                <button class="btn btn-secondary btn-small" type="button" id="sendEmailCodeBtn">
+                    인증코드 보내기
+                </button>
+                <div class="field-error" th:errors="*{email}"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="emailCode">인증코드</label>
+                <input class="form-control" type="text" id="emailCode" maxlength="6" placeholder="6자리 숫자 입력">
+                <button class="btn btn-secondary btn-small" type="button" id="verifyEmailCodeBtn">
+                    인증 확인
+                </button>
+            </div>
+
+            <div id="emailAuthMessage" class="form-group"></div>
+            <div id="emailAuthTimer" class="form-group"></div>
+            <div id="emailAuthVerified" class="form-group"
+                 th:text="${emailChangeVerified} ? '이메일 인증이 완료되었습니다.' : ''"></div>
+
+            <div class="form-group">
+                <label class="form-label" for="currentPassword">현재 비밀번호</label>
+                <input class="form-control" type="password" id="currentPassword" th:field="*{currentPassword}">
+                <div class="field-error" th:errors="*{currentPassword}"></div>
+            </div>
+
+            <button class="btn btn-primary" type="submit" id="editSubmitBtn">수정 완료</button>
+        </form>
+    </section>
+</main>
+
+<script defer th:src="@{/js/members/edit-email-auth.js}"></script>
+<div th:replace="~{fragments/header :: siteFooter}"></div>
+</body>
+</html>

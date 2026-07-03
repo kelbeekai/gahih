@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="footerActions">
+    <section class="card">
+        <div class="actions">
+            <a class="btn btn-secondary" th:href="${memberDetailReturnUrl}">목록으로</a>
+            <a class="btn btn-secondary" th:href="@{/admin/nickname-histories}">닉네임 이력 조회</a>
+            <a class="btn btn-secondary" th:href="@{/admin/nickname-reservations}">닉네임 예약 현황</a>
+        </div>
+    </section>
+</th:block>
+
+</html>

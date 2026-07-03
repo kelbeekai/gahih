@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: commonHeadContent('회원 관리')}"></th:block>
+    <script defer th:src="@{/js/page-size.js}"></script>
+    <script defer th:src="@{/js/admin-action-reason.js}"></script>
+    <script defer th:src="@{/js/admin-member-suspension.js}"></script>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: siteHeader(${loginMember})}"></div>
+
+<main class="site-container admin-container">
+    <section class="card">
+        <h2 class="card-title">회원 관리</h2>
+    </section>
+
+    <section class="card">
+        <form id="adminMemberSearchForm" th:action="@{/admin/members}" method="get" class="search-form">
+            <input type="hidden" name="page" th:value="${memberPage.number + 1}">
+            <input type="hidden" data-role="current-page" th:value="${memberPage.number + 1}">
+            <input type="hidden" data-role="current-size" th:value="${memberPage.size}">
+
+            <div class="form-group">
+                <label class="form-label" for="searchType">검색 항목</label>
+                <select class="form-control" id="searchType" name="searchType">
+                    <option th:each="searchType : ${searchTypes}"
+                            th:value="${searchType.name()}"
+                            th:text="${searchType.name()}"
+                            th:selected="${condition.searchType == searchType}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="keyword">검색어</label>
+                <input class="form-control"
+                       id="keyword"
+                       type="text"
+                       name="keyword"
+                       th:value="${condition.keyword}"
+                       placeholder="아이디, 닉네임, 이메일, 권한, 상태 검색">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="role">권한 필터</label>
+                <select class="form-control" id="role" name="role">
+                    <option value="">전체</option>
+                    <option th:each="role : ${roles}"
+                            th:value="${role.name()}"
+                            th:text="${role.name()}"
+                            th:selected="${condition.role == role}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="status">상태 필터</label>
+                <select class="form-control" id="status" name="status">
+                    <option value="">전체</option>
+                    <option th:each="status : ${statuses}"
+                            th:value="${status.name()}"
+                            th:text="${status.name()}"
+                            th:selected="${condition.status == status}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="sort">정렬</label>
+                <select class="form-control" id="sort" name="sort">
+                    <option value="LATEST" th:selected="${condition.sort == T(com.gahih.domain.admin.enumtype.AdminMemberSortType).LATEST}">최신 가입순</option>
+                    <option value="OLDEST" th:selected="${condition.sort == T(com.gahih.domain.admin.enumtype.AdminMemberSortType).OLDEST}">오래된 순</option>
+                    <option value="NICKNAME" th:selected="${condition.sort == T(com.gahih.domain.admin.enumtype.AdminMemberSortType).NICKNAME}">닉네임순</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="size">목록 수</label>
+                <select class="form-control" id="size" name="size" data-role="page-size-select">
+                    <option value="20" th:selected="${condition.safeSize == 20}">20개씩</option>
+                    <option value="40" th:selected="${condition.safeSize == 40}">40개씩</option>
+                    <option value="60" th:selected="${condition.safeSize == 60}">60개씩</option>
+                </select>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-primary" type="submit">검색</button>
+                <a class="btn btn-secondary" th:href="@{/admin/members}">초기화</a>
+            </div>
+        </form>
+    </section>
+
+    <th:block th:fragment="memberSearchHiddenFields(condition)">
+        <input type="hidden" name="searchType" th:value="${condition.searchTypeName}">
+        <input type="hidden" name="keyword" th:value="${condition.keyword}">
+        <input type="hidden" name="role" th:value="${condition.role}">
+        <input type="hidden" name="status" th:value="${condition.status}">
+        <input type="hidden" name="sort" th:value="${condition.sortName}">
+        <input type="hidden" name="size" th:value="${condition.safeSize}">
+        <input type="hidden" name="page" th:value="${condition.safePage}">
+    </th:block>
+
+    <section class="card">
+        <div class="table-wrapper admin-table-wrap">
+            <table class="common-table">
+                <thead>
+                    <tr>
+                        <th class="table-cell-id">ID</th>
+                        <th class="table-cell-writer">아이디</th>
+                        <th class="table-cell-writer">닉네임</th>
+                        <th class="table-cell-text">이메일</th>
+                        <th class="table-cell-status">권한</th>
+                        <th class="table-cell-status">상태</th>
+                        <th class="table-cell-text">정지 정보</th>
+                        <th class="table-cell-number">기간정지 누적</th>
+                        <th class="table-cell-status">신고(미조치/총)</th>
+                        <th class="table-cell-date">가입일</th>
+                        <th class="table-cell-action">관리</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${memberPage.isEmpty()}">
+                        <td colspan="11">등록된 회원이 없습니다.</td>
+                    </tr>
+
+                     <tr th:each="member : ${memberPage.content}">
+                        <td class="table-cell-id">
+                            <a th:href="@{/admin/members/{id}(id=${member.id})}"
+                               th:text="${member.id}"></a>
+                        </td>
+
+                     <td class="table-cell-writer" th:text="${member.username}"></td>
+
+                    <td class="table-cell-writer">
+                        <span class="table-title-text">
+                            <a th:href="@{/admin/members/{id}(id=${member.id})}"
+                               th:text="${member.displayNickname}"></a>
+                        </span>
+                    </td>
+
+                    <td class="table-cell-text">
+                        <span class="table-title-text" th:text="${member.displayEmail}"></span>
+                    </td>
+
+                    <td class="table-cell-status" th:text="${member.role}"></td>
+                    <td class="table-cell-status" th:text="${member.status}"></td>
+
+                    <td class="table-cell-text">
+                        <span class="table-title-text" th:text="${member.suspensionSummary}"></span>
+                    </td>
+
+                    <td class="table-cell-number" th:text="${member.safeSuspensionCount}"></td>
+                    <td class="table-cell-status" th:text="${member.reportSummary}"></td>
+                    <td class="table-cell-date" th:text="${#temporals.format(member.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+
+                    <td class="table-cell-action">
+                        <div class="actions">
+                            <th:block th:if="${member.id == loginMember.id}">
+                                <span class="field-info">현재 로그인한 계정입니다.</span>
+                            </th:block>
+
+                            <th:block th:if="${member.id != loginMember.id}">
+
+                                <form th:if="${member.role == 'USER' and member.status == 'ACTIVE'}"
+                                      th:action="@{/admin/members/{id}/update-role(id=${member.id})}"
+                                      method="post"
+                                      class="inline-form">
+                                    <input type="hidden" name="role" value="ADMIN">
+
+                                    <th:block th:replace="~{admin/members :: memberSearchHiddenFields(${condition})}"></th:block>
+                                    <button class="btn btn-secondary btn-small" type="submit">관리자로 승격</button>
+                                </form>
+
+                                <form th:if="${member.role == 'ADMIN' and member.status == 'ACTIVE'}"
+                                      th:action="@{/admin/members/{id}/update-role(id=${member.id})}"
+                                      method="post"
+                                      class="inline-form">
+                                    <input type="hidden" name="role" value="USER">
+
+                                    <th:block th:replace="~{admin/members :: memberSearchHiddenFields(${condition})}"></th:block>
+                                    <button class="btn btn-secondary btn-small" type="submit">일반회원으로 변경</button>
+                                </form>
+
+                                <form th:if="${member.status == 'SUSPENDED'}"
+                                      th:action="@{/admin/members/{id}/activate-member(id=${member.id})}"
+                                      method="post"
+                                      class="inline-form">
+
+                                    <th:block th:replace="~{admin/members :: memberSearchHiddenFields(${condition})}"></th:block>
+                                    <button class="btn btn-secondary btn-small" type="submit">활성화</button>
+                                </form>
+
+                                <form th:if="${member.id != loginMember.id and member.status != 'DELETED' and member.role != 'ADMIN' and member.status != 'SUSPENDED'}"
+                                      th:action="@{/admin/members/{id}/suspend-temporary(id=${member.id})}"
+                                      method="post"
+                                      class="inline-form"
+                                      data-suspension-form="temporary">
+                                    <input type="hidden" name="reason">
+                                    <input type="hidden" name="suspendedUntil">
+
+                                    <th:block th:replace="~{admin/members :: memberSearchHiddenFields(${condition})}"></th:block>
+                                    <button class="btn btn-danger btn-small" type="submit">기간정지</button>
+                                </form>
+
+                                <form th:if="${member.id != loginMember.id
+                                      and member.status != 'DELETED'
+                                      and member.role != 'ADMIN'
+                                      and (member.status == 'ACTIVE' or member.status == 'WITHDRAWN' or member.temporarySuspended)
+                                      and !member.permanentSuspended}"
+                                      th:action="@{/admin/members/{id}/suspend-permanent(id=${member.id})}"
+                                      method="post"
+                                      class="inline-form"
+                                      data-reason-required="true"
+                                      data-reason-label="영구정지 사유"
+                                      data-reason-message="영구정지 사유를 입력해주세요."
+                                      data-confirm-message="이 회원을 영구정지 처리하시겠습니까?">
+
+                                    <th:block th:replace="~{admin/members :: memberSearchHiddenFields(${condition})}"></th:block>
+                                    <button class="btn btn-danger btn-small" type="submit">영구정지</button>
+                                </form>
+
+                                <form th:if="${member.canFinalize}"
+                                      th:action="@{/admin/members/{id}/finalize(id=${member.id})}"
+                                      method="post"
+                                      class="inline-form"
+                                      data-reason-required="true"
+                                      data-reason-label="최종 종료 사유"
+                                      data-reason-message="최종 종료 사유를 입력해주세요."
+                                      data-confirm-message="이 회원을 최종 종료 처리하시겠습니까? 개인정보는 비식별화되며 되돌릴 수 없습니다.">
+
+                                    <th:block th:replace="~{admin/members :: memberSearchHiddenFields(${condition})}"></th:block>
+                                    <button class="btn btn-danger btn-small" type="submit">최종 종료</button>
+                                </form>
+
+                                <form th:if="${member.status != 'DELETED'}"
+                                      th:action="@{/admin/members/{id}/force-nickname(id=${member.id})}"
+                                      method="post"
+                                      class="inline-form"
+                                      data-reason-required="true"
+                                      data-reason-label="강제 닉네임 변경 사유"
+                                      data-reason-message="강제 닉네임 변경 사유를 입력해주세요."
+                                      data-confirm-message="정말 닉네임을 강제 변경하시겠습니까? 되돌릴 수 없습니다.">
+
+                                    <th:block th:replace="~{admin/members :: memberSearchHiddenFields(${condition})}"></th:block>
+                                    <button class="btn btn-danger btn-small" type="submit">닉네임 강제 변경</button>
+                                </form>
+                            </th:block>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card" th:if="${!memberPage.isEmpty()}">
+        <p th:text="|총 ${memberPage.totalElements}건 · ${memberPage.number + 1}/${memberPage.totalPages} 페이지|"></p>
+
+        <div class="actions"
+             th:replace="~{fragments/pagination :: pager(
+                ${memberPage},
+                @{/admin/members},
+                ${'searchType=' + condition.searchType
+                    + '&keyword=' + (condition.keyword != null ? condition.keyword : '')
+                    + '&role=' + (condition.role != null ? condition.role : '')
+                    + '&status=' + (condition.status != null ? condition.status : '')
+                    + '&sort=' + condition.sort
+                    + '&size=' + condition.safeSize}
+             )}">
+        </div>
+    </section>
+</main>
+
+<script th:inline="javascript">
+    window.addEventListener('DOMContentLoaded', function () {
+        PageSizeManager.initPageSizeForm('adminMemberSearchForm');
+    });
+</script>
+
+<div th:replace="~{fragments/header :: siteFooter}"></div>
+</body>
+</html>

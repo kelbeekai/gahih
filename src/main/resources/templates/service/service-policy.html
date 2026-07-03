@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: commonHeadContent('운영정책')}"></th:block>
+</head>
+<body>
+<div th:replace="~{fragments/header :: siteHeader(${loginMember})}"></div>
+
+<main class="site-container">
+    <section class="card">
+        <h2 class="card-title">운영정책</h2>
+        <p class="text-muted">가힣 커뮤니티의 기본 운영 기준입니다.</p>
+    </section>
+
+    <section class="card">
+        <h3 class="card-title">1. 기본 원칙</h3>
+        <p>가힣은 국가별 한인 커뮤니티의 건전한 정보 공유와 상호 존중을 지향합니다.</p>
+
+        <h3 class="card-title">2. 금지 행위</h3>
+        <p>욕설, 혐오, 도배, 사칭, 개인정보 노출, 불법 정보 공유, 광고성 게시물은 제한될 수 있습니다.</p>
+
+        <h3 class="card-title">3. 관리자 조치</h3>
+        <p>운영정책 위반 시 게시글/댓글 블라인드, 삭제, 회원 정지, 닉네임 강제 변경 등의 조치가 이루어질 수 있습니다.</p>
+
+        <h3 class="card-title">4. 신고 처리</h3>
+        <p>신고된 대상은 관리자가 검토하며, 조치 완료 또는 무조치 종료로 처리될 수 있습니다.</p>
+    </section>
+</main>
+
+<div th:replace="~{fragments/header :: siteFooter}"></div>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="memberActions">
+    <section class="card">
+        <h3 class="card-title">관리 조치</h3>
+
+        <div class="actions">
+            <th:block th:if="${memberDetail.id == loginMember.id}">
+                <span class="field-info">현재 로그인한 계정입니다.</span>
+            </th:block>
+
+            <form th:if="${memberDetail.id != loginMember.id and memberDetail.role == 'USER' and memberDetail.status == 'ACTIVE'}"
+                  th:action="@{/admin/members/{id}/update-role(id=${memberDetail.id})}"
+                  method="post"
+                  class="inline-form">
+
+                <input type="hidden" name="returnUrl" th:value="${memberDetailReturnUrl}">
+                <input type="hidden" name="role" value="ADMIN">
+                <button class="btn btn-secondary btn-small" type="submit">관리자로 승격</button>
+            </form>
+
+            <form th:if="${memberDetail.id != loginMember.id and memberDetail.role == 'ADMIN' and memberDetail.status == 'ACTIVE'}"
+                  th:action="@{/admin/members/{id}/update-role(id=${memberDetail.id})}"
+                  method="post"
+                  class="inline-form">
+
+                <input type="hidden" name="returnUrl" th:value="${memberDetailReturnUrl}">
+                <input type="hidden" name="role" value="USER">
+                <button class="btn btn-secondary btn-small" type="submit">일반회원으로 변경</button>
+            </form>
+
+            <form th:if="${memberDetail.id != loginMember.id and memberDetail.status == 'SUSPENDED'}"
+                  th:action="@{/admin/members/{id}/activate-member(id=${memberDetail.id})}"
+                  method="post"
+                  class="inline-form">
+
+                <input type="hidden" name="returnUrl" th:value="${memberDetailReturnUrl}">
+                <button class="btn btn-secondary btn-small" type="submit">활성화</button>
+            </form>
+
+            <form th:if="${memberDetail.id != loginMember.id and memberDetail.status != 'DELETED' and memberDetail.role != 'ADMIN' and memberDetail.status != 'SUSPENDED'}"
+                  th:action="@{/admin/members/{id}/suspend-temporary(id=${memberDetail.id})}"
+                  method="post"
+                  class="inline-form"
+                  data-suspension-form="temporary">
+
+                <input type="hidden" name="returnUrl" th:value="${memberDetailReturnUrl}">
+                <input type="hidden" name="reason">
+                <input type="hidden" name="suspendedUntil">
+                <button class="btn btn-danger btn-small" type="submit">기간정지</button>
+            </form>
+
+            <form th:if="${memberDetail.id != loginMember.id
+                  and memberDetail.status != 'DELETED'
+                  and memberDetail.role != 'ADMIN'
+                  and (memberDetail.status == 'ACTIVE' or memberDetail.status == 'WITHDRAWN' or memberDetail.temporarySuspended)
+                  and !memberDetail.permanentSuspended}"
+                  th:action="@{/admin/members/{id}/suspend-permanent(id=${memberDetail.id})}"
+                  method="post"
+                  class="inline-form"
+                  data-reason-required="true"
+                  data-reason-label="영구정지 사유"
+                  data-reason-message="영구정지 사유를 입력해주세요."
+                  data-confirm-message="이 회원을 영구정지 처리하시겠습니까?">
+
+                <input type="hidden" name="returnUrl" th:value="${memberDetailReturnUrl}">
+                <button class="btn btn-danger btn-small" type="submit">영구정지</button>
+            </form>
+
+            <form th:if="${memberDetail.id != loginMember.id and memberDetail.canFinalize}"
+                  th:action="@{/admin/members/{id}/finalize(id=${memberDetail.id})}"
+                  method="post"
+                  class="inline-form"
+                  data-reason-required="true"
+                  data-reason-label="최종 종료 사유"
+                  data-reason-message="최종 종료 사유를 입력해주세요."
+                  data-confirm-message="이 회원을 최종 종료 처리하시겠습니까? 개인정보는 비식별화되며 되돌릴 수 없습니다.">
+
+                <input type="hidden" name="returnUrl" th:value="${memberDetailReturnUrl}">
+                <button class="btn btn-danger btn-small" type="submit">최종 종료</button>
+            </form>
+
+            <form th:if="${memberDetail.id != loginMember.id and !memberDetail.deleted}"
+                  th:action="@{/admin/members/{id}/force-nickname(id=${memberDetail.id})}"
+                  method="post"
+                  class="inline-form"
+                  data-reason-required="true"
+                  data-reason-label="강제 닉네임 변경 사유"
+                  data-reason-message="강제 닉네임 변경 사유를 입력해주세요."
+                  data-confirm-message="정말 닉네임을 강제 변경하시겠습니까? 되돌릴 수 없습니다.">
+
+                <input type="hidden" name="returnUrl" th:value="${memberDetailReturnUrl}">
+                <button class="btn btn-danger btn-small" type="submit">닉네임 강제 변경</button>
+            </form>
+        </div>
+    </section>
+</th:block>
+
+</html>

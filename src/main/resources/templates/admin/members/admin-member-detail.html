@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: commonHeadContent('회원 상세')}"></th:block>
+    <script defer th:src="@{/js/admin/admin-action-reason.js}"></script>
+    <script defer th:src="@{/js/admin/admin-member-suspension.js}"></script>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: siteHeader(${loginMember})}"></div>
+
+<main class="site-container admin-container">
+    <section class="card">
+        <h2 class="card-title">회원 상세</h2>
+    </section>
+
+    <th:block th:replace="~{admin/member-detail-fragments/basic-info :: basicInfo}"></th:block>
+
+    <th:block th:replace="~{admin/member-detail-fragments/member-actions :: memberActions}"></th:block>
+
+    <th:block th:replace="~{admin/member-detail-fragments/recent-posts :: recentPosts}"></th:block>
+
+    <th:block th:replace="~{admin/member-detail-fragments/recent-comments :: recentComments}"></th:block>
+
+    <th:block th:replace="~{admin/member-detail-fragments/footer-actions :: footerActions}"></th:block>
+</main>
+
+<div th:replace="~{fragments/header :: siteFooter}"></div>
+</body>
+</html>

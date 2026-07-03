@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: commonHeadContent('글 작성')}"></th:block>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: siteHeader(${loginMember})}"></div>
+
+<main class="site-container">
+    <section class="card">
+        <h2 class="card-title">글 작성</h2>
+
+        <p class="text-muted">
+            게시판 정책에 따라 일부 게시판은 일반 회원이 작성할 수 없거나, 향후 댓글/반응 기능이 다르게 적용될 수 있습니다.
+        </p>
+    </section>
+
+    <section class="card">
+        <form id="post-create-form"
+              th:action="@{/c/{communityCode}/posts/new(communityCode=${currentCommunity.code})}"
+              th:object="${postCreateRequest}"
+              method="post"
+              enctype="multipart/form-data">
+
+            <input type="hidden" name="detailSource" th:value="${detailContext.source}">
+            <input type="hidden" name="detailReturnUrl" th:value="${detailContext.returnUrl}">
+            <input type="hidden" name="detailCategoryId" th:value="${detailContext.categoryId}">
+            <input type="hidden" name="detailKeyword" th:value="${detailContext.keyword}">
+            <input type="hidden" name="detailSecret" th:value="${detailContext.secret}">
+            <input type="hidden" name="detailSort" th:value="${detailContext.sort}">
+            <input type="hidden" name="detailOnlyWithAttachments" th:value="${detailContext.onlyWithAttachments}">
+            <input type="hidden" name="detailPage" th:value="${detailContext.safePage}">
+            <input type="hidden" name="detailSize" th:value="${detailContext.safeSize}">
+
+            <div class="global-error" th:if="${#fields.hasGlobalErrors()}">
+                <div th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
+            </div>
+
+            <div class="form-group" th:if="${fixedCategory}">
+                <label class="form-label">게시판</label>
+                <div class="text-muted" th:text="${selectedCategory.name}">게시판명</div>
+                <input type="hidden" th:field="*{categoryId}">
+                <div class="field-error" th:errors="*{categoryId}"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="title">제목</label>
+                <input class="form-control" type="text" id="title" th:field="*{title}">
+                <div class="field-error" th:errors="*{title}"></div>
+            </div>
+
+            <div class="form-group" th:if="${secretAllowed}">
+                <label>
+                    <input type="checkbox" th:field="*{secret}">
+                    비밀글
+                </label>
+                <p class="text-muted">비밀글은 이용문의 게시판에서만 사용할 수 있습니다.</p>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="content">내용</label>
+                <textarea class="form-control" id="content" th:field="*{content}"></textarea>
+                <div class="field-error" th:errors="*{content}"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="attachments">첨부파일</label>
+                <input class="form-control" type="file" id="attachments" th:field="*{attachments}" multiple>
+                <p class="text-muted">jpg, jpeg, png, gif, pdf, txt, zip / 최대 3개 / 총 30MB</p>
+
+                <div id="attachment-summary">
+                    선택된 파일: <span id="attachment-count">0</span>개 /
+                    총 용량: <span id="attachment-size">0 B</span>
+                </div>
+
+                <div id="attachment-warning" class="field-error"></div>
+                <div id="selected-attachments"></div>
+            </div>
+
+            <button class="btn btn-primary" type="submit">등록</button>
+        </form>
+    </section>
+</main>
+
+<script defer th:src="@{/js/posts/post-file-form.js}"></script>
+<script>
+    PostFileForm.init({
+        formId: 'post-create-form',
+        fileInputId: 'attachments',
+        selectedAttachmentsId: 'selected-attachments',
+        attachmentCountId: 'attachment-count',
+        attachmentSizeId: 'attachment-size',
+        attachmentWarningId: 'attachment-warning',
+        maxFileCount: 3,
+        maxTotalSize: 30 * 1024 * 1024,
+        existingAttachmentCount: 0
+    });
+</script>
+
+<div th:replace="~{fragments/header :: siteFooter}"></div>
+</body>
+</html>

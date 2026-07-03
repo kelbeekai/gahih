@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: commonHeadContent('닉네임 이력 조회')}"></th:block>
+    <script defer th:src="@{/js/page-size.js}"></script>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: siteHeader(${loginMember})}"></div>
+
+<main class="site-container admin-container">
+    <section class="card">
+        <h2 class="card-title">닉네임 이력 조회</h2>
+    </section>
+
+    <section class="card">
+        <form id="adminNicknameHistorySearchForm" th:action="@{/admin/nickname-histories}" method="get" class="search-form">
+            <input type="hidden" name="page" th:value="${historyPage.number + 1}">
+            <input type="hidden" data-role="current-page" th:value="${historyPage.number + 1}">
+            <input type="hidden" data-role="current-size" th:value="${historyPage.size}">
+
+            <div class="form-group">
+                <label class="form-label" for="searchType">검색 항목</label>
+                <select class="form-control" id="searchType" name="searchType">
+                    <option th:each="searchType : ${searchTypes}"
+                            th:value="${searchType.name()}"
+                            th:text="${searchType.displayName}"
+                            th:selected="${condition.searchType == searchType}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="keyword">검색어</label>
+                <input class="form-control"
+                       id="keyword"
+                       type="text"
+                       name="keyword"
+                       th:value="${condition.keyword}"
+                       placeholder="회원 ID, 현재/이전/변경 후 닉네임 검색">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="changeType">구분</label>
+                <select class="form-control" id="changeType" name="changeType">
+                    <option value="">전체</option>
+                    <option value="INITIAL" th:selected="${condition.changeType == 'INITIAL'}">최초 설정</option>
+                    <option value="CHANGE" th:selected="${condition.changeType == 'CHANGE'}">닉네임 변경</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="sort">정렬</label>
+                <select class="form-control" id="sort" name="sort">
+                    <option th:each="sortType : ${sortTypes}"
+                            th:value="${sortType.name()}"
+                            th:text="${sortType.displayName}"
+                            th:selected="${condition.sort == sortType}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="size">목록 수</label>
+                <select class="form-control" id="size" name="size" data-role="page-size-select">
+                    <option value="20" th:selected="${condition.safeSize == 20}">20개씩</option>
+                    <option value="40" th:selected="${condition.safeSize == 40}">40개씩</option>
+                    <option value="60" th:selected="${condition.safeSize == 60}">60개씩</option>
+                </select>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-primary" type="submit">검색</button>
+                <a class="btn btn-secondary" th:href="@{/admin/nickname-histories}">초기화</a>
+                <a class="btn btn-secondary" th:href="@{/admin}">관리자 홈</a>
+            </div>
+        </form>
+    </section>
+
+    <section class="card">
+        <div class="table-wrapper admin-table-wrap">
+            <table class="common-table">
+                <thead>
+                    <tr>
+                        <th class="table-cell-id">ID</th>
+                        <th class="table-cell-id">회원 ID</th>
+                        <th class="table-cell-writer">현재 닉네임</th>
+                        <th class="table-cell-status">구분</th>
+                        <th class="table-cell-writer">이전 닉네임</th>
+                        <th class="table-cell-writer">변경 후 닉네임</th>
+                        <th class="table-cell-date">변경 시각</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${historyPage.isEmpty()}">
+                    <td colspan="7">저장된 닉네임 이력이 없습니다.</td>
+                </tr>
+
+                <tr th:each="history : ${historyPage.content}">
+                    <td class="table-cell-id" th:text="${history.id}"></td>
+                    <td class="table-cell-id" th:text="${history.memberId}"></td>
+
+                    <td class="table-cell-writer">
+                        <span class="table-title-text" th:text="${history.displayCurrentNickname}"></span>
+                    </td>
+
+                    <td class="table-cell-status" th:text="${history.displayChangeType}"></td>
+
+                    <td class="table-cell-writer">
+                        <span class="table-title-text" th:text="${history.displayPreviousNickname}"></span>
+                    </td>
+
+                    <td class="table-cell-writer">
+                        <span class="table-title-text" th:text="${history.displayNewNickname}"></span>
+                    </td>
+
+                    <td class="table-cell-date" th:text="${#temporals.format(history.changedAt, 'yyyy-MM-dd HH:mm')}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card" th:if="${!historyPage.isEmpty()}">
+        <p th:text="|총 ${historyPage.totalElements}건 · ${historyPage.number + 1}/${historyPage.totalPages} 페이지|"></p>
+
+        <div class="actions"
+             th:replace="~{fragments/pagination :: pager(
+                ${historyPage},
+                @{/admin/nickname-histories},
+                ${'searchType=' + condition.searchType
+                    + '&keyword=' + (condition.keyword != null ? condition.keyword : '')
+                    + '&changeType=' + (condition.changeType != null ? condition.changeType : '')
+                    + '&sort=' + condition.sort
+                    + '&size=' + condition.safeSize}
+             )}">
+        </div>
+    </section>
+</main>
+
+<script th:inline="javascript">
+    window.addEventListener('DOMContentLoaded', function () {
+        PageSizeManager.initPageSizeForm('adminNicknameHistorySearchForm');
+    });
+</script>
+
+<div th:replace="~{fragments/header :: siteFooter}"></div>
+</body>
+</html>

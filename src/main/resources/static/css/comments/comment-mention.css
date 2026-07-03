@@ -1,0 +1,47 @@
+/* =========================================================
+   Comment: 멘션 표시
+   - 본문 안의 @닉네임 강조
+   - 멘션 텍스트 버튼 hover
+   ========================================================= */
+
+.comment-mention {
+    color: var(--color-primary);
+    font-weight: 700;
+}
+
+.mention-text-btn {
+    font: inherit;
+    font-weight: 700;
+    color: inherit;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.mention-text-btn:hover {
+    color: var(--color-primary);
+}
+
+/* =========================================================
+   Comment: 멘션 안내/제한 메시지
+   - mention-guide는 태그가 1개 이상일 때만 JS가 표시
+   - 인원 제한이 비활성화되면 "최대 N명" 대신 단순 태그 개수만 표시 가능
+   - mention-limit-error는 태그 인원 제한 정책이 활성화된 경우에만 JS가 표시
+   - 제한 없음 정책일 때는 hidden 상태로 유지
+   ========================================================= */
+
+.mention-guide {
+    margin-top: 6px;
+    font-size: 0.9em;
+    color: var(--color-muted);
+}
+
+.mention-limit-error {
+    margin-top: 6px;
+    font-size: 0.9em;
+    color: var(--color-danger);
+}
+

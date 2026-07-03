@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="basicInfo">
+    <section class="card">
+        <h3 class="card-title">기본 정보</h3>
+
+        <div class="table-wrapper">
+            <table class="common-table">
+                <tbody>
+                <tr>
+                    <th>ID</th>
+                    <td th:text="${memberDetail.id}"></td>
+                </tr>
+                <tr>
+                    <th>아이디</th>
+                    <td th:text="${memberDetail.username}"></td>
+                </tr>
+                <tr>
+                    <th>닉네임</th>
+                    <td th:text="${memberDetail.displayNickname}"></td>
+                </tr>
+                <tr>
+                    <th>이메일</th>
+                    <td th:text="${memberDetail.displayEmail}"></td>
+                </tr>
+                <tr>
+                    <th>권한</th>
+                    <td th:text="${memberDetail.role}"></td>
+                </tr>
+                <tr>
+                    <th>상태</th>
+                    <td th:text="${memberDetail.status}"></td>
+                </tr>
+                <tr>
+                    <th>가입일</th>
+                    <td th:text="${#temporals.format(memberDetail.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                </tr>
+                <tr th:if="${memberDetail.nicknameChangedAt != null}">
+                    <th>닉네임 변경일</th>
+                    <td th:text="${#temporals.format(memberDetail.nicknameChangedAt, 'yyyy-MM-dd HH:mm')}"></td>
+                </tr>
+                <tr th:if="${memberDetail.withdrawnAt != null}">
+                    <th>탈퇴일</th>
+                    <td th:text="${#temporals.format(memberDetail.withdrawnAt, 'yyyy-MM-dd HH:mm')}"></td>
+                </tr>
+                <tr th:if="${memberDetail.withdrawExpireAt != null}">
+                    <th>탈퇴 유예 만료일</th>
+                    <td th:text="${#temporals.format(memberDetail.withdrawExpireAt, 'yyyy-MM-dd HH:mm')}"></td>
+                </tr>
+                <tr th:if="${memberDetail.finalizedAt != null}">
+                    <th>최종 종료일</th>
+                    <td th:text="${#temporals.format(memberDetail.finalizedAt, 'yyyy-MM-dd HH:mm')}"></td>
+                </tr>
+                <tr th:if="${memberDetail.suspendedAt != null}">
+                    <th>정지 시작 시각</th>
+                    <td th:text="${#temporals.format(memberDetail.suspendedAt, 'yyyy-MM-dd HH:mm')}"></td>
+                </tr>
+                <tr th:if="${memberDetail.temporarySuspended}">
+                    <th>정지 해제 예정 시각</th>
+                    <td th:text="${#temporals.format(memberDetail.suspendedUntil, 'yyyy-MM-dd HH:mm')}"></td>
+                </tr>
+                <tr th:if="${memberDetail.temporarySuspended}">
+                    <th>남은 정지 기간</th>
+                    <td th:text="|${memberDetail.suspensionRemainingDays}일|"></td>
+                </tr>
+                <tr th:if="${memberDetail.permanentSuspended}">
+                    <th>정지 유형</th>
+                    <td>영구정지</td>
+                </tr>
+                <tr th:if="${memberDetail.suspendedAt != null}">
+                    <th>정지 사유</th>
+                    <td th:text="${memberDetail.suspensionReasonDisplay}"></td>
+                </tr>
+                <tr>
+                    <th>기간정지 누적 횟수</th>
+                    <td th:text="${memberDetail.safeSuspensionCount}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</th:block>
+
+</html>
