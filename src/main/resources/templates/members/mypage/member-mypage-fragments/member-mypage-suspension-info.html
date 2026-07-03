@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="memberMypageSuspensionInfo">
+    <div class="card" th:if="${member.suspended}">
+        <h2 class="card-title">이용 제한 상태 안내</h2>
+
+        <p>
+            현재 회원님의 계정은 운영 정책에 따라 이용이 정지된 상태입니다.
+        </p>
+
+        <p>
+            회원님은 <strong th:text="${member.suspensionReasonDisplay}"></strong> 사유로 이용이 정지되었습니다.
+        </p>
+
+        <div class="member-info-list">
+            <div class="member-info-label" th:if="${member.suspendedAt != null}">정지 시작 시각</div>
+            <div class="member-info-value"
+                 th:if="${member.suspendedAt != null}"
+                 th:text="${#temporals.format(member.suspendedAt, 'yyyy-MM-dd HH:mm')}"></div>
+
+            <div class="member-info-label" th:if="${member.temporarySuspended}">정지 해제 예정 시각</div>
+            <div class="member-info-value"
+                 th:if="${member.temporarySuspended}"
+                 th:text="${#temporals.format(member.suspendedUntil, 'yyyy-MM-dd HH:mm')}"></div>
+
+            <div class="member-info-label" th:if="${member.temporarySuspended}">남은 정지 기간</div>
+            <div class="member-info-value"
+                 th:if="${member.temporarySuspended}"
+                 th:text="|${member.suspensionRemainingDays}일|"></div>
+
+            <div class="member-info-label" th:if="${member.permanentSuspended}">정지 유형</div>
+            <div class="member-info-value" th:if="${member.permanentSuspended}">영구정지</div>
+        </div>
+
+        <p class="text-muted" style="margin-top: 12px;">
+            정지 회원은 일부 기능만 이용할 수 있으며, 소명이나 문의가 필요하면 이용문의 게시판을 이용해주세요.
+        </p>
+    </div>
+</th:block>
+
+</html>

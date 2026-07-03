@@ -1,79 +1,107 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<th:block th:fragment="adminMemberSearchForm">
-    <section class="card">
-        <form id="adminMemberSearchForm" th:action="@{/admin/members}" method="get" class="search-form">
+<th:block th:fragment="adminMemberFilterForm">
+    <section class="card search-card search-card-top-card">
+        <form id="adminMemberFilterForm"
+              th:action="@{/admin/members}"
+              method="get"
+              class="search-toolbar-form">
+
             <input type="hidden" name="page" th:value="${memberPage.number + 1}">
             <input type="hidden" data-role="current-page" th:value="${memberPage.number + 1}">
             <input type="hidden" data-role="current-size" th:value="${memberPage.size}">
+            <input type="hidden" name="searchType" th:value="${condition.searchType}">
+            <input type="hidden" name="keyword" th:value="${condition.keyword}">
 
-            <div class="form-group">
-                <label class="form-label" for="searchType">검색 항목</label>
-                <select class="form-control" id="searchType" name="searchType">
-                    <option th:each="searchType : ${searchTypes}"
-                            th:value="${searchType.name()}"
-                            th:text="${searchType.name()}"
-                            th:selected="${condition.searchType == searchType}">
-                    </option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="keyword">검색어</label>
-                <input class="form-control"
-                       id="keyword"
-                       type="text"
-                       name="keyword"
-                       th:value="${condition.keyword}"
-                       placeholder="아이디, 닉네임, 이메일, 권한, 상태 검색">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="role">권한 필터</label>
-                <select class="form-control" id="role" name="role">
+            <div class="search-toolbar-left">
+                <span class="filter-label">권한</span>
+                <select class="form-control search-control-compact"
+                        id="role"
+                        name="role"
+                        data-role="instant-search-control">
                     <option value="">전체</option>
                     <option th:each="role : ${roles}"
                             th:value="${role.name()}"
-                            th:text="${role.name()}"
+                            th:text="${role.description}"
                             th:selected="${condition.role == role}">
                     </option>
                 </select>
-            </div>
 
-            <div class="form-group">
-                <label class="form-label" for="status">상태 필터</label>
-                <select class="form-control" id="status" name="status">
+                <span class="filter-label">상태</span>
+                <select class="form-control search-control-compact"
+                        id="status"
+                        name="status"
+                        data-role="instant-search-control">
                     <option value="">전체</option>
                     <option th:each="status : ${statuses}"
                             th:value="${status.name()}"
-                            th:text="${status.name()}"
+                            th:text="${status.description}"
                             th:selected="${condition.status == status}">
                     </option>
                 </select>
-            </div>
 
-            <div class="form-group">
-                <label class="form-label" for="sort">정렬</label>
-                <select class="form-control" id="sort" name="sort">
+                <select class="form-control search-control-compact"
+                        id="sort"
+                        name="sort"
+                        data-role="instant-search-control">
                     <option value="LATEST" th:selected="${condition.sort == T(com.gahih.domain.admin.enumtype.AdminMemberSortType).LATEST}">최신 가입순</option>
-                    <option value="OLDEST" th:selected="${condition.sort == T(com.gahih.domain.admin.enumtype.AdminMemberSortType).OLDEST}">오래된 순</option>
+                    <option value="OLDEST" th:selected="${condition.sort == T(com.gahih.domain.admin.enumtype.AdminMemberSortType).OLDEST}">오래된순</option>
                     <option value="NICKNAME" th:selected="${condition.sort == T(com.gahih.domain.admin.enumtype.AdminMemberSortType).NICKNAME}">닉네임순</option>
                 </select>
-            </div>
 
-            <div class="form-group">
-                <label class="form-label" for="size">목록 수</label>
-                <select class="form-control" id="size" name="size" data-role="page-size-select">
+                <select class="form-control search-control-compact"
+                        id="size"
+                        name="size"
+                        data-role="page-size-select">
                     <option value="20" th:selected="${condition.safeSize == 20}">20개씩</option>
                     <option value="40" th:selected="${condition.safeSize == 40}">40개씩</option>
                     <option value="60" th:selected="${condition.safeSize == 60}">60개씩</option>
                 </select>
             </div>
 
-            <div class="actions">
-                <button class="btn btn-primary" type="submit">검색</button>
-                <a class="btn btn-secondary" th:href="@{/admin/members}">초기화</a>
+            <div class="search-toolbar-right"></div>
+        </form>
+    </section>
+</th:block>
+
+<th:block th:fragment="adminMemberKeywordSearchForm">
+    <section class="card search-card search-card-bottom-card">
+        <form id="adminMemberKeywordSearchForm"
+              th:action="@{/admin/members}"
+              method="get"
+              class="search-keyword-form">
+
+            <input type="hidden" name="page" value="1">
+            <input type="hidden" name="role" th:value="${condition.role}">
+            <input type="hidden" name="status" th:value="${condition.status}">
+            <input type="hidden" name="sort" th:value="${condition.sort}">
+            <input type="hidden" name="size" th:value="${condition.safeSize}">
+
+            <div class="search-keyword-row">
+                <select class="form-control search-control-compact search-type-control"
+                        id="searchType"
+                        name="searchType">
+                    <option th:each="searchType : ${searchTypes}"
+                            th:value="${searchType.name()}"
+                            th:text="${searchType.description}"
+                            th:selected="${condition.searchType == searchType}">
+                    </option>
+                </select>
+
+                <input class="form-control search-keyword-input"
+                       id="keyword"
+                       type="text"
+                       name="keyword"
+                       th:value="${condition.keyword}"
+                       placeholder="선택한 조건으로 검색">
+
+                <button class="btn btn-primary btn-small search-nowrap-button" type="submit">검색</button>
+
+                <a class="btn btn-secondary btn-small search-nowrap-button"
+                   th:href="@{/admin/members}">
+                    초기화
+                </a>
             </div>
         </form>
     </section>

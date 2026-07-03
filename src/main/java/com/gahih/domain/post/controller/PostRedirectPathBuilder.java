@@ -8,7 +8,7 @@ import org.springframework.web.util.UriUtils;
 import java.nio.charset.StandardCharsets;
 
 @Component
-class PostWebPathBuilder {
+class PostRedirectPathBuilder {
 
     String detailPath(String communityCode, Long postId, boolean fromCreate, PostDetailContext detailContext) {
         StringBuilder sb = new StringBuilder("/c/")
@@ -91,12 +91,33 @@ class PostWebPathBuilder {
             first = false;
         }
 
+        if (detailContext.getOnlyWithAttachments() != null) {
+            sb.append(first ? "?" : "&").append("onlyWithAttachments=").append(detailContext.getOnlyWithAttachments());
+            first = false;
+        }
+
+        if (detailContext.getTradeType() != null) {
+            sb.append(first ? "?" : "&").append("tradeType=").append(detailContext.getTradeType().name());
+            first = false;
+        }
+
+        if (detailContext.getTradeStatus() != null) {
+            sb.append(first ? "?" : "&").append("tradeStatus=").append(detailContext.getTradeStatus().name());
+            first = false;
+        }
+
+        if (detailContext.getDimClosedTrade() != null) {
+            sb.append(first ? "?" : "&").append("dimClosedTrade=").append(detailContext.getDimClosedTrade());
+            first = false;
+        }
+
         if (detailContext.getSort() != null && !detailContext.getSort().isBlank()) {
             sb.append(first ? "?" : "&").append("sort=").append(detailContext.getSort());
             first = false;
         }
 
-        if (detailContext.isAdminPostsSource() && detailContext.getOnlyWithAttachments() != null) {
+        if ((detailContext.isAdminPostsSource() || detailContext.isMyPostsSource())
+                && detailContext.getOnlyWithAttachments() != null) {
             sb.append(first ? "?" : "&").append("onlyWithAttachments=").append(detailContext.getOnlyWithAttachments());
             first = false;
         }
@@ -165,6 +186,21 @@ class PostWebPathBuilder {
 
         if (detailContext.getSecretOrNull() != null) {
             sb.append(first ? "?" : "&").append("secret=").append(detailContext.getSecretOrNull());
+            first = false;
+        }
+
+        if (detailContext.getTradeType() != null) {
+            sb.append(first ? "?" : "&").append("tradeType=").append(detailContext.getTradeType().name());
+            first = false;
+        }
+
+        if (detailContext.getTradeStatus() != null) {
+            sb.append(first ? "?" : "&").append("tradeStatus=").append(detailContext.getTradeStatus().name());
+            first = false;
+        }
+
+        if (detailContext.getDimClosedTrade() != null) {
+            sb.append(first ? "?" : "&").append("dimClosedTrade=").append(detailContext.getDimClosedTrade());
             first = false;
         }
 

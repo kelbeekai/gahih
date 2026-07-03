@@ -21,20 +21,22 @@
             님의 계정은 현재 탈퇴 유예 상태입니다.
         </p>
 
-        <p th:if="${withdrawnInfo.withdrawnAt != null}">
-            탈퇴 신청 시각:
-            <span th:text="${#temporals.format(withdrawnInfo.withdrawnAt, 'yyyy-MM-dd HH:mm')}"></span>
-        </p>
+        <div class="member-info-list">
+            <div class="member-info-label" th:if="${withdrawnInfo.withdrawnAt != null}">탈퇴 신청 시각</div>
+            <div class="member-info-value"
+                 th:if="${withdrawnInfo.withdrawnAt != null}"
+                 th:text="${#temporals.format(withdrawnInfo.withdrawnAt, 'yyyy-MM-dd HH:mm')}"></div>
 
-        <p th:if="${withdrawnInfo.withdrawExpireAt != null}">
-            복구 가능 만료 시각:
-            <span th:text="${#temporals.format(withdrawnInfo.withdrawExpireAt, 'yyyy-MM-dd HH:mm')}"></span>
-        </p>
+            <div class="member-info-label" th:if="${withdrawnInfo.withdrawExpireAt != null}">복구 가능 만료 시각</div>
+            <div class="member-info-value"
+                 th:if="${withdrawnInfo.withdrawExpireAt != null}"
+                 th:text="${#temporals.format(withdrawnInfo.withdrawExpireAt, 'yyyy-MM-dd HH:mm')}"></div>
 
-        <p th:if="${!withdrawnInfo.expired}">
-            남은 복구 가능 기간:
-            <strong id="withdraw-countdown">계산 중...</strong>
-        </p>
+            <div class="member-info-label" th:if="${!withdrawnInfo.expired}">남은 복구 가능 기간</div>
+            <div class="member-info-value" th:if="${!withdrawnInfo.expired}">
+                <strong id="withdraw-countdown">계산 중...</strong>
+            </div>
+        </div>
 
         <div th:if="${!withdrawnInfo.expired}">
             <p class="text-muted">

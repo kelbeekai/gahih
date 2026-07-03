@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="memberMypageAccountActions">
+    <div class="card">
+        <h3>계정 관리</h3>
+        <div class="actions">
+            <a class="btn btn-secondary" th:href="@{/mypage/edit}">내 정보 수정</a>
+            <a class="btn btn-secondary" th:href="@{/mypage/password}">비밀번호 변경</a>
+            <a class="btn btn-danger" th:if="${member.withdrawAllowed}" th:href="@{/mypage/withdraw}">회원 탈퇴</a>
+            <span th:if="${!member.withdrawAllowed}" class="text-muted">현재 상태에서는 탈퇴할 수 없습니다.</span>
+
+            <a class="btn btn-primary"
+               th:if="${loginMember.role == T(com.gahih.domain.member.enumtype.MemberRole).ADMIN}"
+               th:href="@{/admin}">관리자 페이지</a>
+        </div>
+    </div>
+
+    <div class="card" th:if="${currentCommunity == null}">
+        <h2 class="card-title">커뮤니티별 마이페이지</h2>
+        <ul class="board-summary-list">
+            <li th:each="community : ${communities}">
+                <strong th:text="${community.name}">국가명</strong>
+                <a th:href="@{/c/{communityCode}/mypage(communityCode=${community.code})}">
+                    커뮤니티 마이페이지
+                </a>
+                <a th:href="@{/c/{communityCode}/mypage/posts(communityCode=${community.code})}"
+                   style="margin-left: 8px;">
+                    내가 쓴 글
+                </a>
+            </li>
+        </ul>
+    </div>
+</th:block>
+
+</html>

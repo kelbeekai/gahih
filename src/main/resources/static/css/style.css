@@ -1,0 +1,12 @@
+/* =========================================================
+   Style Entry Point
+   - CSS를 한 번에 불러오기 위한 import 전용 파일
+   - layout fragment에서 개별 CSS를 직접 링크한다면 선택적으로만 사용
+   ========================================================= */
+
+@import url('/css/base/base.css');
+@import url('/css/layout/layout.css');
+@import url('/css/components/components.css');
+@import url('/css/pages/pages.css');
+@import url('/css/admin/admin.css');
+@import url('/css/comments/comment.css');

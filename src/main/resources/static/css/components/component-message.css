@@ -36,6 +36,20 @@
     font-size: 0.9em;
 }
 
+.status-label-muted {
+    color: var(--color-muted);
+}
+
+.table-title-status-link {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.table-title-status-link:hover .status-label-muted {
+    color: var(--color-text);
+}
+
 .icon-marker {
     margin-right: 6px;
 }

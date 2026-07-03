@@ -4,11 +4,9 @@ import com.gahih.domain.member.dto.MemberPasswordChangeRequest;
 import com.gahih.domain.member.dto.MemberUpdateRequest;
 import com.gahih.domain.member.dto.MemberWithdrawRequest;
 import com.gahih.domain.member.entity.Member;
-import com.gahih.domain.member.service.EmailChangeAuthFacade;
-import com.gahih.domain.member.service.MemberService;
+import com.gahih.domain.member.service.email.EmailChangeAuthFacade;
+import com.gahih.domain.member.service.account.MemberAccountService;
 import com.gahih.domain.member.session.LoginMember;
-import com.gahih.domain.post.entity.Post;
-import com.gahih.domain.post.repository.PostRepository;
 import com.gahih.global.argumentresolver.Login;
 import com.gahih.global.common.SessionConst;
 import com.gahih.global.exception.BusinessException;
@@ -26,19 +24,16 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
-
 @Controller
 @RequiredArgsConstructor
-public class MyPageAccountWebController {
+public class MyPageAccountController {
 
-    private final MemberService memberService;
+    private final MemberAccountService memberAccountService;
     private final EmailChangeAuthFacade emailChangeAuthFacade;
-    private final PostRepository postRepository;
 
     @GetMapping("/mypage/edit")
     public String editMyPageForm(@Login LoginMember loginMember, Model model) {
-        MemberUpdateRequest memberUpdateRequest = memberService.getMemberUpdateForm(loginMember.getId());
+        MemberUpdateRequest memberUpdateRequest = memberAccountService.getMemberUpdateForm(loginMember.getId());
 
         model.addAttribute("loginMember", loginMember);
         model.addAttribute("memberUpdateRequest", memberUpdateRequest);
@@ -59,7 +54,7 @@ public class MyPageAccountWebController {
             return "redirect:" + LoginRedirectHelper.createLoginPathForPost(request, "/mypage/edit");
         }
 
-        String originalEmail = memberService.getMemberUpdateForm(loginMember.getId()).getEmail();
+        String originalEmail = memberAccountService.getMemberUpdateForm(loginMember.getId()).getEmail();
 
         model.addAttribute("loginMember", loginMember);
         model.addAttribute("originalEmail", originalEmail);
@@ -71,7 +66,7 @@ public class MyPageAccountWebController {
         }
 
         try {
-            memberService.updateMember(loginMember.getId(), memberUpdateRequest);
+            memberAccountService.updateMember(loginMember.getId(), memberUpdateRequest);
             return "redirect:/mypage";
         } catch (BusinessException | DomainValidationException e) {
             bindingResult.reject("editFail", e.getMessage());
@@ -106,7 +101,7 @@ public class MyPageAccountWebController {
         }
 
         try {
-            memberService.changePassword(loginMember.getId(), memberPasswordChangeRequest);
+            memberAccountService.changePassword(loginMember.getId(), memberPasswordChangeRequest);
 
             HttpSession session = request.getSession(false);
             if (session != null) {
@@ -129,7 +124,7 @@ public class MyPageAccountWebController {
     public String withdrawForm(@Login LoginMember loginMember, Model model) {
         model.addAttribute("loginMember", loginMember);
 
-        if (!memberService.isWithdrawAllowed(loginMember.getId())) {
+        if (!memberAccountService.isWithdrawAllowed(loginMember.getId())) {
             return "redirect:/members/suspended";
         }
 
@@ -156,11 +151,9 @@ public class MyPageAccountWebController {
         }
 
         try {
-            unpinAllPinnedPostsOfMember(loginMember.getId());
+            memberAccountService.withdraw(loginMember.getId(), memberWithdrawRequest.getPassword());
 
-            memberService.withdraw(loginMember.getId(), memberWithdrawRequest.getPassword());
-
-            Member withdrawnMember = memberService.getMember(loginMember.getId());
+            Member withdrawnMember = memberAccountService.getMember(loginMember.getId());
 
             HttpSession session = request.getSession(false);
             if (session != null) {
@@ -174,11 +167,5 @@ public class MyPageAccountWebController {
         }
     }
 
-    private void unpinAllPinnedPostsOfMember(Long memberId) {
-        List<Post> pinnedPosts = postRepository.findAllByMemberIdAndPinnedTrue(memberId);
 
-        for (Post post : pinnedPosts) {
-            post.unpin();
-        }
-    }
 }

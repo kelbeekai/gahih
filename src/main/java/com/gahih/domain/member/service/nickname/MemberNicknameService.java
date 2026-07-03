@@ -1,4 +1,4 @@
-package com.gahih.domain.member.service;
+package com.gahih.domain.member.service.nickname;
 
 import com.gahih.domain.admin.entity.AdminLog;
 import com.gahih.domain.admin.enumtype.AdminLogTargetType;

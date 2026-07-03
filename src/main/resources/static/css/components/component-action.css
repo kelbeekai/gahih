@@ -23,3 +23,151 @@
     align-items: end;
 }
 
+.search-card {
+    padding: 10px 12px;
+}
+
+.search-card-top-card {
+    margin-bottom: 10px;
+}
+
+.search-card-bottom-card {
+    margin-top: 10px;
+}
+
+.search-toolbar-form {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.search-toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.search-toolbar-right {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.search-keyword-form {
+    display: flex;
+    justify-content: center;
+}
+
+.search-keyword-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    width: min(100%, 420px);
+}
+
+.search-control-compact {
+    width: auto;
+    min-width: 96px;
+    height: 32px;
+    padding: 4px 8px;
+    font-size: 0.9rem;
+}
+
+.search-keyword-input {
+    min-width: 200px;
+    height: 32px;
+    padding: 4px 9px;
+    font-size: 0.92rem;
+}
+
+.search-nowrap-button {
+    flex-shrink: 0;
+    min-width: 54px;
+    white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+    .search-toolbar-form {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .search-toolbar-right {
+        justify-content: flex-start;
+    }
+
+    .search-keyword-row {
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+        width: 100%;
+    }
+
+    .search-keyword-input {
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+}
+
+.context-list-card {
+    margin-top: 10px;
+}
+
+.context-search-card {
+    margin-top: 10px;
+}
+
+.search-type-control {
+    min-width: 144px;
+}
+
+.report-sort-control{
+    min-width:160px;
+}
+
+.filter-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+}
+
+.filter-popover-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.admin-log-date-popover {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 20;
+
+    align-items: center;
+    gap: 6px;
+
+    padding: 8px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
+    white-space: nowrap;
+}
+
+.admin-log-date-popover.is-visible {
+    display: flex;
+}
+
+.search-date-input {
+    width: 138px;
+    min-width: 138px;
+    height: 32px;
+    padding: 4px 8px;
+    font-size: 0.9rem;
+}
+

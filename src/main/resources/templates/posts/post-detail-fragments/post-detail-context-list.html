@@ -3,183 +3,433 @@
 
 <th:block th:fragment="contextList">
 
-    <section class="card" th:if="${detailContext.listLikeSource}">
-        <div class="detail-header-row">
-            <h3 class="card-title" th:text="${
-                    detailContext.myPostsSource
-                        ? '내가 쓴 글 목록'
-                        : (detailContext.adminPostsSource
-                            ? '게시글 관리 목록'
-                            : (selectedContextCategory != null
-                                ? selectedContextCategory.name + ' 게시글 목록'
-                                : '전체 게시글 목록'))
+    <th:block th:if="${detailContext.listLikeSource}">
+
+        <section class="card search-card search-card-top-card">
+            <form id="detailContextFilterForm"
+                  th:action="@{/c/{communityCode}/posts/{id}(communityCode=${currentCommunity.code}, id=${postDetail.id})}"
+                  method="get"
+                  class="search-toolbar-form">
+
+                <input type="hidden" name="fromCreate" th:value="${fromCreate}">
+                <input type="hidden" name="source" th:value="${detailContext.source}">
+                <input type="hidden" name="returnUrl" th:value="${detailContext.returnUrl}">
+                <input type="hidden" name="categoryId" th:value="${detailContext.categoryId}">
+                <input type="hidden" name="keyword" th:value="${detailContext.keyword}">
+                <input type="hidden" name="onlyWithAttachments" th:value="${detailContext.onlyWithAttachments}">
+                <input type="hidden" name="commentSort" th:value="${commentCondition.sort}">
+                <input type="hidden" name="commentPage" th:value="${commentCondition.safePage}">
+
+                <input type="hidden" name="page" th:value="${detailContext.safePage}">
+                <input type="hidden" data-role="current-page" th:value="${detailContext.safePage}">
+                <input type="hidden" data-role="current-size" th:value="${detailContext.safeSize}">
+
+                <div class="search-toolbar-left">
+                    <select class="form-control search-control-compact"
+                            id="detailContextSort"
+                            name="sort"
+                            aria-label="정렬"
+                            data-role="instant-search-control">
+                        <option value="LATEST"
+                                th:selected="${detailContext.sort == T(com.gahih.domain.post.enumtype.PostSortType).LATEST}">
+                            최신순
+                        </option>
+                        <option value="OLDEST"
+                                th:selected="${detailContext.sort == T(com.gahih.domain.post.enumtype.PostSortType).OLDEST}">
+                            오래된순
+                        </option>
+                        <option value="VIEWS"
+                                th:selected="${detailContext.sort == T(com.gahih.domain.post.enumtype.PostSortType).VIEWS}">
+                            조회수순
+                        </option>
+                        <option value="LIKE_COUNT"
+                                th:selected="${detailContext.sort == T(com.gahih.domain.post.enumtype.PostSortType).LIKE_COUNT}">
+                            좋아요순
+                        </option>
+                        <option value="COMMENT_COUNT"
+                                th:selected="${detailContext.sort == T(com.gahih.domain.post.enumtype.PostSortType).COMMENT_COUNT}">
+                            댓글순
+                        </option>
+                    </select>
+
+                    <select class="form-control search-control-compact"
+                            id="detailContextSize"
+                            name="size"
+                            aria-label="목록 수"
+                            data-role="page-size-select">
+                        <option value="20" th:selected="${detailContext.safeSize == 20}">20개씩</option>
+                        <option value="40" th:selected="${detailContext.safeSize == 40}">40개씩</option>
+                        <option value="60" th:selected="${detailContext.safeSize == 60}">60개씩</option>
+                    </select>
+
+                    <select class="form-control search-control-compact"
+                            id="detailContextOnlyWithAttachments"
+                            name="onlyWithAttachments"
+                            aria-label="첨부파일"
+                            data-role="instant-search-control">
+                        <option value="" th:selected="${detailContext.onlyWithAttachments == null}">첨부파일</option>
+                        <option value="true" th:selected="${detailContext.onlyWithAttachments == true}">첨부있음</option>
+                        <option value="false" th:selected="${detailContext.onlyWithAttachments == false}">첨부없음</option>
+                    </select>
+
+                    <select th:if="${selectedContextCategory != null
+                                    and selectedContextCategory.code == T(com.gahih.domain.category.enumtype.CategoryCode).INQUIRY}"
+                            class="form-control search-control-compact"
+                            id="detailContextSecret"
+                            name="secret"
+                            aria-label="비밀글"
+                            data-role="instant-search-control">
+                        <option value="" th:selected="${detailContext.secret == null}">전체글</option>
+                        <option value="true" th:selected="${detailContext.secret == true}">비밀글</option>
+                        <option value="false" th:selected="${detailContext.secret == false}">일반글</option>
+                    </select>
+                </div>
+
+                <div class="search-toolbar-right">
+                    <a class="btn btn-primary btn-small"
+                       th:if="${detailContext.postListSource
+                            and detailContext.categoryId != null
+                            and selectedContextCategory != null
+                            and (loginMember == null
+                                or !selectedContextCategory.adminWriteOnly
+                                or loginMember.role.name() == 'ADMIN')}"
+                       th:href="@{/c/{communityCode}/posts/new(
+                            communityCode=${currentCommunity.code},
+                            source=${detailContext.source},
+                            returnUrl=${detailContext.returnUrl},
+                            categoryId=${detailContext.categoryId},
+                            keyword=${detailContext.keyword},
+                            onlyWithAttachments=${detailContext.onlyWithAttachments},
+                            secret=${detailContext.secret},
+                            tradeType=${detailContext.tradeType},
+                            tradeStatus=${detailContext.tradeStatus},
+                            sort=${detailContext.sort},
+                            page=${detailContext.safePage},
+                            size=${detailContext.safeSize}
+                       )}">
+                        글 작성
+                    </a>
+                </div>
+            </form>
+        </section>
+
+        <section class="card context-list-card">
+            <div class="detail-header-row">
+                <h3 class="card-title" th:text="${
+                        detailContext.myPostsSource
+                            ? '내가 쓴 글 목록'
+                            : (detailContext.adminPostsSource
+                                ? '게시글 관리 목록'
+                                : (selectedContextCategory != null
+                                    ? selectedContextCategory.name + ' 게시글 목록'
+                                    : '전체 게시글 목록'))
+                    }">
+                    게시글 목록
+                </h3>
+            </div>
+
+            <p class="context-description"
+               th:text="${
+                    detailContext.myPostsSource || detailContext.adminPostsSource
+                        ? '검색 조건이 적용된 목록입니다.'
+                        : (selectedContextCategory != null
+                            ? selectedContextCategory.description
+                            : '검색 조건이 적용된 목록입니다.')
                 }">
-                게시글 목록
-            </h3>
+                검색 조건이 적용된 목록입니다.
+            </p>
 
-            <a class="btn btn-primary"
-               th:if="${loginMember != null
-                    and detailContext.postListSource
-                    and detailContext.categoryId != null
-                    and selectedContextCategory != null
-                    and (!selectedContextCategory.adminWriteOnly or loginMember.role.name() == 'ADMIN')}"
-               th:href="@{/c/{communityCode}/posts/new(
-                    communityCode=${currentCommunity.code},
-                    source=${detailContext.source},
-                    returnUrl=${detailContext.returnUrl},
-                    categoryId=${detailContext.categoryId},
-                    keyword=${detailContext.keyword},
-                    secret=${detailContext.secret},
-                    sort=${detailContext.sort},
-                    page=${detailContext.safePage},
-                    size=${detailContext.safeSize}
-               )}">
-                글 작성
-            </a>
-        </div>
+            <div class="table-wrapper">
+                <table class="common-table">
+                    <thead>
+                    <tr>
+                        <th class="table-cell-id">ID</th>
+                        <th class="table-cell-category">카테고리</th>
+                        <th class="table-cell-title">제목</th>
+                        <th class="table-cell-writer">작성자</th>
+                        <th class="table-cell-number">조회수</th>
+                        <th class="table-cell-number">좋아요</th>
+                        <th class="table-cell-date">작성일</th>
+                    </tr>
+                    </thead>
+                    <tbody>
 
-        <p class="context-description"
-           th:text="${
-                detailContext.myPostsSource || detailContext.adminPostsSource
-                    ? '현재 목록 컨텍스트를 그대로 보여줍니다.'
-                    : (selectedContextCategory != null
-                        ? selectedContextCategory.description
-                        : '현재 목록 컨텍스트를 그대로 보여줍니다.')
-            }">
-            현재 목록 컨텍스트를 그대로 보여줍니다.
-        </p>
+                    <tr th:each="post : ${detailPinnedPosts}"
+                        th:style="${post.id == currentDetailPostId} ? 'background-color: #fff3cd; font-weight: 600;' : 'background-color: #fff8e1;'">
+                        <td class="table-cell-id" th:text="${post.id}"></td>
+                        <td class="table-cell-category" th:text="${post.categoryName}"></td>
+                        <td class="table-cell-title">
+                            <div class="table-title-line">
+                                <th:block th:if="${post.userDeletedContext or (post.deletedOrBlinded and !detailContext.adminPostsSource)}">
+                                    <a class="table-title-status-link"
+                                       th:href="@{/c/{communityCode}/posts/{id}(
+                                            communityCode=${currentCommunity.code},
+                                            id=${post.id},
+                                            source=${detailContext.source},
+                                            returnUrl=${detailContext.returnUrl},
+                                            categoryId=${detailContext.categoryId},
+                                            keyword=${detailContext.keyword},
+                                            secret=${detailContext.secret},
+                                            tradeType=${detailContext.tradeType},
+                                            tradeStatus=${detailContext.tradeStatus},
+                                            dimClosedTrade=${detailContext.dimClosedTrade},
+                                            sort=${detailContext.sort},
+                                            onlyWithAttachments=${detailContext.onlyWithAttachments},
+                                            page=${detailContext.safePage},
+                                            size=${detailContext.safeSize},
+                                            commentSort=${commentCondition.sort},
+                                            commentPage=${commentCondition.safePage}
+                                       )}">
+                                        <span class="status-label"
+                                              th:classappend="${!detailContext.adminPostsSource or post.currentUserDeleted} ? ' status-label-muted' : ''"
+                                              th:text="${'[' + post.statusLabel + ']'}"></span>
+                                    </a>
+                                </th:block>
 
-        <div class="table-wrapper">
-            <table class="common-table">
-                <thead>
-                <tr>
-                    <th class="table-cell-id">ID</th>
-                    <th class="table-cell-category">카테고리</th>
-                    <th class="table-cell-title">제목</th>
-                    <th class="table-cell-writer">작성자</th>
-                    <th class="table-cell-number">조회수</th>
-                    <th class="table-cell-number">좋아요</th>
-                    <th class="table-cell-date">작성일</th>
-                </tr>
-                </thead>
-                <tbody>
+                                <th:block th:unless="${post.userDeletedContext or (post.deletedOrBlinded and !detailContext.adminPostsSource)}">
+                                    <span th:if="${post.deletedOrBlinded}"
+                                          class="status-label"
+                                          th:classappend="${detailContext.adminPostsSource} ? '' : ' status-label-muted'"
+                                          th:text="${'[' + post.statusLabel + ']'}"></span>
 
-                <tr th:each="post : ${detailPinnedPosts}"
-                    th:style="${post.id == currentDetailPostId} ? 'background-color: #fff3cd; font-weight: 600;' : 'background-color: #fff8e1;'">
-                    <td class="table-cell-id" th:text="${post.id}"></td>
-                    <td class="table-cell-category" th:text="${post.categoryName}"></td>
-                    <td class="table-cell-title">
-                        <span th:if="${post.deletedOrBlinded}"
-                              class="status-label"
-                              th:text="${'[' + post.statusLabel + ']'}"></span>
-                        <span th:if="${post.pinned}" class="icon-marker">📌</span>
-                        <span th:if="${post.secret}" class="icon-marker">🔒</span>
-                        <a th:href="@{/c/{communityCode}/posts/{id}(
+                                    <span th:if="${post.tradePost}"
+                                          class="trade-status-label"
+                                          th:classappend="${' ' + post.tradeStatusClass}"
+                                          th:text="${post.tradeStatusLabel}"></span>
+
+                                    <th:block th:if="${post.pinned}">
+                                        <th:block th:replace="~{fragments/icons :: pinMarker}"></th:block>
+                                    </th:block>
+                                    <th:block th:if="${post.secret}">
+                                        <th:block th:replace="~{fragments/icons :: lockMarker}"></th:block>
+                                    </th:block>
+
+                                    <span class="table-title-text">
+                                        <a th:href="@{/c/{communityCode}/posts/{id}(
+                                                communityCode=${currentCommunity.code},
+                                                id=${post.id},
+                                                source=${detailContext.source},
+                                                returnUrl=${detailContext.returnUrl},
+                                                categoryId=${detailContext.categoryId},
+                                                keyword=${detailContext.keyword},
+                                                secret=${detailContext.secret},
+                                                tradeType=${detailContext.tradeType},
+                                                tradeStatus=${detailContext.tradeStatus},
+                                                dimClosedTrade=${detailContext.dimClosedTrade},
+                                                sort=${detailContext.sort},
+                                                onlyWithAttachments=${detailContext.onlyWithAttachments},
+                                                page=${detailContext.safePage},
+                                                size=${detailContext.safeSize},
+                                                commentSort=${commentCondition.sort},
+                                                commentPage=${commentCondition.safePage}
+                                            )}"
+                                           th:text="${detailContext.adminPostsSource ? post.title : post.displayTitle}"></a>
+                                    </span>
+
+                                    <th:block th:if="${post.hasAttachments}">
+                                        <th:block th:replace="~{fragments/icons :: attachmentMarker}"></th:block>
+                                    </th:block>
+                                    <span th:if="${post.hasComments}" class="title-meta" th:text="| (${post.commentCount})|"></span>
+                                    <span th:if="${post.id == currentDetailPostId}"
+                                          class="title-meta detail-inline-spaced">
+                                        [현재 글]
+                                    </span>
+                                </th:block>
+                            </div>
+                        </td>
+                        <td class="table-cell-writer" th:text="${post.writerNickname}"></td>
+                        <td class="table-cell-number" th:text="${post.viewCount}"></td>
+                        <td class="table-cell-number" th:text="${post.likeCount}"></td>
+                        <td class="table-cell-date">
+                            <span th:text="${#temporals.format(post.displayTime, 'yyyy-MM-dd HH:mm')}"></span>
+                            <span th:if="${post.edited}" class="detail-small-muted detail-inline-spaced">(수정됨)</span>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${detailPostPage.isEmpty()}">
+                        <td colspan="7">등록된 게시글이 없습니다.</td>
+                    </tr>
+
+                    <tr th:each="post : ${detailPostPage.content}"
+                        th:style="${post.id == currentDetailPostId} ? 'background-color: #eef6ff; font-weight: 600;' : ''">
+                        <td class="table-cell-id" th:text="${post.id}"></td>
+                        <td class="table-cell-category" th:text="${post.categoryName}"></td>
+                        <td class="table-cell-title">
+                            <div class="table-title-line">
+                                <th:block th:if="${post.userDeletedContext or (post.deletedOrBlinded and !detailContext.adminPostsSource)}">
+                                    <a class="table-title-status-link"
+                                       th:href="@{/c/{communityCode}/posts/{id}(
+                                            communityCode=${currentCommunity.code},
+                                            id=${post.id},
+                                            source=${detailContext.source},
+                                            returnUrl=${detailContext.returnUrl},
+                                            categoryId=${detailContext.categoryId},
+                                            keyword=${detailContext.keyword},
+                                            secret=${detailContext.secret},
+                                            tradeType=${detailContext.tradeType},
+                                            tradeStatus=${detailContext.tradeStatus},
+                                            dimClosedTrade=${detailContext.dimClosedTrade},
+                                            sort=${detailContext.sort},
+                                            onlyWithAttachments=${detailContext.onlyWithAttachments},
+                                            page=${detailContext.safePage},
+                                            size=${detailContext.safeSize},
+                                            commentSort=${commentCondition.sort},
+                                            commentPage=${commentCondition.safePage}
+                                       )}">
+                                        <span class="status-label"
+                                              th:classappend="${!detailContext.adminPostsSource or post.currentUserDeleted} ? ' status-label-muted' : ''"
+                                              th:text="${'[' + post.statusLabel + ']'}"></span>
+                                    </a>
+                                </th:block>
+
+                                <th:block th:unless="${post.userDeletedContext or (post.deletedOrBlinded and !detailContext.adminPostsSource)}">
+                                    <span th:if="${post.deletedOrBlinded}"
+                                          class="status-label"
+                                          th:classappend="${detailContext.adminPostsSource} ? '' : ' status-label-muted'"
+                                          th:text="${'[' + post.statusLabel + ']'}"></span>
+
+                                    <span th:if="${post.tradePost}"
+                                          class="trade-status-label"
+                                          th:classappend="${' ' + post.tradeStatusClass}"
+                                          th:text="${post.tradeStatusLabel}"></span>
+
+                                    <th:block th:if="${post.pinned}">
+                                        <th:block th:replace="~{fragments/icons :: pinMarker}"></th:block>
+                                    </th:block>
+                                    <th:block th:if="${post.secret}">
+                                        <th:block th:replace="~{fragments/icons :: lockMarker}"></th:block>
+                                    </th:block>
+
+                                    <span class="table-title-text">
+                                        <a th:href="@{/c/{communityCode}/posts/{id}(
+                                                communityCode=${currentCommunity.code},
+                                                id=${post.id},
+                                                source=${detailContext.source},
+                                                returnUrl=${detailContext.returnUrl},
+                                                categoryId=${detailContext.categoryId},
+                                                keyword=${detailContext.keyword},
+                                                secret=${detailContext.secret},
+                                                tradeType=${detailContext.tradeType},
+                                                tradeStatus=${detailContext.tradeStatus},
+                                                dimClosedTrade=${detailContext.dimClosedTrade},
+                                                sort=${detailContext.sort},
+                                                onlyWithAttachments=${detailContext.onlyWithAttachments},
+                                                page=${detailContext.safePage},
+                                                size=${detailContext.safeSize},
+                                                commentSort=${commentCondition.sort},
+                                                commentPage=${commentCondition.safePage}
+                                            )}"
+                                           th:text="${detailContext.adminPostsSource ? post.title : post.displayTitle}"></a>
+                                    </span>
+
+                                    <th:block th:if="${post.hasAttachments}">
+                                        <th:block th:replace="~{fragments/icons :: attachmentMarker}"></th:block>
+                                    </th:block>
+                                    <span th:if="${post.hasComments}" class="title-meta" th:text="| (${post.commentCount})|"></span>
+                                    <span th:if="${post.id == currentDetailPostId}"
+                                          class="title-meta detail-inline-spaced">
+                                        [현재 글]
+                                    </span>
+                                </th:block>
+                            </div>
+                        </td>
+                        <td class="table-cell-writer" th:text="${post.writerNickname}"></td>
+                        <td class="table-cell-number" th:text="${post.viewCount}"></td>
+                        <td class="table-cell-number" th:text="${post.likeCount}"></td>
+                        <td class="table-cell-date">
+                            <span th:text="${#temporals.format(post.displayTime, 'yyyy-MM-dd HH:mm')}"></span>
+                            <span th:if="${post.edited}"
+                                  class="detail-small-muted detail-inline-spaced">
+                                (수정됨)
+                            </span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <th:block th:if="${detailPostPage != null and !detailPostPage.isEmpty()}">
+                <div class="actions detail-block-small-spaced"
+                     th:replace="~{fragments/pagination :: pager(
+                            ${detailPostPage},
+                            @{/c/{communityCode}/posts/{id}(
                                 communityCode=${currentCommunity.code},
-                                id=${post.id},
-                                source=${detailContext.source},
-                                returnUrl=${detailContext.returnUrl},
-                                categoryId=${detailContext.categoryId},
-                                keyword=${detailContext.keyword},
-                                secret=${detailContext.secret},
-                                sort=${detailContext.sort},
-                                onlyWithAttachments=${detailContext.onlyWithAttachments},
-                                page=${detailContext.safePage},
-                                size=${detailContext.safeSize},
-                                commentSort=${commentCondition.sort},
-                                commentPage=${commentCondition.safePage}
-                            )}"
-                           th:text="${post.displayTitle}"></a>
-                        <span th:if="${post.hasAttachments}" th:text="|📎|"></span>
-                        <span th:if="${post.hasComments}" th:text="| (${post.commentCount})|"></span>
-                        <span th:if="${post.id == currentDetailPostId}"
-                              class="detail-small-muted detail-inline-spaced">
-                            [현재 글]
-                        </span>
-                    </td>
-                    <td class="table-cell-writer" th:text="${post.writerNickname}"></td>
-                    <td class="table-cell-number" th:text="${post.viewCount}"></td>
-                    <td class="table-cell-number" th:text="${post.likeCount}"></td>
-                    <td class="table-cell-date">
-                        <span th:text="${#temporals.format(post.displayTime, 'yyyy-MM-dd HH:mm')}"></span>
-                        <span th:if="${post.edited}" class="detail-small-muted detail-inline-spaced">(수정됨)</span>
-                    </td>
-                </tr>
+                                id=${postDetail.id}
+                            )},
+                            ${'fromCreate=' + fromCreate
+                                + '&source=' + detailContext.source
+                                + '&returnUrl=' + (detailContext.returnUrl != null ? detailContext.returnUrl : '')
+                                + '&categoryId=' + (detailContext.categoryId != null ? detailContext.categoryId : '')
+                                + '&keyword=' + (detailContext.keyword != null ? detailContext.keyword : '')
+                                + '&secret=' + (detailContext.secret != null ? detailContext.secret : '')
+                                + '&tradeType=' + (detailContext.tradeType != null ? detailContext.tradeType : '')
+                                + '&tradeStatus=' + (detailContext.tradeStatus != null ? detailContext.tradeStatus : '')
+                                + '&sort=' + (detailContext.sort != null ? detailContext.sort : '')
+                                + '&onlyWithAttachments=' + (detailContext.onlyWithAttachments != null ? detailContext.onlyWithAttachments : '')
+                                + '&size=' + detailContext.safeSize
+                                + '&commentSort=' + commentCondition.sort
+                                + '&commentPage=' + commentCondition.safePage}
+                         )}">
+                </div>
+            </th:block>
+        </section>
 
-                <tr th:if="${detailPostPage.isEmpty()}">
-                    <td colspan="7">등록된 게시글이 없습니다.</td>
-                </tr>
+        <section class="card search-card context-search-card">
+            <form id="detailContextKeywordSearchForm"
+                  th:action="@{/c/{communityCode}/posts/{id}(communityCode=${currentCommunity.code}, id=${postDetail.id})}"
+                  method="get"
+                  class="search-keyword-form">
 
-                <tr th:each="post : ${detailPostPage.content}"
-                    th:style="${post.id == currentDetailPostId} ? 'background-color: #eef6ff; font-weight: 600;' : ''">
-                    <td class="table-cell-id" th:text="${post.id}"></td>
-                    <td class="table-cell-category" th:text="${post.categoryName}"></td>
-                    <td class="table-cell-title">
-                        <span th:if="${post.deletedOrBlinded}"
-                              class="status-label"
-                              th:text="${'[' + post.statusLabel + ']'}"></span>
-                        <span th:if="${post.pinned}" class="icon-marker">📌</span>
-                        <span th:if="${post.secret}" class="icon-marker">🔒</span>
-                        <a th:href="@{/c/{communityCode}/posts/{id}(
-                                communityCode=${currentCommunity.code},
-                                id=${post.id},
-                                source=${detailContext.source},
-                                returnUrl=${detailContext.returnUrl},
-                                categoryId=${detailContext.categoryId},
-                                keyword=${detailContext.keyword},
-                                secret=${detailContext.secret},
-                                sort=${detailContext.sort},
-                                onlyWithAttachments=${detailContext.onlyWithAttachments},
-                                page=${detailContext.safePage},
-                                size=${detailContext.safeSize},
-                                commentSort=${commentCondition.sort},
-                                commentPage=${commentCondition.safePage}
-                            )}"
-                           th:text="${post.displayTitle}"></a>
-                        <span th:if="${post.hasAttachments}" th:text="|📎|"></span>
-                        <span th:if="${post.hasComments}" th:text="| (${post.commentCount})|"></span>
-                        <span th:if="${post.id == currentDetailPostId}"
-                              class="detail-small-muted detail-inline-spaced">
-                            [현재 글]
-                        </span>
-                    </td>
-                    <td class="table-cell-writer" th:text="${post.writerNickname}"></td>
-                    <td class="table-cell-number" th:text="${post.viewCount}"></td>
-                    <td class="table-cell-number" th:text="${post.likeCount}"></td>
-                    <td class="table-cell-date">
-                        <span th:text="${#temporals.format(post.displayTime, 'yyyy-MM-dd HH:mm')}"></span>
-                        <span th:if="${post.edited}"
-                              class="detail-small-muted detail-inline-spaced">
-                            (수정됨)
-                        </span>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+                <input type="hidden" name="fromCreate" th:value="${fromCreate}">
+                <input type="hidden" name="source" th:value="${detailContext.source}">
+                <input type="hidden" name="returnUrl" th:value="${detailContext.returnUrl}">
+                <input type="hidden" name="categoryId" th:value="${detailContext.categoryId}">
+                <input type="hidden" name="secret" th:value="${detailContext.secret}">
+                <input type="hidden" name="tradeType" th:value="${detailContext.tradeType}">
+                <input type="hidden" name="tradeStatus" th:value="${detailContext.tradeStatus}">
+                <input type="hidden" name="sort" th:value="${detailContext.sort}">
+                <input type="hidden" name="onlyWithAttachments" th:value="${detailContext.onlyWithAttachments}">
+                <input type="hidden" name="page" value="1">
+                <input type="hidden" name="size" th:value="${detailContext.safeSize}">
+                <input type="hidden" name="commentSort" th:value="${commentCondition.sort}">
+                <input type="hidden" name="commentPage" th:value="${commentCondition.safePage}">
 
-        <div class="actions detail-block-small-spaced"
-             th:if="${detailPostPage != null and !detailPostPage.isEmpty()}"
-             th:replace="~{fragments/pagination :: pager(
-                    ${detailPostPage},
-                    @{/c/{communityCode}/posts/{id}(
-                        communityCode=${currentCommunity.code},
-                        id=${postDetail.id}
-                    )},
-                    ${'fromCreate=' + fromCreate
-                        + '&source=' + detailContext.source
-                        + '&returnUrl=' + (detailContext.returnUrl != null ? detailContext.returnUrl : '')
-                        + '&categoryId=' + (detailContext.categoryId != null ? detailContext.categoryId : '')
-                        + '&keyword=' + (detailContext.keyword != null ? detailContext.keyword : '')
-                        + '&secret=' + (detailContext.secret != null ? detailContext.secret : '')
-                        + '&sort=' + (detailContext.sort != null ? detailContext.sort : '')
-                        + '&onlyWithAttachments=' + (detailContext.onlyWithAttachments != null ? detailContext.onlyWithAttachments : '')
-                        + '&size=' + detailContext.safeSize
-                        + '&commentSort=' + commentCondition.sort
-                        + '&commentPage=' + commentCondition.safePage}
-                 )}">
-        </div>
-    </section>
+                <div class="search-keyword-row">
+                    <input class="form-control search-keyword-input"
+                           id="detailContextKeyword"
+                           type="text"
+                           name="keyword"
+                           th:value="${detailContext.keyword}"
+                           placeholder="제목, 내용, 작성자 검색"
+                           aria-label="검색어">
+
+                    <button class="btn btn-primary btn-small search-nowrap-button" type="submit">검색</button>
+
+                    <a class="btn btn-secondary btn-small search-nowrap-button"
+                       th:href="@{/c/{communityCode}/posts/{id}(
+                            communityCode=${currentCommunity.code},
+                            id=${postDetail.id},
+                            fromCreate=${fromCreate},
+                            source=${detailContext.source},
+                            returnUrl=${detailContext.returnUrl},
+                            categoryId=${detailContext.categoryId},
+                            secret=${detailContext.secret},
+                            tradeType=${detailContext.tradeType},
+                            tradeStatus=${detailContext.tradeStatus},
+                            sort=${T(com.gahih.domain.post.enumtype.PostSortType).LATEST},
+                            onlyWithAttachments=${detailContext.onlyWithAttachments},
+                            page=1,
+                            size=${detailContext.safeSize},
+                            commentSort=${commentCondition.sort},
+                            commentPage=${commentCondition.safePage}
+                       )}">
+                        초기화
+                    </a>
+                </div>
+            </form>
+        </section>
+
+    </th:block>
 
 </th:block>
 

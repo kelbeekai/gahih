@@ -25,7 +25,200 @@
 }
 
 .admin-container .table-cell-action {
-    min-width: 220px;
+    min-width: 104px;
+    width: 104px;
+    max-width: 120px;
+    text-align: center;
+}
+
+/* =========================================================
+   Admin: 행 액션 메뉴
+   - 관리 버튼을 기본 1개로 접고, 열었을 때만 가능한 조치 표시
+   ========================================================= */
+
+.admin-action-menu {
+    display: inline-block;
+    width: 100%;
+}
+
+.admin-action-menu-toggle {
+    list-style: none;
+    width: 100%;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.admin-action-menu-toggle::-webkit-details-marker {
+    display: none;
+}
+
+.admin-action-menu-toggle::after {
+    content: " ▼";
+    font-size: 0.8em;
+}
+
+.admin-action-menu[open] .admin-action-menu-toggle::after {
+    content: " ▲";
+}
+
+.admin-action-menu-panel {
+    display: none;
+    position: fixed;
+    z-index: 2600;
+    min-width: 128px;
+    max-width: 220px;
+    padding: 6px;
+    flex-direction: column;
+    gap: 4px;
+    align-items: stretch;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-card);
+    visibility: hidden;
+}
+
+.admin-action-menu[open] .admin-action-menu-panel {
+    display: flex;
+}
+
+.admin-action-menu-panel.is-positioned {
+    visibility: visible;
+}
+
+.admin-action-menu-panel .inline-form {
+    display: block;
+    margin: 0;
+}
+
+.admin-action-menu-panel .btn {
+    width: 100%;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+.admin-action-menu-panel a.btn {
+    display: inline-flex;
+}
+/* =========================================================
+   Admin: 관리자 로그 스냅샷 모달
+   - 변경 전/변경 후 긴 텍스트를 테이블 안이 아니라 화면 위 모달로 표시
+   ========================================================= */
+
+.admin-container .table-cell-snapshot {
+    min-width: 96px;
+    width: 96px;
+    max-width: 120px;
+    text-align: center;
+}
+
+.admin-log-snapshot-actions {
+    display: inline-flex;
+    gap: 4px;
+    justify-content: center;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.admin-log-snapshot-modal.hidden {
+    display: none;
+}
+
+.admin-log-snapshot-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.admin-log-snapshot-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+}
+
+.admin-log-snapshot-dialog {
+    position: relative;
+    z-index: 1;
+    width: min(900px, calc(100vw - 48px));
+    max-height: calc(100vh - 80px);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    box-shadow: var(--shadow-card);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.admin-log-snapshot-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.admin-log-snapshot-header .card-title {
+    margin: 0;
+}
+
+.admin-log-snapshot-content {
+    margin: 0;
+    padding: 16px;
+    max-height: calc(100vh - 190px);
+    overflow: auto;
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: Consolas, Monaco, "Courier New", monospace;
+    font-size: 0.92rem;
+    line-height: 1.5;
+}
+
+/* =========================================================
+   Admin: 테이블 지표 묶음 표시
+   - 여러 숫자 컬럼을 한 칸 안에서 주/보조 정보로 압축
+   ========================================================= */
+
+.admin-container .table-cell-metric {
+    min-width: 150px;
+    max-width: 190px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.admin-container .table-cell-rate {
+    min-width: 130px;
+    max-width: 160px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.admin-metric-summary {
+    display: inline-flex;
+    flex-direction: row;
+    gap: 6px;
+    align-items: baseline;
+    justify-content: center;
+    line-height: 1.35;
+    white-space: nowrap;
+}
+
+.admin-metric-main {
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.admin-metric-sub {
+    font-size: 0.86rem;
+    color: var(--color-muted);
 }
 
 /* =========================================================

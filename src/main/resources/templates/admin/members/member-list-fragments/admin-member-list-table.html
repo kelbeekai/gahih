@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <th:block th:fragment="adminMemberTable">
-    <section class="card">
+    <section class="card context-list-card">
         <div class="table-wrapper admin-table-wrap">
             <table class="common-table">
                 <thead>
@@ -56,98 +56,107 @@
                     <td class="table-cell-date" th:text="${#temporals.format(member.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
 
                     <td class="table-cell-action">
-                        <div class="actions">
-                            <th:block th:if="${member.id == loginMember.id}">
-                                <span class="field-info">현재 로그인한 계정입니다.</span>
-                            </th:block>
+                        <th:block th:if="${member.id == loginMember.id}">
+                            <span class="field-info">현재 계정</span>
+                        </th:block>
 
-                            <th:block th:if="${member.id != loginMember.id}">
+                        <th:block th:if="${member.id != loginMember.id}">
+                            <details th:if="${member.status != 'DELETED' or member.canFinalize}"
+                                     class="admin-action-menu">
+                                <summary class="btn btn-secondary btn-small admin-action-menu-toggle">관리</summary>
 
-                                <form th:if="${member.role == 'USER' and member.status == 'ACTIVE'}"
-                                      th:action="@{/admin/members/{id}/update-role(id=${member.id})}"
-                                      method="post"
-                                      class="inline-form">
-                                    <input type="hidden" name="role" value="ADMIN">
+                                <div class="admin-action-menu-panel">
+                                    <form th:if="${member.role == 'USER' and member.status == 'ACTIVE'}"
+                                          th:action="@{/admin/members/{id}/update-role(id=${member.id})}"
+                                          method="post"
+                                          class="inline-form">
+                                        <input type="hidden" name="role" value="ADMIN">
 
-                                    <th:block th:replace="~{admin/members/fragments/admin-member-hidden-fields :: memberSearchHiddenFields(${condition})}"></th:block>
-                                    <button class="btn btn-secondary btn-small" type="submit">관리자로 승격</button>
-                                </form>
+                                        <th:block th:replace="~{admin/members/member-list-fragments/admin-member-list-hidden-fields :: memberSearchHiddenFields(${condition})}"></th:block>
+                                        <button class="btn btn-secondary btn-small" type="submit">관리자로 승격</button>
+                                    </form>
 
-                                <form th:if="${member.role == 'ADMIN' and member.status == 'ACTIVE'}"
-                                      th:action="@{/admin/members/{id}/update-role(id=${member.id})}"
-                                      method="post"
-                                      class="inline-form">
-                                    <input type="hidden" name="role" value="USER">
+                                    <form th:if="${member.role == 'ADMIN' and member.status == 'ACTIVE'}"
+                                          th:action="@{/admin/members/{id}/update-role(id=${member.id})}"
+                                          method="post"
+                                          class="inline-form">
+                                        <input type="hidden" name="role" value="USER">
 
-                                    <th:block th:replace="~{admin/members/fragments/admin-member-hidden-fields :: memberSearchHiddenFields(${condition})}"></th:block>
-                                    <button class="btn btn-secondary btn-small" type="submit">일반회원으로 변경</button>
-                                </form>
+                                        <th:block th:replace="~{admin/members/member-list-fragments/admin-member-list-hidden-fields :: memberSearchHiddenFields(${condition})}"></th:block>
+                                        <button class="btn btn-secondary btn-small" type="submit">일반회원으로 변경</button>
+                                    </form>
 
-                                <form th:if="${member.status == 'SUSPENDED'}"
-                                      th:action="@{/admin/members/{id}/activate-member(id=${member.id})}"
-                                      method="post"
-                                      class="inline-form">
+                                    <form th:if="${member.status == 'SUSPENDED'}"
+                                          th:action="@{/admin/members/{id}/activate-member(id=${member.id})}"
+                                          method="post"
+                                          class="inline-form">
 
-                                    <th:block th:replace="~{admin/members/fragments/admin-member-hidden-fields :: memberSearchHiddenFields(${condition})}"></th:block>
-                                    <button class="btn btn-secondary btn-small" type="submit">활성화</button>
-                                </form>
+                                        <th:block th:replace="~{admin/members/member-list-fragments/admin-member-list-hidden-fields :: memberSearchHiddenFields(${condition})}"></th:block>
+                                        <button class="btn btn-secondary btn-small" type="submit">활성화</button>
+                                    </form>
 
-                                <form th:if="${member.id != loginMember.id and member.status != 'DELETED' and member.role != 'ADMIN' and member.status != 'SUSPENDED'}"
-                                      th:action="@{/admin/members/{id}/suspend-temporary(id=${member.id})}"
-                                      method="post"
-                                      class="inline-form"
-                                      data-suspension-form="temporary">
-                                    <input type="hidden" name="reason">
-                                    <input type="hidden" name="suspendedUntil">
+                                    <form th:if="${member.id != loginMember.id
+                                          and member.status != 'DELETED'
+                                          and member.role != 'ADMIN'
+                                          and member.status != 'SUSPENDED'}"
+                                          th:action="@{/admin/members/{id}/suspend-temporary(id=${member.id})}"
+                                          method="post"
+                                          class="inline-form"
+                                          data-suspension-form="temporary">
+                                        <input type="hidden" name="reason">
+                                        <input type="hidden" name="suspendedUntil">
 
-                                    <th:block th:replace="~{admin/members/fragments/admin-member-hidden-fields :: memberSearchHiddenFields(${condition})}"></th:block>
-                                    <button class="btn btn-danger btn-small" type="submit">기간정지</button>
-                                </form>
+                                        <th:block th:replace="~{admin/members/member-list-fragments/admin-member-list-hidden-fields :: memberSearchHiddenFields(${condition})}"></th:block>
+                                        <button class="btn btn-danger btn-small" type="submit">기간정지</button>
+                                    </form>
 
-                                <form th:if="${member.id != loginMember.id
-                                      and member.status != 'DELETED'
-                                      and member.role != 'ADMIN'
-                                      and (member.status == 'ACTIVE' or member.status == 'WITHDRAWN' or member.temporarySuspended)
-                                      and !member.permanentSuspended}"
-                                      th:action="@{/admin/members/{id}/suspend-permanent(id=${member.id})}"
-                                      method="post"
-                                      class="inline-form"
-                                      data-reason-required="true"
-                                      data-reason-label="영구정지 사유"
-                                      data-reason-message="영구정지 사유를 입력해주세요."
-                                      data-confirm-message="이 회원을 영구정지 처리하시겠습니까?">
+                                    <form th:if="${member.id != loginMember.id
+                                          and member.status != 'DELETED'
+                                          and member.role != 'ADMIN'
+                                          and (member.status == 'ACTIVE' or member.status == 'WITHDRAWN' or member.temporarySuspended)
+                                          and !member.permanentSuspended}"
+                                          th:action="@{/admin/members/{id}/suspend-permanent(id=${member.id})}"
+                                          method="post"
+                                          class="inline-form"
+                                          data-reason-required="true"
+                                          data-reason-label="영구정지 사유"
+                                          data-reason-message="영구정지 사유를 입력해주세요."
+                                          data-confirm-message="이 회원을 영구정지 처리하시겠습니까?">
 
-                                    <th:block th:replace="~{admin/members/fragments/admin-member-hidden-fields :: memberSearchHiddenFields(${condition})}"></th:block>
-                                    <button class="btn btn-danger btn-small" type="submit">영구정지</button>
-                                </form>
+                                        <th:block th:replace="~{admin/members/member-list-fragments/admin-member-list-hidden-fields :: memberSearchHiddenFields(${condition})}"></th:block>
+                                        <button class="btn btn-danger btn-small" type="submit">영구정지</button>
+                                    </form>
 
-                                <form th:if="${member.canFinalize}"
-                                      th:action="@{/admin/members/{id}/finalize(id=${member.id})}"
-                                      method="post"
-                                      class="inline-form"
-                                      data-reason-required="true"
-                                      data-reason-label="최종 종료 사유"
-                                      data-reason-message="최종 종료 사유를 입력해주세요."
-                                      data-confirm-message="이 회원을 최종 종료 처리하시겠습니까? 개인정보는 비식별화되며 되돌릴 수 없습니다.">
+                                    <form th:if="${member.canFinalize}"
+                                          th:action="@{/admin/members/{id}/finalize(id=${member.id})}"
+                                          method="post"
+                                          class="inline-form"
+                                          data-reason-required="true"
+                                          data-reason-label="최종 종료 사유"
+                                          data-reason-message="최종 종료 사유를 입력해주세요."
+                                          data-confirm-message="이 회원을 최종 종료 처리하시겠습니까? 개인정보는 비식별화되며 되돌릴 수 없습니다.">
 
-                                    <th:block th:replace="~{admin/members/fragments/admin-member-hidden-fields :: memberSearchHiddenFields(${condition})}"></th:block>
-                                    <button class="btn btn-danger btn-small" type="submit">최종 종료</button>
-                                </form>
+                                        <th:block th:replace="~{admin/members/member-list-fragments/admin-member-list-hidden-fields :: memberSearchHiddenFields(${condition})}"></th:block>
+                                        <button class="btn btn-danger btn-small" type="submit">최종 종료</button>
+                                    </form>
 
-                                <form th:if="${member.status != 'DELETED'}"
-                                      th:action="@{/admin/members/{id}/force-nickname(id=${member.id})}"
-                                      method="post"
-                                      class="inline-form"
-                                      data-reason-required="true"
-                                      data-reason-label="강제 닉네임 변경 사유"
-                                      data-reason-message="강제 닉네임 변경 사유를 입력해주세요."
-                                      data-confirm-message="정말 닉네임을 강제 변경하시겠습니까? 되돌릴 수 없습니다.">
+                                    <form th:if="${member.status != 'DELETED'}"
+                                          th:action="@{/admin/members/{id}/force-nickname(id=${member.id})}"
+                                          method="post"
+                                          class="inline-form"
+                                          data-reason-required="true"
+                                          data-reason-label="강제 닉네임 변경 사유"
+                                          data-reason-message="강제 닉네임 변경 사유를 입력해주세요."
+                                          data-confirm-message="정말 닉네임을 강제 변경하시겠습니까? 되돌릴 수 없습니다.">
 
-                                    <th:block th:replace="~{admin/members/fragments/admin-member-hidden-fields :: memberSearchHiddenFields(${condition})}"></th:block>
-                                    <button class="btn btn-danger btn-small" type="submit">닉네임 강제 변경</button>
-                                </form>
-                            </th:block>
-                        </div>
+                                        <th:block th:replace="~{admin/members/member-list-fragments/admin-member-list-hidden-fields :: memberSearchHiddenFields(${condition})}"></th:block>
+                                        <button class="btn btn-danger btn-small" type="submit">닉네임 변경</button>
+                                    </form>
+                                </div>
+                            </details>
+
+                            <span th:unless="${member.status != 'DELETED' or member.canFinalize}">-</span>
+                        </th:block>
                     </td>
                 </tr>
                 </tbody>

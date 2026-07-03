@@ -3,8 +3,8 @@ package com.gahih.domain.member.controller;
 import com.gahih.domain.member.dto.MemberLoginRequest;
 import com.gahih.domain.member.dto.MemberSignUpRequest;
 import com.gahih.domain.member.entity.Member;
-import com.gahih.domain.member.service.MemberService;
-import com.gahih.domain.member.service.SignUpEmailAuthFacade;
+import com.gahih.domain.member.service.auth.MemberAuthService;
+import com.gahih.domain.member.service.auth.SignUpEmailAuthFacade;
 import com.gahih.domain.member.session.LoginMember;
 import com.gahih.global.common.SessionConst;
 import com.gahih.global.exception.BusinessException;
@@ -23,9 +23,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/members")
-public class MemberAuthWebController {
+public class MemberAuthController {
 
-    private final MemberService memberService;
+    private final MemberAuthService memberAuthService;
     private final SignUpEmailAuthFacade signUpEmailAuthFacade;
 
     @GetMapping("/signup")
@@ -50,7 +50,7 @@ public class MemberAuthWebController {
         }
 
         try {
-            memberService.signUp(memberSignUpRequest);
+            memberAuthService.signUp(memberSignUpRequest);
             redirectAttributes.addFlashAttribute(
                     "successMessage",
                     "회원가입에 성공했습니다! 입력한 아이디와 비밀번호로 로그인해주세요."
@@ -89,7 +89,7 @@ public class MemberAuthWebController {
         }
 
         try {
-            Member member = memberService.login(memberLoginRequest);
+            Member member = memberAuthService.login(memberLoginRequest);
 
             HttpSession session = request.getSession();
             session.setAttribute(SessionConst.LOGIN_MEMBER, new LoginMember(member));

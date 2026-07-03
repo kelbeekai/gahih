@@ -8,7 +8,7 @@ import org.springframework.web.util.UriUtils;
 import java.nio.charset.StandardCharsets;
 
 @Component
-class CommentWebPathBuilder {
+class CommentRedirectPathBuilder {
 
     String detailPathWithCommentAnchor(
             String communityCode,

@@ -41,3 +41,53 @@
     margin-top: 4px;
 }
 
+/* =========================================================
+   Post detail navigation
+   - 이전/다음 + 목록/홈 단일 카드 배치
+   ========================================================= */
+
+.detail-navigation-card {
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+.detail-navigation-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.detail-navigation-left,
+.detail-navigation-right {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.detail-navigation-left {
+    justify-content: flex-start;
+}
+
+.detail-navigation-right {
+    justify-content: flex-end;
+    margin-left: auto;
+}
+
+@media (max-width: 640px) {
+    .detail-navigation-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .detail-navigation-left,
+    .detail-navigation-right {
+        justify-content: flex-start;
+    }
+
+    .detail-navigation-right {
+        margin-left: 0;
+    }
+}
+

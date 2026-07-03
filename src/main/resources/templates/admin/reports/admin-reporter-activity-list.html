@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:replace="~{fragments/layout :: commonHeadContent('신고 활동 회원')}"></th:block>
-    <script defer th:src="@{/js/page-size.js}"></script>
+    <script defer th:src="@{/js/common/page-size.js}"></script>
 </head>
 <body>
 
@@ -13,75 +13,95 @@
         <h2 class="card-title">신고 활동 회원</h2>
     </section>
 
-    <section class="card">
-        <form id="reporterActivitySearchForm" th:action="@{/admin/reporter-activities}" method="get" class="search-form">
+    <section class="card search-card search-card-top-card">
+        <form id="reporterActivityFilterForm"
+              th:action="@{/admin/reporter-activities}"
+              method="get"
+              class="search-toolbar-form">
+
             <input type="hidden" name="page" th:value="${activityPage.number + 1}">
             <input type="hidden" data-role="current-page" th:value="${activityPage.number + 1}">
             <input type="hidden" data-role="current-size" th:value="${activityPage.size}">
 
-            <div class="form-group">
-                <label class="form-label" for="searchType">검색 항목</label>
-                <select class="form-control" id="searchType" name="searchType">
-                    <option th:each="searchType : ${searchTypes}"
-                            th:value="${searchType.name()}"
-                            th:text="${searchType.name()}"
-                            th:selected="${condition.searchType == searchType}">
-                    </option>
-                </select>
-            </div>
+            <input type="hidden"
+                   name="keyword"
+                   th:value="${condition.keyword}">
 
-            <div class="form-group">
-                <label class="form-label" for="keyword">검색어</label>
-                <input class="form-control"
-                       id="keyword"
-                       type="text"
-                       name="keyword"
-                       th:value="${condition.keyword}"
-                       placeholder="회원 ID, 아이디, 닉네임 검색">
-            </div>
+            <input type="hidden"
+                   name="searchType"
+                   th:value="${condition.searchType}">
 
-            <div class="form-group">
-                <label class="form-label" for="communityCode">국가</label>
-                <select class="form-control" id="communityCode" name="communityCode">
-                    <option value="" th:selected="${condition.communityCode == null or condition.communityCode == ''}">
-                        전체
+            <div class="search-toolbar-left">
+
+                <select class="form-control search-control-compact"
+                        id="communityCode"
+                        name="communityCode"
+                        data-role="instant-search-control">
+
+                    <option value=""
+                            th:selected="${condition.communityCode == null or condition.communityCode == ''}">
+                        전체 국가
                     </option>
+
                     <option th:each="community : ${communities}"
                             th:value="${community.code}"
                             th:text="${community.name}"
                             th:selected="${condition.communityCode == community.code}">
                     </option>
+
                 </select>
+
+                <select class="form-control search-control-compact report-sort-control"
+                        id="sort"
+                        name="sort"
+                        data-role="instant-search-control">
+
+                    <option value="TOTAL_REPORT_DESC"
+                            th:selected="${condition.sort == T(com.gahih.domain.report.enumtype.AdminReporterActivitySortType).TOTAL_REPORT_DESC}">
+                        총 신고수순
+                    </option>
+
+                    <option value="PENDING_REPORT_DESC"
+                            th:selected="${condition.sort == T(com.gahih.domain.report.enumtype.AdminReporterActivitySortType).PENDING_REPORT_DESC}">
+                        미처리순
+                    </option>
+
+                    <option value="ACTION_TAKEN_DESC"
+                            th:selected="${condition.sort == T(com.gahih.domain.report.enumtype.AdminReporterActivitySortType).ACTION_TAKEN_DESC}">
+                        조치 완료순
+                    </option>
+
+                    <option value="NO_ACTION_NEEDED_DESC"
+                            th:selected="${condition.sort == T(com.gahih.domain.report.enumtype.AdminReporterActivitySortType).NO_ACTION_NEEDED_DESC}">
+                        무조치 종료순
+                    </option>
+
+                    <option value="LATEST_REPORT_DESC"
+                            th:selected="${condition.sort == T(com.gahih.domain.report.enumtype.AdminReporterActivitySortType).LATEST_REPORT_DESC}">
+                        최근 신고순
+                    </option>
+
+                </select>
+
+                <select class="form-control search-control-compact"
+                        id="size"
+                        name="size"
+                        data-role="page-size-select">
+
+                    <option value="20" th:selected="${condition.safeSize==20}">20개씩</option>
+                    <option value="40" th:selected="${condition.safeSize==40}">40개씩</option>
+                    <option value="60" th:selected="${condition.safeSize==60}">60개씩</option>
+
+                </select>
+
             </div>
 
-            <div class="form-group">
-                <label class="form-label" for="sort">정렬</label>
-                <select class="form-control" id="sort" name="sort">
-                    <option value="TOTAL_REPORT_DESC" th:selected="${condition.sort == T(com.gahih.domain.report.enumtype.AdminReporterActivitySortType).TOTAL_REPORT_DESC}">총 신고 수 순</option>
-                    <option value="PENDING_REPORT_DESC" th:selected="${condition.sort == T(com.gahih.domain.report.enumtype.AdminReporterActivitySortType).PENDING_REPORT_DESC}">미처리 신고 수 순</option>
-                    <option value="ACTION_TAKEN_DESC" th:selected="${condition.sort == T(com.gahih.domain.report.enumtype.AdminReporterActivitySortType).ACTION_TAKEN_DESC}">조치 완료 신고 수 순</option>
-                    <option value="NO_ACTION_NEEDED_DESC" th:selected="${condition.sort == T(com.gahih.domain.report.enumtype.AdminReporterActivitySortType).NO_ACTION_NEEDED_DESC}">무조치 종료 신고 수 순</option>
-                    <option value="LATEST_REPORT_DESC" th:selected="${condition.sort == T(com.gahih.domain.report.enumtype.AdminReporterActivitySortType).LATEST_REPORT_DESC}">최근 신고 순</option>
-                </select>
-            </div>
+            <div class="search-toolbar-right"></div>
 
-            <div class="form-group">
-                <label class="form-label" for="size">목록 수</label>
-                <select class="form-control" id="size" name="size" data-role="page-size-select">
-                    <option value="20" th:selected="${condition.safeSize == 20}">20개씩</option>
-                    <option value="40" th:selected="${condition.safeSize == 40}">40개씩</option>
-                    <option value="60" th:selected="${condition.safeSize == 60}">60개씩</option>
-                </select>
-            </div>
-
-            <div class="actions">
-                <button class="btn btn-primary" type="submit">검색</button>
-                <a class="btn btn-secondary" th:href="@{/admin/reporter-activities}">초기화</a>
-            </div>
         </form>
     </section>
 
-    <section class="card">
+    <section class="card context-list-card">
         <div class="table-wrapper admin-table-wrap">
             <table class="common-table">
                 <thead>
@@ -93,19 +113,15 @@
                         <th class="table-cell-status">상태</th>
                         <th class="table-cell-category">주요 신고 국가</th>
                         <th class="table-cell-text">국가별 요약</th>
-                        <th class="table-cell-number">총 신고 수</th>
-                        <th class="table-cell-number">미처리</th>
-                        <th class="table-cell-number">조치 완료</th>
-                        <th class="table-cell-status">조치완료율</th>
-                        <th class="table-cell-number">무조치 종료</th>
-                        <th class="table-cell-status">무조치종료율</th>
+                        <th class="table-cell-metric">신고 요약</th>
+                        <th class="table-cell-rate">처리율</th>
                         <th class="table-cell-date">최근 신고 시각</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:if="${activityPage.isEmpty()}">
-                        <td colspan="14">신고 활동 회원이 없습니다.</td>
-                    </tr>
+                <tr th:if="${activityPage.isEmpty()}">
+                    <td colspan="10">신고 활동 회원이 없습니다.</td>
+                </tr>
 
                     <tr th:each="activity : ${activityPage.content}">
                         <td class="table-cell-id">
@@ -148,13 +164,36 @@
                             <span class="table-title-text" th:text="${activity.communitySummary}">전역</span>
                         </td>
 
-                        <td class="table-cell-number" th:text="${activity.totalReportCount}"></td>
-                        <td class="table-cell-number" th:text="${activity.pendingReportCount}"></td>
-                        <td class="table-cell-number" th:text="${activity.actionTakenCount}"></td>
-                        <td class="table-cell-status" th:text="${activity.actionTakenRate}"></td>
-                        <td class="table-cell-number" th:text="${activity.noActionNeededCount}"></td>
-                        <td class="table-cell-status" th:text="${activity.noActionNeededRate}"></td>
-                        <td class="table-cell-date" th:text="${activity.latestReportAt == null ? '-' : #temporals.format(activity.latestReportAt, 'yyyy-MM-dd HH:mm')}"></td>
+                        <td class="table-cell-metric">
+                            <div class="admin-metric-summary">
+                                <span class="admin-metric-main"
+                                      th:text="|총 ${activity.totalReportCount}건|">
+                                    총 0건
+                                </span>
+
+                                <span class="admin-metric-sub"
+                                      th:text="|(미처리 ${activity.pendingReportCount} · 조치 ${activity.actionTakenCount} · 무조치 ${activity.noActionNeededCount})|">
+                                    (미처리 0 · 조치 0 · 무조치 0)
+                                </span>
+                            </div>
+                        </td>
+
+                        <td class="table-cell-rate">
+                            <div class="admin-metric-summary">
+                                <span class="admin-metric-main"
+                                      th:text="|조치 ${activity.actionTakenRate}|">
+                                    조치 0%
+                                </span>
+
+                                <span class="admin-metric-sub"
+                                      th:text="|/ 무조치 ${activity.noActionNeededRate}|">
+                                    / 무조치 0%
+                                </span>
+                            </div>
+                        </td>
+
+                        <td class="table-cell-date"
+                            th:text="${activity.latestReportAt == null ? '-' : #temporals.format(activity.latestReportAt, 'yyyy-MM-dd HH:mm')}"></td>
                     </tr>
                 </tbody>
             </table>
@@ -176,11 +215,69 @@
              )}">
         </div>
     </section>
+
+    <section class="card search-card search-card-bottom-card">
+
+        <form id="reporterActivityKeywordSearchForm"
+              th:action="@{/admin/reporter-activities}"
+              method="get"
+              class="search-keyword-form">
+
+            <input type="hidden" name="page" value="1">
+
+            <input type="hidden"
+                   name="communityCode"
+                   th:value="${condition.communityCode}">
+
+            <input type="hidden"
+                   name="sort"
+                   th:value="${condition.sort}">
+
+            <input type="hidden"
+                   name="size"
+                   th:value="${condition.safeSize}">
+
+            <div class="search-keyword-row">
+
+                <select class="form-control search-control-compact search-type-control"
+                        id="searchType"
+                        name="searchType">
+
+                    <option th:each="searchType : ${searchTypes}"
+                            th:value="${searchType.name()}"
+                            th:text="${searchType.description}"
+                            th:selected="${condition.searchType == searchType}">
+                    </option>
+
+                </select>
+
+                <input class="form-control search-keyword-input"
+                       id="keyword"
+                       type="text"
+                       name="keyword"
+                       th:value="${condition.keyword}"
+                       placeholder="선택한 조건으로 검색">
+
+                <button class="btn btn-primary btn-small search-nowrap-button"
+                        type="submit">
+                    검색
+                </button>
+
+                <a class="btn btn-secondary btn-small search-nowrap-button"
+                   th:href="@{/admin/reporter-activities}">
+                    초기화
+                </a>
+
+            </div>
+
+        </form>
+
+    </section>
 </main>
 
 <script th:inline="javascript">
     window.addEventListener('DOMContentLoaded', function () {
-        PageSizeManager.initPageSizeForm('reporterActivitySearchForm');
+        PageSizeManager.initPageSizeForm('reporterActivityFilterForm');
     });
 </script>
 

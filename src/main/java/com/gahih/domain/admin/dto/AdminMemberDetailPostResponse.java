@@ -11,6 +11,8 @@ public class AdminMemberDetailPostResponse {
 
     private final Long id;
     private final String title;
+    private final String communityCode;
+    private final String communityName;
     private final String categoryName;
     private final String writerNickname;
     private final LocalDateTime createdAt;
@@ -21,6 +23,8 @@ public class AdminMemberDetailPostResponse {
     private AdminMemberDetailPostResponse(
             Long id,
             String title,
+            String communityCode,
+            String communityName,
             String categoryName,
             String writerNickname,
             LocalDateTime createdAt,
@@ -30,6 +34,8 @@ public class AdminMemberDetailPostResponse {
     ) {
         this.id = id;
         this.title = title;
+        this.communityCode = communityCode;
+        this.communityName = communityName;
         this.categoryName = categoryName;
         this.writerNickname = writerNickname;
         this.createdAt = createdAt;
@@ -42,6 +48,8 @@ public class AdminMemberDetailPostResponse {
         return new AdminMemberDetailPostResponse(
                 post.getId(),
                 post.getTitle(),
+                post.getCategory().getCountryCommunity().getCode(),
+                post.getCategory().getCountryCommunity().getName(),
                 post.getCategory().getName(),
                 resolveWriterNickname(post.getMember().getNickname(), post.getMember().getStatus()),
                 post.getCreatedAt(),

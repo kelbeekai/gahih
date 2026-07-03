@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: commonHeadContent('로그인 필요')}"></th:block>
+</head>
+<body>
+<div th:replace="~{fragments/header :: siteHeader(null)}"></div>
+<main class="error-page">
+    <div th:replace="~{fragments/layout :: errorCard('401', '로그인이 필요합니다.', ${message})}"></div>
+    <div class="actions error-actions">
+        <a class="btn btn-primary" th:href="@{/members/login}">로그인</a>
+        <a class="btn btn-secondary" th:href="@{/}">홈으로</a>
+    </div>
+</main>
+<div th:replace="~{fragments/header :: siteFooter}"></div>
+</body>
+</html>

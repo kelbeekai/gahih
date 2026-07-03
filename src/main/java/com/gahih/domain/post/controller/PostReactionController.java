@@ -14,10 +14,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/c/{communityCode}/posts")
-public class PostReactionWebController {
+public class PostReactionController {
 
     private final PostReactionService postReactionService;
-    private final PostWebPathBuilder postWebPathBuilder;
+    private final PostRedirectPathBuilder postRedirectPathBuilder;
 
     @PostMapping("/{postId}/like")
     public String likePost(
@@ -31,12 +31,12 @@ public class PostReactionWebController {
         if (loginMember == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "좋아요/싫어요는 로그인 후 이용할 수 있습니다.");
             return "redirect:" + LoginRedirectHelper.createLoginPath(
-                    postWebPathBuilder.detailPath(communityCode, postId, fromCreate, detailContext)
+                    postRedirectPathBuilder.detailPath(communityCode, postId, fromCreate, detailContext)
             );
         }
 
         postReactionService.react(loginMember.getId(), postId, ReactionType.LIKE);
-        return "redirect:" + postWebPathBuilder.detailPath(communityCode, postId, fromCreate, detailContext);
+        return "redirect:" + postRedirectPathBuilder.detailPath(communityCode, postId, fromCreate, detailContext);
     }
 
     @PostMapping("/{postId}/dislike")
@@ -51,11 +51,11 @@ public class PostReactionWebController {
         if (loginMember == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "좋아요/싫어요는 로그인 후 이용할 수 있습니다.");
             return "redirect:" + LoginRedirectHelper.createLoginPath(
-                    postWebPathBuilder.detailPath(communityCode, postId, fromCreate, detailContext)
+                    postRedirectPathBuilder.detailPath(communityCode, postId, fromCreate, detailContext)
             );
         }
 
         postReactionService.react(loginMember.getId(), postId, ReactionType.DISLIKE);
-        return "redirect:" + postWebPathBuilder.detailPath(communityCode, postId, fromCreate, detailContext);
+        return "redirect:" + postRedirectPathBuilder.detailPath(communityCode, postId, fromCreate, detailContext);
     }
 }

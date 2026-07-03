@@ -7,16 +7,18 @@ import com.gahih.domain.comment.dto.CommentResponse;
 import com.gahih.domain.comment.dto.CommentSearchCondition;
 import com.gahih.domain.comment.enumtype.CommentSortType;
 import com.gahih.domain.comment.service.CommentMentionService;
-import com.gahih.domain.comment.service.CommentService;
+import com.gahih.domain.comment.service.CommentListService;
 import com.gahih.domain.member.entity.Member;
 import com.gahih.domain.member.enumtype.MemberRole;
-import com.gahih.domain.member.service.MemberService;
+import com.gahih.domain.member.service.account.MemberAccountService;
 import com.gahih.domain.member.session.LoginMember;
 import com.gahih.domain.post.dto.PostDetailContext;
 import com.gahih.domain.post.dto.PostDetailResponse;
 import com.gahih.domain.post.dto.PostNavigationResponse;
 import com.gahih.domain.post.dto.PostSearchCondition;
-import com.gahih.domain.post.service.PostService;
+import com.gahih.domain.post.service.PostDetailContextService;
+import com.gahih.domain.post.service.PostListService;
+import com.gahih.domain.post.service.PostDetailService;
 import com.gahih.global.argumentresolver.Login;
 import com.gahih.global.util.LoginRedirectHelper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,14 +34,16 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/c/{communityCode}/posts")
-public class PostDetailWebController {
+public class PostDetailController {
 
-    private final PostService postService;
+    private final PostDetailService postDetailService;
+    private final PostListService postListService;
+    private final PostDetailContextService postDetailContextService;
     private final CategoryService categoryService;
-    private final CommentService commentService;
+    private final CommentListService commentListService;
     private final CommentMentionService commentMentionService;
-    private final MemberService memberService;
-    private final PostWebPathBuilder postWebPathBuilder;
+    private final MemberAccountService memberAccountService;
+    private final PostRedirectPathBuilder postRedirectPathBuilder;
 
     @GetMapping("/{postId}")
     public String detail(
@@ -58,11 +62,14 @@ public class PostDetailWebController {
         Long loginMemberId = loginMember != null ? loginMember.getId() : null;
         boolean isAdmin = loginMember != null && loginMember.getRole() == MemberRole.ADMIN;
 
-        PostDetailResponse postDetail = postService.findPostDetail(
+        boolean adminOriginalVisible = isAdmin && detailContext.isAdminPostsSource();
+
+        PostDetailResponse postDetail = postDetailService.findPostDetail(
                 communityCode,
                 postId,
                 loginMemberId,
                 isAdmin,
+                adminOriginalVisible,
                 fromCreate,
                 request
         );
@@ -82,7 +89,7 @@ public class PostDetailWebController {
         commentCondition.setPage(commentPage);
 
         Page<CommentResponse> commentPageResult = postDetail.isViewable()
-                ? commentService.searchCommentsByPostId(postId, loginMemberId, commentCondition)
+                ? commentListService.searchCommentsByPostId(postId, loginMemberId, commentCondition)
                 : Page.empty();
 
         model.addAttribute("commentPage", commentPageResult);
@@ -92,7 +99,7 @@ public class PostDetailWebController {
         LinkedHashSet<String> mentionableNicknames = new LinkedHashSet<>();
 
         if (loginMember != null) {
-            Member commentWriter = memberService.getMember(loginMember.getId());
+            Member commentWriter = memberAccountService.getMember(loginMember.getId());
 
             if (postDetail.isMentionableWriter()) {
                 mentionableNicknames.add(postDetail.getWriterNickname());
@@ -121,11 +128,11 @@ public class PostDetailWebController {
         model.addAttribute("isAdmin", isAdmin);
         model.addAttribute("fromCreate", fromCreate);
         model.addAttribute("detailContext", detailContext);
-        model.addAttribute("reportRedirectUrl", postWebPathBuilder.detailPath(communityCode, postId, fromCreate, detailContext));
-        model.addAttribute("listRedirectUrl", postWebPathBuilder.listPath(communityCode, detailContext));
+        model.addAttribute("reportRedirectUrl", postRedirectPathBuilder.detailPath(communityCode, postId, fromCreate, detailContext));
+        model.addAttribute("listRedirectUrl", postRedirectPathBuilder.listPath(communityCode, detailContext));
         model.addAttribute("commentLoginRedirectUrl",
                 LoginRedirectHelper.createLoginPath(
-                        postWebPathBuilder.detailPathWithCommentState(communityCode, postId, fromCreate, detailContext, commentCondition, null, "comment")
+                        postRedirectPathBuilder.detailPathWithCommentState(communityCode, postId, fromCreate, detailContext, commentCondition, null, "comment")
                 )
         );
 
@@ -134,26 +141,26 @@ public class PostDetailWebController {
 
         if (detailContext.isPostListSource()) {
             model.addAttribute("postNavigation",
-                    postService.findPostNavigation(postId, postCondition, loginMemberId, isAdmin));
+                    postDetailContextService.findPostNavigation(postId, postCondition, loginMemberId, isAdmin));
             model.addAttribute("detailPinnedPosts",
-                    postService.findPinnedPosts(communityCode, detailContext.getCategoryId(), loginMemberId, isAdmin));
+                    postListService.findPinnedPosts(postCondition, loginMemberId, isAdmin));
             model.addAttribute("detailPostPage",
-                    postService.searchPosts(postCondition, loginMemberId, isAdmin));
+                    postListService.searchPosts(postCondition, loginMemberId, isAdmin));
 
         } else if (detailContext.isMyPostsSource()) {
             model.addAttribute("postNavigation",
-                    postService.findMyPostNavigation(communityCode, postId, loginMemberId, detailContext, loginMemberId, isAdmin));
+                    postDetailContextService.findMyPostNavigation(communityCode, postId, loginMemberId, detailContext, loginMemberId, isAdmin));
             model.addAttribute("detailPinnedPosts", List.of());
             model.addAttribute("detailPostPage",
-                    postService.searchMyPostsForDetail(communityCode, loginMemberId, detailContext, loginMemberId, isAdmin));
+                    postDetailContextService.searchMyPostsForDetail(communityCode, loginMemberId, detailContext, loginMemberId, isAdmin));
 
         } else if (detailContext.isAdminPostsSource()) {
             model.addAttribute("postNavigation",
-                    postService.findAdminPostNavigation(communityCode, postId, detailContext, loginMemberId, isAdmin));
+                    postDetailContextService.findAdminPostNavigation(communityCode, postId, detailContext, loginMemberId, isAdmin));
             model.addAttribute("detailPinnedPosts",
-                    postService.findAdminPinnedPostsForDetail(communityCode, detailContext.getCategoryId(), loginMemberId, isAdmin));
+                    postDetailContextService.findAdminPinnedPostsForDetail(communityCode, detailContext, loginMemberId, isAdmin));
             model.addAttribute("detailPostPage",
-                    postService.searchAdminPostsForDetail(communityCode, detailContext, loginMemberId, isAdmin));
+                    postDetailContextService.searchAdminPostsForDetail(communityCode, detailContext, loginMemberId, isAdmin));
 
         } else {
             model.addAttribute("postNavigation", PostNavigationResponse.empty());

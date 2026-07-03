@@ -1,4 +1,10 @@
 package com.gahih.domain.post.enumtype;
 
-public class PostSortType {
+public enum PostSortType {
+
+    LATEST,
+    OLDEST,
+    VIEWS,
+    LIKE_COUNT,
+    COMMENT_COUNT
 }

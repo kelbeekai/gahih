@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="adminReportTable">
+    <section class="card context-list-card">
+        <div class="table-wrapper admin-table-wrap">
+            <table class="common-table">
+                <thead>
+                <tr>
+                    <th class="table-cell-id">ID</th>
+                    <th class="table-cell-category" th:if="${currentCommunity == null}">국가</th>
+                    <th class="table-cell-status">대상 타입</th>
+                    <th class="table-cell-id">대상 ID</th>
+                    <th class="table-cell-title">대상명</th>
+                    <th class="table-cell-writer">작성자</th>
+                    <th class="table-cell-number">총 신고</th>
+                    <th class="table-cell-number">미조치</th>
+                    <th class="table-cell-status">상태</th>
+                    <th class="table-cell-date">마지막 신고</th>
+                    <th class="table-cell-action">관리</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${reportPage.isEmpty()}">
+                    <td th:colspan="${currentCommunity == null ? 11 : 10}">신고된 대상이 없습니다.</td>
+                </tr>
+
+                <tr th:each="report : ${reportPage.content}">
+                    <td class="table-cell-id" th:text="${report.id}"></td>
+                    <td class="table-cell-category" th:if="${currentCommunity == null}" th:text="${report.displayCommunityName}">국가</td>
+                    <td class="table-cell-status" th:text="${report.targetType.description}"></td>
+                    <td class="table-cell-id" th:text="${report.targetId}"></td>
+
+                    <td class="table-cell-title">
+                        <span class="table-title-text" th:text="${report.displayTargetName}"></span>
+                    </td>
+
+                    <td class="table-cell-writer" th:text="${report.writerNicknameSnapshot} ?: '-'"></td>
+                    <td class="table-cell-number" th:text="${report.totalReportCount}"></td>
+                    <td class="table-cell-number" th:text="${report.pendingReportCount}"></td>
+                    <td class="table-cell-status" th:text="${report.status.description}"></td>
+                    <td class="table-cell-date" th:text="${report.lastReportedAt != null ? #temporals.format(report.lastReportedAt, 'yyyy-MM-dd HH:mm') : '-'}"></td>
+                    <td class="table-cell-action">
+                        <details class="admin-action-menu">
+                            <summary class="btn btn-secondary btn-small admin-action-menu-toggle">관리</summary>
+
+                            <div class="admin-action-menu-panel">
+                                <a class="btn btn-secondary btn-small"
+                                   th:if="${report.memberTarget}"
+                                   th:href="@{/admin/members/{id}(
+                                        id=${report.targetId},
+                                        returnUrl=${currentCommunity != null
+                                            ? '/c/' + currentCommunity.code + '/admin/reports?targetType=' + (condition.targetType != null ? condition.targetType.name() : '') + '&status=' + (condition.status != null ? condition.status.name() : '') + '&searchType=' + condition.searchType + '&keyword=' + (condition.keyword != null ? condition.keyword : '') + '&sort=' + condition.sort + '&size=' + condition.safeSize + '&page=' + (reportPage.number + 1)
+                                            : '/admin/reports?targetType=' + (condition.targetType != null ? condition.targetType.name() : '') + '&status=' + (condition.status != null ? condition.status.name() : '') + '&searchType=' + condition.searchType + '&keyword=' + (condition.keyword != null ? condition.keyword : '') + '&sort=' + condition.sort + '&size=' + condition.safeSize + '&page=' + (reportPage.number + 1)}
+                                   )}">
+                                    회원 상세
+                                </a>
+
+                                <a class="btn btn-secondary btn-small"
+                                   th:if="${report.postTarget}"
+                                   th:href="@{/c/{communityCode}/posts/{id}(
+                                        communityCode=${currentCommunity != null ? currentCommunity.code : report.communityCode},
+                                        id=${report.targetId},
+                                        source=${T(com.gahih.domain.post.enumtype.PostDetailSource).ADMIN_REPORTS},
+                                        returnUrl=${currentCommunity != null
+                                            ? '/c/' + currentCommunity.code + '/admin/reports?targetType=' + (condition.targetType != null ? condition.targetType.name() : '') + '&status=' + (condition.status != null ? condition.status.name() : '') + '&searchType=' + condition.searchType + '&keyword=' + (condition.keyword != null ? condition.keyword : '') + '&sort=' + condition.sort + '&size=' + condition.safeSize + '&page=' + (reportPage.number + 1)
+                                            : '/admin/reports?targetType=' + (condition.targetType != null ? condition.targetType.name() : '') + '&status=' + (condition.status != null ? condition.status.name() : '') + '&searchType=' + condition.searchType + '&keyword=' + (condition.keyword != null ? condition.keyword : '') + '&sort=' + condition.sort + '&size=' + condition.safeSize + '&page=' + (reportPage.number + 1)}
+                                   )}">
+                                    게시글 이동
+                                </a>
+
+                                <a class="btn btn-secondary btn-small"
+                                   th:if="${report.commentTarget or report.attachmentTarget}"
+                                   th:href="${report.parentPostId != null and report.communityCode != null
+                                        ? '/c/' + (currentCommunity != null ? currentCommunity.code : report.communityCode)
+                                            + '/posts/' + report.parentPostId
+                                            + '?source=ADMIN_REPORTS'
+                                            + '&returnUrl=' + #uris.escapePath(currentCommunity != null
+                                                ? '/c/' + currentCommunity.code + '/admin/reports?targetType=' + (condition.targetType != null ? condition.targetType.name() : '') + '&status=' + (condition.status != null ? condition.status.name() : '') + '&searchType=' + condition.searchType + '&keyword=' + (condition.keyword != null ? condition.keyword : '') + '&sort=' + condition.sort + '&size=' + condition.safeSize + '&page=' + (reportPage.number + 1)
+                                                : '/admin/reports?targetType=' + (condition.targetType != null ? condition.targetType.name() : '') + '&status=' + (condition.status != null ? condition.status.name() : '') + '&searchType=' + condition.searchType + '&keyword=' + (condition.keyword != null ? condition.keyword : '') + '&sort=' + condition.sort + '&size=' + condition.safeSize + '&page=' + (reportPage.number + 1))
+                                        : (currentCommunity != null ? '/c/' + currentCommunity.code + '/admin/reports' : '/admin/reports')}">
+                                    게시글 이동
+                                </a>
+
+                                <form th:if="${report.pending and currentCommunity == null}"
+                                      th:action="@{/admin/reports/{targetType}/{targetId}/no-action(
+                                            targetType=${report.targetType.name()},
+                                            targetId=${report.targetId}
+                                      )}"
+                                      method="post"
+                                      class="inline-form"
+                                      data-reason-required="false"
+                                      data-reason-label="조치 필요 없음 사유"
+                                      data-reason-optional-message="조치 필요 없음 사유를 입력하세요. 비워두면 사유 없이 처리됩니다."
+                                      data-confirm-message="이 신고 대상을 조치 필요 없음으로 처리하시겠습니까?">
+
+                                    <th:block th:replace="~{admin/reports/fragments/admin-report-hidden-fields :: reportSearchHiddenFields(${condition}, ${reportPage})}"></th:block>
+                                    <button class="btn btn-secondary btn-small" type="submit">조치 필요 없음</button>
+                                </form>
+
+                                <form th:if="${report.pending and currentCommunity != null}"
+                                      th:action="@{/c/{communityCode}/admin/reports/{targetType}/{targetId}/no-action(
+                                            communityCode=${currentCommunity.code},
+                                            targetType=${report.targetType.name()},
+                                            targetId=${report.targetId}
+                                      )}"
+                                      method="post"
+                                      class="inline-form"
+                                      data-reason-required="false"
+                                      data-reason-label="조치 필요 없음 사유"
+                                      data-reason-optional-message="조치 필요 없음 사유를 입력하세요. 비워두면 사유 없이 처리됩니다."
+                                      data-confirm-message="이 신고 대상을 조치 필요 없음으로 처리하시겠습니까?">
+
+                                    <th:block th:replace="~{admin/reports/fragments/admin-report-hidden-fields :: reportSearchHiddenFields(${condition}, ${reportPage})}"></th:block>
+                                    <button class="btn btn-secondary btn-small" type="submit">조치 필요 없음</button>
+                                </form>
+                            </div>
+                        </details>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</th:block>
+
+</html>

@@ -1,4 +1,4 @@
-package com.gahih.domain.member.service;
+package com.gahih.domain.member.service.account;
 
 import com.gahih.domain.comment.repository.CommentRepository;
 import com.gahih.domain.member.dto.MyRecentInteractionCandidateResponse;

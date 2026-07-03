@@ -5,17 +5,18 @@ import com.gahih.domain.category.enumtype.CategoryCode;
 import com.gahih.domain.category.repository.CategoryRepository;
 import com.gahih.domain.comment.entity.Comment;
 import com.gahih.domain.comment.repository.CommentRepository;
-import com.gahih.domain.community.entity.CountryCommunity;
-import com.gahih.domain.community.enumtype.Continent;
-import com.gahih.domain.community.repository.CountryCommunityRepository;
 import com.gahih.domain.member.entity.Member;
 import com.gahih.domain.member.enumtype.MemberRole;
 import com.gahih.domain.member.repository.MemberRepository;
 import com.gahih.domain.post.entity.Post;
+import com.gahih.domain.post.entity.PostTradeInfo;
+import com.gahih.domain.post.enumtype.TradeType;
 import com.gahih.domain.post.repository.PostRepository;
+import com.gahih.domain.post.repository.PostTradeInfoRepository;
 import com.gahih.domain.reaction.enumtype.ReactionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,71 +24,24 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Component
+@Profile("dev")
 @RequiredArgsConstructor
-public class DataInitializer implements CommandLineRunner {
+public class DevDataInitializer implements CommandLineRunner {
 
-    private final CategoryRepository categoryRepository;
+    private final CategoryRepository categoryRepository; // 게시글 생성에 필요
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;
+    private final PostTradeInfoRepository postTradeInfoRepository;
     private final CommentRepository commentRepository;
     private final PasswordEncoder passwordEncoder;
-
-    private final CountryCommunityRepository countryCommunityRepository;
 
     @Transactional
     @Override
     public void run(String... args) {
-        initializeCountryCommunity();
-        initializeCategory();
         initializeDummyMembers();
         initializeTestMembers();
         initializePosts();
         initializeComments();
-    }
-
-    private void initializeCountryCommunity() {
-        if (!countryCommunityRepository.existsByCode("DE")) {
-            CountryCommunity germany = CountryCommunity.create(
-                    "DE",
-                    "독일",
-                    Continent.EUROPE,
-                    true,
-                    1
-            );
-            countryCommunityRepository.save(germany);
-        }
-
-        if (!countryCommunityRepository.existsByCode("JP")) {
-            CountryCommunity japan = CountryCommunity.create(
-                    "JP",
-                    "일본",
-                    Continent.ASIA,
-                    true,
-                    2
-            );
-            countryCommunityRepository.save(japan);
-        }
-    }
-
-    private void initializeCategory() {
-        CountryCommunity germany = countryCommunityRepository.findByCode("DE")
-                .orElseThrow(() -> new IllegalStateException("독일 커뮤니티를 찾을 수 없습니다."));
-
-        CountryCommunity japan = countryCommunityRepository.findByCode("JP")
-                .orElseThrow(() -> new IllegalStateException("일본 커뮤니티를 찾을 수 없습니다."));
-
-        initializeCategoryForCommunity(germany);
-        initializeCategoryForCommunity(japan);
-    }
-
-    private void initializeCategoryForCommunity(CountryCommunity community) {
-        for (CategoryCode categoryCode : CategoryCode.values()) {
-            if (categoryRepository.existsByCountryCommunityAndCode(community, categoryCode)) {
-                continue;
-            }
-
-            categoryRepository.save(Category.create(community, categoryCode));
-        }
     }
 
     private void initializeTestMembers() {
@@ -148,6 +102,7 @@ public class DataInitializer implements CommandLineRunner {
         int categoryCount = categories.size();
         int adminCount = activeAdmins.size();
         int writerCount = activeUsers.size();
+        int marketPostIndex = 0;
 
         for (int i = 1; i <= 400; i++) {
             Category category = categories.get((i - 1) % categoryCount);
@@ -184,8 +139,21 @@ public class DataInitializer implements CommandLineRunner {
                 post.applyReactionChange(null, ReactionType.LIKE);
             }
 
-            postRepository.save(post);
+            Post savedPost = postRepository.save(post);
+
+            if (category.isCode(CategoryCode.MARKET)) {
+                postTradeInfoRepository.save(PostTradeInfo.create(savedPost, selectTradeType(marketPostIndex)));
+                marketPostIndex++;
+            }
         }
+    }
+
+    private TradeType selectTradeType(int index) {
+        return switch (index % 3) {
+            case 0 -> TradeType.GIVE;
+            case 1 -> TradeType.SELL;
+            default -> TradeType.WANTED;
+        };
     }
 
     private void initializeComments() {

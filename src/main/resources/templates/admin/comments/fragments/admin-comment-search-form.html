@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="adminCommentFilterForm">
+    <section class="card search-card search-card-top-card">
+        <form id="adminCommentFilterForm"
+              th:action="${currentCommunity != null}
+                  ? @{/c/{communityCode}/admin/comments(communityCode=${currentCommunity.code})}
+                  : @{/admin/comments}"
+              method="get"
+              class="search-toolbar-form">
+
+            <input type="hidden" name="page" th:value="${commentPage.number + 1}">
+            <input type="hidden" data-role="current-page" th:value="${commentPage.number + 1}">
+            <input type="hidden" data-role="current-size" th:value="${commentPage.size}">
+            <input type="hidden" name="keyword" th:value="${condition.keyword}">
+            <input type="hidden" name="searchType" th:value="${condition.searchType}">
+
+            <div class="search-toolbar-left">
+
+                <select class="form-control search-control-compact"
+                        id="status"
+                        name="status"
+                        aria-label="상태"
+                        data-role="instant-search-control">
+                    <option value="" th:selected="${condition.status == null}">전체상태</option>
+                    <option th:each="statusValue : ${statuses}"
+                            th:value="${statusValue.name()}"
+                            th:text="${statusValue.displayName}"
+                            th:selected="${condition.status == statusValue}">
+                    </option>
+                </select>
+
+                <select class="form-control search-control-compact"
+                        id="sort"
+                        name="sort"
+                        aria-label="정렬"
+                        data-role="instant-search-control">
+                    <option th:each="sortType : ${sortTypes}"
+                            th:value="${sortType.name()}"
+                            th:text="${sortType.description}"
+                            th:selected="${condition.sort == sortType}">
+                    </option>
+                </select>
+
+                <select class="form-control search-control-compact"
+                        id="size"
+                        name="size"
+                        aria-label="목록 수"
+                        data-role="page-size-select">
+                    <option value="20" th:selected="${condition.safeSize == 20}">20개씩</option>
+                    <option value="40" th:selected="${condition.safeSize == 40}">40개씩</option>
+                    <option value="60" th:selected="${condition.safeSize == 60}">60개씩</option>
+                </select>
+            </div>
+
+            <div class="search-toolbar-right"></div>
+        </form>
+    </section>
+</th:block>
+
+<th:block th:fragment="adminCommentKeywordSearchForm">
+    <section class="card search-card search-card-bottom-card">
+        <form id="adminCommentKeywordSearchForm"
+              th:action="${currentCommunity != null}
+                  ? @{/c/{communityCode}/admin/comments(communityCode=${currentCommunity.code})}
+                  : @{/admin/comments}"
+              method="get"
+              class="search-keyword-form">
+
+            <input type="hidden" name="page" value="1">
+            <input type="hidden" name="status" th:value="${condition.status}">
+            <input type="hidden" name="sort" th:value="${condition.sort}">
+            <input type="hidden" name="size" th:value="${condition.safeSize}">
+
+            <div class="search-keyword-row">
+
+                <select class="form-control search-control-compact search-type-control"
+                        id="keywordSearchType"
+                        name="searchType"
+                        aria-label="검색 기준">
+                    <option th:each="type : ${searchTypes}"
+                            th:value="${type.name()}"
+                            th:text="${type.description}"
+                            th:selected="${condition.searchType == type}">
+                    </option>
+                </select>
+
+                <input class="form-control search-keyword-input"
+                       id="keyword"
+                       type="text"
+                       name="keyword"
+                       th:value="${condition.keyword}"
+                       placeholder="선택한 조건으로 검색"
+                       aria-label="검색어">
+
+                <button class="btn btn-primary btn-small search-nowrap-button" type="submit">검색</button>
+
+                <a class="btn btn-secondary btn-small search-nowrap-button"
+                   th:if="${currentCommunity != null}"
+                   th:href="@{/c/{communityCode}/admin/comments(communityCode=${currentCommunity.code})}">
+                    초기화
+                </a>
+
+                <a class="btn btn-secondary btn-small search-nowrap-button"
+                   th:if="${currentCommunity == null}"
+                   th:href="@{/admin/comments}">
+                    초기화
+                </a>
+            </div>
+        </form>
+    </section>
+</th:block>
+
+</html>

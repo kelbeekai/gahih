@@ -1,5 +1,6 @@
-package com.gahih.domain.member.service;
+package com.gahih.domain.member.service.status;
 
+import com.gahih.domain.member.service.nickname.MemberNicknameService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

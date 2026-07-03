@@ -2,44 +2,69 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <th:block th:fragment="postReaction">
-    <div th:if="${postDetail.reactionAllowed}" class="detail-block-spaced">
-        <span>좋아요 <strong th:text="${postDetail.likeCount}">0</strong></span>
-        <span class="detail-inline-spaced">싫어요 <strong th:text="${postDetail.dislikeCount}">0</strong></span>
-
-        <div class="detail-block-small-spaced">
+    <th:block th:if="${postDetail.reactionAllowed}">
+        <div class="reaction-inline-row post-reaction-inline-row">
             <form th:action="@{/c/{communityCode}/posts/{postId}/like(
                     communityCode=${currentCommunity.code},
                     postId=${postDetail.id}
                   )}"
                   method="post"
-                  class="inline-form">
+                  class="inline-form reaction-button-form">
                 <input type="hidden" name="fromCreate" th:value="${fromCreate}">
+                <th:block th:replace="~{posts/post-detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
 
-                <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
-                <button class="btn btn-secondary btn-small"
+                <button class="reaction-icon-button"
+                        th:classappend="${postDetail.liked} ? ' reaction-icon-button-active' : ''"
                         type="submit"
-                        th:text="${postDetail.liked} ? '👍 좋아요 취소' : '👍 좋아요'">
-                    👍 좋아요
+                        th:title="${postDetail.liked} ? '좋아요 취소' : '좋아요'"
+                        th:attr="aria-label=${postDetail.liked} ? '좋아요 취소' : '좋아요',
+                                 aria-pressed=${postDetail.liked}">
+                    <th:block th:if="${postDetail.liked}">
+                        <th:block th:replace="~{fragments/icons :: thumbUpFilled}"></th:block>
+                    </th:block>
+                    <th:block th:unless="${postDetail.liked}">
+                        <th:block th:replace="~{fragments/icons :: thumbUp}"></th:block>
+                    </th:block>
                 </button>
             </form>
+
+            <span class="reaction-count reaction-count-positive"
+                  th:classappend="${postDetail.liked} ? ' reaction-count-active' : ''"
+                  th:text="${postDetail.likeCount}">
+                0
+            </span>
+
+            <span class="reaction-count reaction-count-negative"
+                  th:classappend="${postDetail.disliked} ? ' reaction-count-active' : ''"
+                  th:text="${postDetail.dislikeCount}">
+                0
+            </span>
 
             <form th:action="@{/c/{communityCode}/posts/{postId}/dislike(
                     communityCode=${currentCommunity.code},
                     postId=${postDetail.id}
                   )}"
                   method="post"
-                  class="inline-form detail-inline-spaced">
+                  class="inline-form reaction-button-form">
                 <input type="hidden" name="fromCreate" th:value="${fromCreate}">
+                <th:block th:replace="~{posts/post-detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
 
-                <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
-                <button class="btn btn-secondary btn-small"
+                <button class="reaction-icon-button reaction-icon-button-negative"
+                        th:classappend="${postDetail.disliked} ? ' reaction-icon-button-active' : ''"
                         type="submit"
-                        th:text="${postDetail.disliked} ? '👎 싫어요 취소' : '👎 싫어요'">
-                    👎 싫어요
+                        th:title="${postDetail.disliked} ? '싫어요 취소' : '싫어요'"
+                        th:attr="aria-label=${postDetail.disliked} ? '싫어요 취소' : '싫어요',
+                                 aria-pressed=${postDetail.disliked}">
+                    <th:block th:if="${postDetail.disliked}">
+                        <th:block th:replace="~{fragments/icons :: thumbDownFilled}"></th:block>
+                    </th:block>
+                    <th:block th:unless="${postDetail.disliked}">
+                        <th:block th:replace="~{fragments/icons :: thumbDown}"></th:block>
+                    </th:block>
                 </button>
             </form>
         </div>
-    </div>
+    </th:block>
 </th:block>
 
 </html>

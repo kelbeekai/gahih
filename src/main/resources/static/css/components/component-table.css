@@ -65,16 +65,39 @@
     max-width: 420px;
 }
 
-.table-cell-title a,
 .table-cell-title .table-title-text {
-    display: inline-block;
+    max-width: 100%;
+}
+
+.table-title-line {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    min-width: 0;
     max-width: 100%;
 
+    white-space: nowrap;
+}
+
+.table-title-line .table-title-text {
+    flex: 0 1 auto;
+    min-width: 0;
+
+    display: inline-block;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
 
-    vertical-align: middle;
+.table-title-line .table-title-text a {
+    display: inline;
+}
+
+.table-title-line .icon-marker,
+.table-title-line .title-meta {
+    flex: 0 0 auto;
+    line-height: 1;
 }
 
 .table-cell-writer {

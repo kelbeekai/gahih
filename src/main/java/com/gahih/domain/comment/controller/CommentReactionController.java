@@ -18,9 +18,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequiredArgsConstructor
-public class CommentReactionWebController {
+public class CommentReactionController {
 
-    private final CommentWebPathBuilder commentWebPathBuilder;
+    private final CommentRedirectPathBuilder commentRedirectPathBuilder;
     private final CommentReactionService commentReactionService;
 
     @PostMapping("/c/{communityCode}/comments/{commentId}/like")
@@ -44,12 +44,12 @@ public class CommentReactionWebController {
         if (loginMember == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "좋아요/싫어요는 로그인 후 이용할 수 있습니다.");
             return "redirect:" + LoginRedirectHelper.createLoginPath(
-                    commentWebPathBuilder.detailPathWithCommentAnchor(communityCode, postId, fromCreate, detailContext, commentCondition)
+                    commentRedirectPathBuilder.detailPathWithCommentAnchor(communityCode, postId, fromCreate, detailContext, commentCondition)
             );
         }
 
         commentReactionService.react(communityCode, loginMember.getId(), commentId, ReactionType.LIKE);
-        return "redirect:" + commentWebPathBuilder.detailPathWithCommentAnchor(communityCode, postId, fromCreate, detailContext, commentCondition);
+        return "redirect:" + commentRedirectPathBuilder.detailPathWithCommentAnchor(communityCode, postId, fromCreate, detailContext, commentCondition);
     }
 
     @PostMapping("/c/{communityCode}/comments/{commentId}/dislike")
@@ -73,11 +73,11 @@ public class CommentReactionWebController {
         if (loginMember == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "좋아요/싫어요는 로그인 후 이용할 수 있습니다.");
             return "redirect:" + LoginRedirectHelper.createLoginPath(
-                    commentWebPathBuilder.detailPathWithCommentAnchor(communityCode, postId, fromCreate, detailContext, commentCondition)
+                    commentRedirectPathBuilder.detailPathWithCommentAnchor(communityCode, postId, fromCreate, detailContext, commentCondition)
             );
         }
 
         commentReactionService.react(communityCode, loginMember.getId(), commentId, ReactionType.DISLIKE);
-        return "redirect:" + commentWebPathBuilder.detailPathWithCommentAnchor(communityCode, postId, fromCreate, detailContext, commentCondition);
+        return "redirect:" + commentRedirectPathBuilder.detailPathWithCommentAnchor(communityCode, postId, fromCreate, detailContext, commentCondition);
     }
 }

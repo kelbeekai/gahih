@@ -1,4 +1,4 @@
-package com.gahih.domain.member.service;
+package com.gahih.domain.member.service.status;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

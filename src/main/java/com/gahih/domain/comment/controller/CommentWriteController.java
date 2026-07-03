@@ -19,9 +19,9 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/c/{communityCode}/posts/{postId}/comments")
-public class CommentWriteWebController {
+public class CommentWriteController {
 
-    private final CommentWebPathBuilder commentWebPathBuilder;
+    private final CommentRedirectPathBuilder commentRedirectPathBuilder;
     private final CommentService commentService;
 
     @PostMapping
@@ -46,16 +46,16 @@ public class CommentWriteWebController {
         if (loginMember == null) {
             return "redirect:" + LoginRedirectHelper.createLoginPathForPost(
                     httpServletRequest,
-                    commentWebPathBuilder.detailPathWithCommentAnchor(communityCode, postId, fromCreate, detailContext, commentCondition)
+                    commentRedirectPathBuilder.detailPathWithCommentAnchor(communityCode, postId, fromCreate, detailContext, commentCondition)
             );
         }
 
         if (bindingResult.hasErrors()) {
-            return "redirect:" + commentWebPathBuilder.detailPathWithCommentAnchor(communityCode, postId, fromCreate, detailContext, commentCondition);
+            return "redirect:" + commentRedirectPathBuilder.detailPathWithCommentAnchor(communityCode, postId, fromCreate, detailContext, commentCondition);
         }
 
         commentService.createComment(communityCode, loginMember.getId(), postId, request);
-        return "redirect:" + commentWebPathBuilder.detailPathWithCommentAnchor(communityCode, postId, fromCreate, detailContext, commentCondition);
+        return "redirect:" + commentRedirectPathBuilder.detailPathWithCommentAnchor(communityCode, postId, fromCreate, detailContext, commentCondition);
     }
 
     @PostMapping("/{commentId}/edit")
@@ -81,16 +81,16 @@ public class CommentWriteWebController {
         if (loginMember == null) {
             return "redirect:" + LoginRedirectHelper.createLoginPathForPost(
                     httpServletRequest,
-                    commentWebPathBuilder.detailPathWithCommentAnchor(communityCode, postId, fromCreate, detailContext, commentCondition)
+                    commentRedirectPathBuilder.detailPathWithCommentAnchor(communityCode, postId, fromCreate, detailContext, commentCondition)
             );
         }
 
         if (bindingResult.hasErrors()) {
-            return "redirect:" + commentWebPathBuilder.detailPathWithCommentAnchor(communityCode, postId, fromCreate, detailContext, commentCondition);
+            return "redirect:" + commentRedirectPathBuilder.detailPathWithCommentAnchor(communityCode, postId, fromCreate, detailContext, commentCondition);
         }
 
         commentService.updateComment(communityCode, loginMember.getId(), postId, commentId, request);
-        return "redirect:" + commentWebPathBuilder.detailPathWithCommentAnchor(communityCode, postId, fromCreate, detailContext, commentCondition);
+        return "redirect:" + commentRedirectPathBuilder.detailPathWithCommentAnchor(communityCode, postId, fromCreate, detailContext, commentCondition);
     }
 
     @PostMapping("/{commentId}/delete")
@@ -114,12 +114,12 @@ public class CommentWriteWebController {
         if (loginMember == null) {
             return "redirect:" + LoginRedirectHelper.createLoginPathForPost(
                     httpServletRequest,
-                    commentWebPathBuilder.detailPathWithCommentAnchor(communityCode, postId, fromCreate, detailContext, commentCondition)
+                    commentRedirectPathBuilder.detailPathWithCommentAnchor(communityCode, postId, fromCreate, detailContext, commentCondition)
             );
         }
 
         commentService.deleteComment(communityCode, loginMember.getId(), postId, commentId);
-        return "redirect:" + commentWebPathBuilder.detailPathWithCommentAnchor(communityCode, postId, fromCreate, detailContext, commentCondition);
+        return "redirect:" + commentRedirectPathBuilder.detailPathWithCommentAnchor(communityCode, postId, fromCreate, detailContext, commentCondition);
     }
 
 }

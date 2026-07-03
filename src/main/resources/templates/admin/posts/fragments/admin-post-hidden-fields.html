@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="postsSearchHiddenFields(condition, postPage)">
+    <input type="hidden" name="categoryId" th:value="${condition.categoryId}">
+    <input type="hidden" name="keyword" th:value="${condition.keyword}">
+    <input type="hidden" name="secret" th:value="${condition.secret}">
+    <input type="hidden" name="sort" th:value="${condition.sort}">
+    <input type="hidden" name="onlyWithAttachments" th:value="${condition.onlyWithAttachments}">
+    <input type="hidden" name="tradeType" th:value="${condition.tradeType}">
+    <input type="hidden" name="tradeStatus" th:value="${condition.tradeStatus}">
+    <input type="hidden" name="size" th:value="${condition.safeSize}">
+    <input type="hidden" name="page" th:value="${postPage.number + 1}">
+</th:block>
+
+</html>

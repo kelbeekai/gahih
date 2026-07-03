@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="memberMypageRecentInteractions">
+    <div class="card"
+         th:if="${!member.suspended and recentInteractionPosts != null and !#lists.isEmpty(recentInteractionPosts)}">
+        <h3>최근 반응이 있었던 내 게시글</h3>
+
+        <div class="mypage-activity-list">
+            <div class="mypage-activity-item" th:each="post : ${recentInteractionPosts}">
+                <div class="mypage-activity-main">
+                    <div class="mypage-activity-title">
+                        <span class="mypage-activity-category" th:text="|[${post.categoryName}]|"></span>
+
+                        <a th:if="${currentCommunity != null}"
+                           th:href="@{/c/{communityCode}/posts/{id}(
+                        communityCode=${currentCommunity.code},
+                        id=${post.postId},
+                        source=${T(com.gahih.domain.post.enumtype.PostDetailSource).MY_POSTS},
+                        sort=${T(com.gahih.domain.member.enumtype.MyPostSortType).LATEST},
+                        page=1,
+                        size=20
+                    )}"
+                           th:text="${post.title}">
+                        </a>
+
+                        <a th:if="${currentCommunity == null}"
+                           th:href="@{/c/{communityCode}/posts/{id}(
+                        communityCode=${post.communityCode},
+                        id=${post.postId},
+                        source=${T(com.gahih.domain.post.enumtype.PostDetailSource).MY_POSTS},
+                        sort=${T(com.gahih.domain.member.enumtype.MyPostSortType).LATEST},
+                        page=1,
+                        size=20
+                    )}"
+                           th:text="${post.title}">
+                        </a>
+                    </div>
+
+                    <div class="mypage-activity-summary" th:text="${post.interactionSummary}">
+                        새 댓글
+                    </div>
+                </div>
+
+                <div class="mypage-activity-time"
+                     th:text="${#temporals.format(post.interactedAt, 'yyyy-MM-dd HH:mm')}">
+                </div>
+            </div>
+        </div>
+
+        <p class="text-muted" style="margin-top: 12px;">
+            최근 7일 안에 내 게시글에 댓글이나 좋아요 반응이 있었던 글입니다.
+        </p>
+
+        <div class="actions" style="margin-top: 12px;">
+            <a th:if="${currentCommunity != null}"
+               th:href="@{/c/{communityCode}/mypage/posts(communityCode=${currentCommunity.code})}">
+                내가 쓴 글 전체 보기
+            </a>
+
+            <a th:if="${currentCommunity == null}"
+               th:href="@{/}">
+                커뮤니티 선택하기
+            </a>
+        </div>
+    </div>
+
+    <div class="card"
+         th:if="${mentionedComments != null and !#lists.isEmpty(mentionedComments)}">
+        <h3>나를 언급한 댓글</h3>
+
+        <table>
+            <thead>
+            <tr>
+                <th>게시글</th>
+                <th>댓글 미리보기</th>
+                <th>시각</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${mentionedComments}">
+                <td>
+                    <span style="color:#666;" th:text="|[${item.categoryName}]|"></span>
+                    <a th:if="${currentCommunity != null}"
+                       th:href="@{/c/{communityCode}/posts/{id}(
+                            communityCode=${currentCommunity.code},
+                            id=${item.postId},
+                            source=${T(com.gahih.domain.post.enumtype.PostDetailSource).POST_LIST}
+                        )}"
+                       th:text="${item.postTitle}">
+                    </a>
+
+                    <a th:if="${currentCommunity == null}"
+                       th:href="@{/c/{communityCode}/posts/{id}(
+                            communityCode=${item.communityCode},
+                            id=${item.postId},
+                            source=${T(com.gahih.domain.post.enumtype.PostDetailSource).POST_LIST}
+                        )}"
+                       th:text="${item.postTitle}">
+                    </a>
+                </td>
+                <td th:text="${item.commentPreview}"></td>
+                <td th:text="${#temporals.format(item.mentionedAt, 'yyyy-MM-dd HH:mm')}"></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p class="text-muted" style="margin-top: 12px;"
+           th:text="${member.suspended}
+            ? '최근 7일 안에 이용문의 게시판에서 나를 태그한 댓글입니다.'
+            : '최근 7일 안에 나를 태그한 댓글입니다.'">
+            최근 7일 안에 나를 태그한 댓글입니다.
+        </p>
+    </div>
+</th:block>
+
+</html>

@@ -2,7 +2,7 @@ package com.gahih.domain.member.controller;
 
 import com.gahih.domain.member.dto.*;
 import com.gahih.domain.member.entity.Member;
-import com.gahih.domain.member.service.MemberService;
+import com.gahih.domain.member.service.auth.MemberAuthService;
 import com.gahih.domain.member.session.LoginMember;
 import com.gahih.global.common.SessionConst;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,15 +14,15 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/members")
-public class MemberController {
+@RequestMapping("/api/members")
+public class MemberApiController {
 
-    private final MemberService memberService;
+    private final MemberAuthService memberAuthService;
 
     @PostMapping("/signup")
     @ResponseStatus(HttpStatus.CREATED)
     public MemberSignUpResponse signUp(@Valid @RequestBody MemberSignUpRequest request) {
-        return memberService.signUp(request);
+        return memberAuthService.signUp(request);
     }
 
     @PostMapping("/login")
@@ -31,7 +31,7 @@ public class MemberController {
             @Valid @RequestBody MemberLoginRequest request,
             HttpServletRequest httpServletRequest
     ) {
-        Member member = memberService.login(request);
+        Member member = memberAuthService.login(request);
 
         HttpSession session = httpServletRequest.getSession();
         LoginMember loginMember = new LoginMember(member);

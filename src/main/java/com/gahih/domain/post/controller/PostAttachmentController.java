@@ -1,10 +1,11 @@
 package com.gahih.domain.post.controller;
 
-import com.gahih.domain.admin.service.AdminService;
+import com.gahih.domain.admin.service.AdminPostService;
 import com.gahih.domain.member.session.LoginMember;
 import com.gahih.domain.post.dto.PostAttachmentDownloadInfo;
 import com.gahih.domain.post.dto.PostDetailContext;
 import com.gahih.domain.post.service.PostAttachmentService;
+import com.gahih.domain.post.service.PostAttachmentZipService;
 import com.gahih.global.argumentresolver.Login;
 import com.gahih.global.util.LoginRedirectHelper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,11 +23,12 @@ import java.nio.charset.StandardCharsets;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/c/{communityCode}/posts")
-public class PostAttachmentWebController {
+public class PostAttachmentController {
 
     private final PostAttachmentService postAttachmentService;
-    private final AdminService adminService;
-    private final PostWebPathBuilder postWebPathBuilder;
+    private final PostAttachmentZipService postAttachmentZipService;
+    private final AdminPostService adminPostService;
+    private final PostRedirectPathBuilder postRedirectPathBuilder;
 
     @PostMapping("/{postId}/attachments/{attachmentId}/delete")
     public String deleteAttachment(
@@ -41,12 +43,12 @@ public class PostAttachmentWebController {
         if (loginMember == null) {
             return "redirect:" + LoginRedirectHelper.createLoginPathForPost(
                     request,
-                    postWebPathBuilder.editPath(communityCode, postId, fromCreate, detailContext)
+                    postRedirectPathBuilder.editPath(communityCode, postId, fromCreate, detailContext)
             );
         }
 
         postAttachmentService.deleteAttachmentByOwner(loginMember.getId(), postId, attachmentId);
-        return "redirect:" + postWebPathBuilder.editPath(communityCode, postId, fromCreate, detailContext);
+        return "redirect:" + postRedirectPathBuilder.editPath(communityCode, postId, fromCreate, detailContext);
     }
 
     /**
@@ -65,12 +67,12 @@ public class PostAttachmentWebController {
         if (loginMember == null) {
             return "redirect:" + LoginRedirectHelper.createLoginPathForPost(
                     request,
-                    postWebPathBuilder.detailPath(communityCode, postId, fromCreate, detailContext)
+                    postRedirectPathBuilder.detailPath(communityCode, postId, fromCreate, detailContext)
             );
         }
 
-        adminService.deleteAttachment(loginMember.getId(), postId, attachmentId);
-        return "redirect:" + postWebPathBuilder.detailPath(communityCode, postId, fromCreate, detailContext);
+        adminPostService.deleteAttachment(loginMember.getId(), postId, attachmentId);
+        return "redirect:" + postRedirectPathBuilder.detailPath(communityCode, postId, fromCreate, detailContext);
     }
 
     @GetMapping("/{postId}/attachments/download-all")
@@ -80,8 +82,8 @@ public class PostAttachmentWebController {
             @RequestParam(name = "fromCreate", defaultValue = "false") boolean fromCreate,
             HttpServletRequest request
     ) {
-        byte[] zipBytes = postAttachmentService.downloadAllAsZip(communityCode, postId, fromCreate, request);
-        String zipFileName = postAttachmentService.createZipFileName(communityCode, postId);
+        byte[] zipBytes = postAttachmentZipService.downloadAllAsZip(communityCode, postId, fromCreate, request);
+        String zipFileName = postAttachmentZipService.createZipFileName(communityCode, postId);
         String encodedFileName = UriUtils.encode(zipFileName, StandardCharsets.UTF_8);
 
         return ResponseEntity.ok()

@@ -66,89 +66,7 @@
             <div id="emailAuthVerified" class="form-group"
                  th:text="${signupEmailVerified} ? '이메일 인증이 완료되었습니다.' : ''"></div>
 
-            <section class="card">
-                <h3 class="card-title">필수 동의</h3>
-
-                <div id="signupClientError" class="global-error hidden"></div>
-
-                <div class="agreement-item">
-                    <div class="agreement-check-row">
-                        <input type="checkbox"
-                               th:field="*{termsAgreed}"
-                               data-agreement-checkbox="terms"
-                               readonly>
-
-                        <span>[필수]</span>
-
-                        <button class="agreement-text-button"
-                                type="button"
-                                data-agreement-open="terms">
-                            이용약관
-                        </button>
-
-                        <span>에 동의합니다.</span>
-                    </div>
-
-                    <button class="btn btn-secondary btn-small"
-                            type="button"
-                            data-agreement-open="terms">
-                        내용 보기
-                    </button>
-                    <div class="field-error" th:errors="*{termsAgreed}"></div>
-                </div>
-
-                <div class="agreement-item">
-                    <div class="agreement-check-row">
-                        <input type="checkbox"
-                               th:field="*{privacyAgreed}"
-                               data-agreement-checkbox="privacy"
-                               readonly>
-
-                        <span>[필수]</span>
-
-                        <button class="agreement-text-button"
-                                type="button"
-                                data-agreement-open="privacy">
-                            개인정보 처리방침
-                        </button>
-
-                        <span>에 동의합니다.</span>
-                    </div>
-
-                    <button class="btn btn-secondary btn-small"
-                            type="button"
-                            data-agreement-open="privacy">
-                        내용 보기
-                    </button>
-                    <div class="field-error" th:errors="*{privacyAgreed}"></div>
-                </div>
-
-                <div class="agreement-item">
-                    <div class="agreement-check-row">
-                        <input type="checkbox"
-                               th:field="*{policyAgreed}"
-                               data-agreement-checkbox="policy"
-                               readonly>
-
-                        <span>[필수]</span>
-
-                        <button class="agreement-text-button"
-                                type="button"
-                                data-agreement-open="policy">
-                            커뮤니티 운영정책
-                        </button>
-
-                        <span>에 동의합니다.</span>
-                    </div>
-
-                    <button class="btn btn-secondary btn-small"
-                            type="button"
-                            data-agreement-open="policy">
-                        내용 보기
-                    </button>
-                    <div class="field-error" th:errors="*{policyAgreed}"></div>
-                </div>
-            </section>
+            <th:block th:replace="~{members/signup-fragments/member-signup-agreement-section :: memberSignupAgreementSection}"></th:block>
 
             <div class="form-group">
                 <button class="btn btn-primary" type="submit" id="signUpSubmitBtn">회원가입</button>
@@ -156,102 +74,11 @@
         </form>
     </section>
 
-    <div class="agreement-modal hidden" data-agreement-modal="terms" aria-hidden="true">
-        <div class="agreement-modal-backdrop" data-agreement-close="terms"></div>
-        <section class="agreement-modal-panel">
-            <div class="agreement-modal-header">
-                <h3>이용약관</h3>
-                <button type="button" class="agreement-modal-close" data-agreement-close="terms">×</button>
-            </div>
-
-            <div class="agreement-modal-body">
-                <h4>1. 서비스 목적</h4>
-                <p>가힣은 국가별 한인 커뮤니티 안에서 정보 공유와 소통을 돕기 위한 서비스입니다.</p>
-
-                <h4>2. 회원의 의무</h4>
-                <p>회원은 타인의 권리를 침해하거나 서비스 운영을 방해하는 행위를 해서는 안 됩니다.</p>
-
-                <h4>3. 게시물 관리</h4>
-                <p>운영정책에 위반되는 게시물은 블라인드, 삭제, 이용 제한 등의 조치를 받을 수 있습니다.</p>
-
-                <h4>4. 약관 변경</h4>
-                <p>서비스 운영 상황에 따라 약관은 변경될 수 있으며, 중요한 변경 사항은 서비스 내에서 안내합니다.</p>
-            </div>
-
-            <div class="agreement-modal-footer">
-                <div class="agreement-confirm-row">
-                    <input type="checkbox" id="termsConfirm" data-agreement-confirm="terms">
-                    <span>위 내용을 확인하고 동의합니다.</span>
-                </div>
-            </div>
-        </section>
-    </div>
-
-    <div class="agreement-modal hidden" data-agreement-modal="privacy" aria-hidden="true">
-        <div class="agreement-modal-backdrop" data-agreement-close="privacy"></div>
-        <section class="agreement-modal-panel">
-            <div class="agreement-modal-header">
-                <h3>개인정보 처리방침</h3>
-                <button type="button" class="agreement-modal-close" data-agreement-close="privacy">×</button>
-            </div>
-
-            <div class="agreement-modal-body">
-                <h4>1. 수집하는 정보</h4>
-                <p>서비스는 회원가입과 이용 과정에서 아이디, 닉네임, 이메일 등의 정보를 수집할 수 있습니다.</p>
-
-                <h4>2. 이용 목적</h4>
-                <p>수집된 정보는 회원 식별, 로그인, 이메일 인증, 서비스 운영, 부정 이용 방지에 사용됩니다.</p>
-
-                <h4>3. 보관 및 삭제</h4>
-                <p>탈퇴 또는 최종 종료 처리된 계정의 정보는 운영정책에 따라 비식별화되거나 삭제될 수 있습니다.</p>
-
-                <h4>4. 문의</h4>
-                <p>개인정보 관련 문의는 운영문의 페이지를 통해 접수할 수 있습니다.</p>
-            </div>
-
-            <div class="agreement-modal-footer">
-                <div class="agreement-confirm-row">
-                    <input type="checkbox" id="privacyConfirm" data-agreement-confirm="privacy">
-                    <span>위 내용을 확인하고 동의합니다.</span>
-                </div>
-            </div>
-        </section>
-    </div>
-
-    <div class="agreement-modal hidden" data-agreement-modal="policy" aria-hidden="true">
-        <div class="agreement-modal-backdrop" data-agreement-close="policy"></div>
-        <section class="agreement-modal-panel">
-            <div class="agreement-modal-header">
-                <h3>커뮤니티 운영정책</h3>
-                <button type="button" class="agreement-modal-close" data-agreement-close="policy">×</button>
-            </div>
-
-            <div class="agreement-modal-body">
-                <h4>1. 기본 원칙</h4>
-                <p>가힣은 국가별 한인 커뮤니티의 건전한 정보 공유와 상호 존중을 지향합니다.</p>
-
-                <h4>2. 금지 행위</h4>
-                <p>욕설, 혐오, 도배, 사칭, 개인정보 노출, 불법 정보 공유, 광고성 게시물은 제한될 수 있습니다.</p>
-
-                <h4>3. 관리자 조치</h4>
-                <p>운영정책 위반 시 게시글/댓글 블라인드, 삭제, 회원 정지, 닉네임 강제 변경 등의 조치가 이루어질 수 있습니다.</p>
-
-                <h4>4. 신고 처리</h4>
-                <p>신고된 대상은 관리자가 검토하며, 조치 완료 또는 무조치 종료로 처리될 수 있습니다.</p>
-            </div>
-
-            <div class="agreement-modal-footer">
-                <div class="agreement-confirm-row">
-                    <input type="checkbox" id="policyConfirm" data-agreement-confirm="policy">
-                    <span>위 내용을 확인하고 동의합니다.</span>
-                </div>
-            </div>
-        </section>
-    </div>
+    <th:block th:replace="~{members/signup-fragments/member-signup-agreement-modals :: memberSignupAgreementModals}"></th:block>
 </main>
 
-<script defer th:src="@{/js/members/signup-agreement.js}"></script>
-<script defer th:src="@{/js/members/signup-email-auth.js}"></script>
+<script defer th:src="@{/js/members/member-signup-agreement.js}"></script>
+<script defer th:src="@{/js/members/member-signup-email-auth.js}"></script>
 <div th:replace="~{fragments/header :: siteFooter}"></div>
 </body>
 </html>

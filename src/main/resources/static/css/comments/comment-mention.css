@@ -33,15 +33,31 @@
    - 제한 없음 정책일 때는 hidden 상태로 유지
    ========================================================= */
 
-.mention-guide {
+.mention-status-row {
     margin-top: 6px;
+    min-height: 1.4em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.mention-status-row.hidden {
+    display: none;
+}
+
+.mention-guide {
+    margin-top: 0;
     font-size: 0.9em;
     color: var(--color-muted);
 }
 
 .mention-limit-error {
-    margin-top: 6px;
+    margin-top: 0;
+    margin-left: auto;
     font-size: 0.9em;
     color: var(--color-danger);
+    text-align: right;
+    white-space: nowrap;
 }
 

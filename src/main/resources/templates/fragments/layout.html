@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="commonHead(pageTitle)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">가힣</title>
+    <link rel="stylesheet" th:href="@{/css/base/base.css}">
+    <link rel="stylesheet" th:href="@{/css/layout/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/components.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/pages.css}">
+    <link rel="stylesheet" th:href="@{/css/admin/admin.css}">
+    <link rel="stylesheet" th:href="@{/css/comments/comment.css}">
+    <script defer th:src="@{/js/common/site-navigation.js}"></script>
+</head>
+<body>
+
+<th:block th:fragment="commonHeadContent(pageTitle)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">가힣</title>
+    <link rel="stylesheet" th:href="@{/css/base/base.css}">
+    <link rel="stylesheet" th:href="@{/css/layout/layout.css}">
+    <link rel="stylesheet" th:href="@{/css/components/components.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/pages.css}">
+    <link rel="stylesheet" th:href="@{/css/admin/admin.css}">
+    <link rel="stylesheet" th:href="@{/css/comments/comment.css}">
+    <script defer th:src="@{/js/common/site-navigation.js}"></script>
+    <script defer th:src="@{/js/admin/admin-action-menu.js}"></script>
+</th:block>
+
+<th:block th:fragment="csrfMeta">
+    <th:block th:if="${_csrf != null}">
+        <meta name="_csrf" th:content="${_csrf.token}">
+        <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    </th:block>
+</th:block>
+
+<div th:fragment="errorCard(statusCode, headline, message)">
+    <section class="error-card card">
+        <div class="error-badge" th:text="${statusCode}">404</div>
+        <h1 class="error-title" th:text="${headline}">오류가 발생했습니다.</h1>
+        <p class="error-message" th:text="${message}">요청을 처리하는 중 문제가 발생했습니다.</p>
+    </section>
+</div>
+</body>
+</html>

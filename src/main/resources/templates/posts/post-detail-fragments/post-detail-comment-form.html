@@ -13,8 +13,8 @@
               method="post">
             <input type="hidden" name="fromCreate" th:value="${fromCreate}">
 
-            <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
-            <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: commentContextHiddenFields(${commentCondition})}"></th:block>
+            <th:block th:replace="~{posts/post-detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
+            <th:block th:replace="~{posts/post-detail-fragments/post-detail-context-fields :: commentContextHiddenFields(${commentCondition})}"></th:block>
 
             <div>
                 <textarea th:field="*{content}"
@@ -26,12 +26,14 @@
                                    data-mention-regex=${@commentMentionService.getMentionRegexForClient()},
                                    data-mention-targets=${#strings.arrayJoin(mentionableNicknames.toArray(), '||')}"></textarea>
 
-                <div class="mention-guide hidden">
-                    <span class="mention-count-text">태그 0명</span>
-                </div>
+                <div class="mention-status-row hidden">
+                    <div class="mention-guide hidden">
+                        <span class="mention-count-text">태그 0명</span>
+                    </div>
 
-                <div class="mention-limit-error hidden">
-                    댓글에서 태그는 최대 <span th:text="${@commentMentionService.getMaxMentionCount()}">3</span>명까지만 가능합니다.
+                    <div class="mention-limit-error hidden">
+                        댓글에서 태그는 최대 <span th:text="${@commentMentionService.getMaxMentionCount()}">3</span>명까지만 가능합니다.
+                    </div>
                 </div>
 
                 <div class="mention-preview hidden">

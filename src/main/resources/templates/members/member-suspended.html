@@ -23,28 +23,24 @@
             회원님은 운영 정책 위반으로 인해 이용이 정지되었습니다.
         </p>
 
-        <section class="card">
-            <table>
-                <tbody>
-                <tr>
-                    <th>정지 시작 시각</th>
-                    <td th:text="${#temporals.format(suspendedInfo.suspendedAt, 'yyyy-MM-dd HH:mm')}"></td>
-                </tr>
-                <tr th:if="${!suspendedInfo.permanent}">
-                    <th>정지 해제 예정 시각</th>
-                    <td th:text="${#temporals.format(suspendedInfo.suspendedUntil, 'yyyy-MM-dd HH:mm')}"></td>
-                </tr>
-                <tr th:if="${!suspendedInfo.permanent}">
-                    <th>남은 정지 기간</th>
-                    <td th:text="|${suspendedInfo.remainingDays}일|"></td>
-                </tr>
-                <tr th:if="${suspendedInfo.permanent}">
-                    <th>정지 유형</th>
-                    <td>영구정지</td>
-                </tr>
-                </tbody>
-            </table>
-        </section>
+        <div class="member-info-list">
+            <div class="member-info-label">정지 시작 시각</div>
+            <div class="member-info-value"
+                 th:text="${#temporals.format(suspendedInfo.suspendedAt, 'yyyy-MM-dd HH:mm')}"></div>
+
+            <div class="member-info-label" th:if="${!suspendedInfo.permanent}">정지 해제 예정 시각</div>
+            <div class="member-info-value"
+                 th:if="${!suspendedInfo.permanent}"
+                 th:text="${#temporals.format(suspendedInfo.suspendedUntil, 'yyyy-MM-dd HH:mm')}"></div>
+
+            <div class="member-info-label" th:if="${!suspendedInfo.permanent}">남은 정지 기간</div>
+            <div class="member-info-value"
+                 th:if="${!suspendedInfo.permanent}"
+                 th:text="|${suspendedInfo.remainingDays}일|"></div>
+
+            <div class="member-info-label" th:if="${suspendedInfo.permanent}">정지 유형</div>
+            <div class="member-info-value" th:if="${suspendedInfo.permanent}">영구정지</div>
+        </div>
 
         <p>
             이용 정지된 회원은 <strong>마이페이지</strong>와

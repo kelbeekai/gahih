@@ -9,9 +9,12 @@ import com.gahih.domain.post.dto.PostAttachmentResponse;
 import com.gahih.domain.post.dto.PostCreateRequest;
 import com.gahih.domain.post.dto.PostDetailContext;
 import com.gahih.domain.post.dto.PostUpdateRequest;
+import com.gahih.domain.post.enumtype.TradeStatus;
+import com.gahih.domain.post.enumtype.TradeType;
 import com.gahih.domain.post.service.PostAttachmentService;
 import com.gahih.domain.post.service.PostService;
 import com.gahih.global.argumentresolver.Login;
+import com.gahih.global.exception.BusinessException;
 import com.gahih.global.policy.RecentPostBypassPolicyService;
 import com.gahih.global.util.LoginRedirectHelper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,13 +30,13 @@ import java.util.List;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/c/{communityCode}/posts")
-public class PostFormWebController {
+public class PostFormController {
 
     private final PostService postService;
     private final CategoryService categoryService;
     private final PostAttachmentService postAttachmentService;
     private final RecentPostBypassPolicyService recentPostBypassPolicyService;
-    private final PostWebPathBuilder postWebPathBuilder;
+    private final PostRedirectPathBuilder postRedirectPathBuilder;
 
     @GetMapping("/new")
     public String createForm(
@@ -44,30 +47,32 @@ public class PostFormWebController {
             Model model
     ) {
         if (loginMember == null) {
-            return "redirect:" + LoginRedirectHelper.createLoginPathForPost(request, postWebPathBuilder.newPath(communityCode, detailContext));
+            return "redirect:" + LoginRedirectHelper.createLoginPathForPost(request, postRedirectPathBuilder.newPath(communityCode, detailContext));
         }
 
         if (detailContext.getCategoryId() == null) {
-            return "redirect:" + postWebPathBuilder.listPath(communityCode, detailContext);
+            return "redirect:" + postRedirectPathBuilder.listPath(communityCode, detailContext);
         }
 
         Category selectedCategory = categoryService.findByIdOrNull(detailContext.getCategoryId());
         if (selectedCategory == null) {
-            return "redirect:" + postWebPathBuilder.listPath(communityCode, detailContext);
+            return "redirect:" + postRedirectPathBuilder.listPath(communityCode, detailContext);
         }
 
         if (!selectedCategory.getCountryCommunity().isCode(communityCode)) {
-            return "redirect:" + postWebPathBuilder.listPath(communityCode, detailContext);
+            return "redirect:" + postRedirectPathBuilder.listPath(communityCode, detailContext);
         }
 
         if (selectedCategory.isAdminWriteOnly() && loginMember.getRole() != MemberRole.ADMIN) {
-            return "redirect:" + postWebPathBuilder.listPath(communityCode, detailContext);
+            return "redirect:" + postRedirectPathBuilder.listPath(communityCode, detailContext);
         }
 
         PostCreateRequest postCreateRequest = new PostCreateRequest();
         postCreateRequest.setCategoryId(selectedCategory.getId());
 
         boolean secretAllowed = selectedCategory.isSecretPostAllowed();
+
+        addTradeFormAttributes(model, selectedCategory);
 
         model.addAttribute("currentCommunity", categoryService.findCommunity(communityCode));
         model.addAttribute("headerCategories", categoryService.findHeaderCategories(communityCode));
@@ -95,6 +100,9 @@ public class PostFormWebController {
             @RequestParam(name = "detailOnlyWithAttachments", required = false) Boolean detailOnlyWithAttachments,
             @RequestParam(name = "detailPage", defaultValue = "1") int detailPage,
             @RequestParam(name = "detailSize", defaultValue = "20") int detailSize,
+            @RequestParam(name = "detailTradeType", required = false) TradeType detailTradeType,
+            @RequestParam(name = "detailTradeStatus", required = false) TradeStatus detailTradeStatus,
+            @RequestParam(name = "detailDimClosedTrade", required = false) Boolean detailDimClosedTrade,
             @Valid @ModelAttribute PostCreateRequest postCreateRequest,
             BindingResult bindingResult,
             HttpServletRequest request,
@@ -111,9 +119,12 @@ public class PostFormWebController {
         detailContext.setOnlyWithAttachments(detailOnlyWithAttachments);
         detailContext.setPage(detailPage);
         detailContext.setSize(detailSize);
+        detailContext.setTradeType(detailTradeType);
+        detailContext.setTradeStatus(detailTradeStatus);
+        detailContext.setDimClosedTrade(detailDimClosedTrade);
 
         if (loginMember == null) {
-            return "redirect:" + LoginRedirectHelper.createLoginPathForPost(request, postWebPathBuilder.newPath(communityCode, detailContext));
+            return "redirect:" + LoginRedirectHelper.createLoginPathForPost(request, postRedirectPathBuilder.newPath(communityCode, detailContext));
         }
 
         model.addAttribute("loginMember", loginMember);
@@ -123,14 +134,16 @@ public class PostFormWebController {
 
         Category selectedCategory = categoryService.findByIdOrNull(postCreateRequest.getCategoryId());
         if (selectedCategory == null) {
-            return "redirect:" + postWebPathBuilder.listPath(communityCode, detailContext);
+            return "redirect:" + postRedirectPathBuilder.listPath(communityCode, detailContext);
         }
 
         if (!selectedCategory.getCountryCommunity().isCode(communityCode)) {
-            return "redirect:" + postWebPathBuilder.listPath(communityCode, detailContext);
+            return "redirect:" + postRedirectPathBuilder.listPath(communityCode, detailContext);
         }
 
         boolean secretAllowed = selectedCategory.isSecretPostAllowed();
+
+        addTradeFormAttributes(model, selectedCategory);
 
         model.addAttribute("selectedCategory", selectedCategory);
         model.addAttribute("fixedCategory", true);
@@ -141,11 +154,17 @@ public class PostFormWebController {
             return "posts/post-create-form";
         }
 
-        Long postId = postService.createPost(communityCode, loginMember.getId(), postCreateRequest);
+        try {
+            Long postId = postService.createPost(communityCode, loginMember.getId(), postCreateRequest);
 
-        recentPostBypassPolicyService.activateBypass(request, postId);
+            recentPostBypassPolicyService.activateBypass(request, postId);
 
-        return redirectToDetail(communityCode, postId, true, detailContext);
+            return redirectToDetail(communityCode, postId, true, detailContext);
+        } catch (BusinessException e) {
+            bindingResult.reject("postCreateFailed", e.getMessage());
+            return "posts/post-create-form";
+        }
+
     }
 
     @GetMapping("/{postId}/edit")
@@ -159,7 +178,7 @@ public class PostFormWebController {
             Model model
     ) {
         if (loginMember == null) {
-            return "redirect:" + LoginRedirectHelper.createLoginPathForPost(request, postWebPathBuilder.editPath(communityCode, postId, fromCreate, detailContext));
+            return "redirect:" + LoginRedirectHelper.createLoginPathForPost(request, postRedirectPathBuilder.editPath(communityCode, postId, fromCreate, detailContext));
         }
 
         if (fromCreate) {
@@ -174,6 +193,8 @@ public class PostFormWebController {
 
         Category selectedCategory = categoryService.findByIdOrNull(postUpdateRequest.getCategoryId());
         boolean secretAllowed = selectedCategory != null && selectedCategory.isCode(CategoryCode.INQUIRY);
+
+        addTradeFormAttributes(model, selectedCategory);
 
         model.addAttribute("currentCommunity", categoryService.findCommunity(communityCode));
         model.addAttribute("headerCategories", categoryService.findHeaderCategories(communityCode));
@@ -194,8 +215,14 @@ public class PostFormWebController {
                 .filter(attachment -> !attachment.isDeleted())
                 .count();
 
+        long activeAttachmentTotalSize = attachments.stream()
+                .filter(attachment -> !attachment.isDeleted())
+                .mapToLong(PostAttachmentResponse::getFileSize)
+                .sum();
+
         model.addAttribute("attachments", attachments);
         model.addAttribute("activeAttachmentCount", activeAttachmentCount);
+        model.addAttribute("activeAttachmentTotalSize", activeAttachmentTotalSize);
 
         return "posts/post-edit-form";
     }
@@ -214,6 +241,9 @@ public class PostFormWebController {
             @RequestParam(name = "detailOnlyWithAttachments", required = false) Boolean detailOnlyWithAttachments,
             @RequestParam(name = "detailPage", defaultValue = "1") int detailPage,
             @RequestParam(name = "detailSize", defaultValue = "20") int detailSize,
+            @RequestParam(name = "detailTradeType", required = false) TradeType detailTradeType,
+            @RequestParam(name = "detailTradeStatus", required = false) TradeStatus detailTradeStatus,
+            @RequestParam(name = "detailDimClosedTrade", required = false) Boolean detailDimClosedTrade,
             @Login LoginMember loginMember,
             @Valid @ModelAttribute PostUpdateRequest postUpdateRequest,
             BindingResult bindingResult,
@@ -228,9 +258,12 @@ public class PostFormWebController {
         detailContext.setOnlyWithAttachments(detailOnlyWithAttachments);
         detailContext.setPage(detailPage);
         detailContext.setSize(detailSize);
+        detailContext.setTradeType(detailTradeType);
+        detailContext.setTradeStatus(detailTradeStatus);
+        detailContext.setDimClosedTrade(detailDimClosedTrade);
 
         if (loginMember == null) {
-            return "redirect:" + LoginRedirectHelper.createLoginPathForPost(request, postWebPathBuilder.editPath(communityCode, postId, fromCreate, detailContext));
+            return "redirect:" + LoginRedirectHelper.createLoginPathForPost(request, postRedirectPathBuilder.editPath(communityCode, postId, fromCreate, detailContext));
         }
 
         model.addAttribute("loginMember", loginMember);
@@ -240,6 +273,8 @@ public class PostFormWebController {
 
         Category selectedCategory = categoryService.findByIdOrNull(postUpdateRequest.getCategoryId());
         boolean secretAllowed = selectedCategory != null && selectedCategory.isCode(CategoryCode.INQUIRY);
+
+        addTradeFormAttributes(model, selectedCategory);
 
         model.addAttribute("selectedCategory", selectedCategory);
         model.addAttribute("fixedCategory", selectedCategory != null);
@@ -255,14 +290,25 @@ public class PostFormWebController {
                 .filter(attachment -> !attachment.isDeleted())
                 .count();
 
+        long activeAttachmentTotalSize = attachments.stream()
+                .filter(attachment -> !attachment.isDeleted())
+                .mapToLong(PostAttachmentResponse::getFileSize)
+                .sum();
+
         model.addAttribute("attachments", attachments);
         model.addAttribute("activeAttachmentCount", activeAttachmentCount);
+        model.addAttribute("activeAttachmentTotalSize", activeAttachmentTotalSize);
 
         if (bindingResult.hasErrors()) {
             return "posts/post-edit-form";
         }
 
-        postService.updatePost(communityCode, loginMember.getId(), postId, postUpdateRequest);
+        try {
+            postService.updatePost(communityCode, loginMember.getId(), postId, postUpdateRequest);
+        } catch (BusinessException e) {
+            bindingResult.reject("postUpdateFailed", e.getMessage());
+            return "posts/post-edit-form";
+        }
 
         // 수정 직후에도 작성 직후와 동일하게 bypass 활성화
         recentPostBypassPolicyService.activateBypass(request, postId);
@@ -280,14 +326,20 @@ public class PostFormWebController {
             HttpServletRequest request
     ) {
         if (loginMember == null) {
-            return "redirect:" + LoginRedirectHelper.createLoginPathForPost(request, postWebPathBuilder.detailPath(communityCode, postId, fromCreate, detailContext));
+            return "redirect:" + LoginRedirectHelper.createLoginPathForPost(request, postRedirectPathBuilder.detailPath(communityCode, postId, fromCreate, detailContext));
         }
 
         postService.deletePost(communityCode, loginMember.getId(), postId);
-        return "redirect:" + postWebPathBuilder.listPath(communityCode, detailContext);
+        return "redirect:" + postRedirectPathBuilder.listPath(communityCode, detailContext);
+    }
+
+    private void addTradeFormAttributes(Model model, Category selectedCategory) {
+        boolean marketCategory = selectedCategory != null && selectedCategory.isCode(CategoryCode.MARKET);
+        model.addAttribute("marketCategory", marketCategory);
+        model.addAttribute("tradeTypes", TradeType.values());
     }
 
     private String redirectToDetail(String communityCode, Long postId, boolean fromCreate, PostDetailContext detailContext) {
-        return "redirect:" + postWebPathBuilder.detailPath(communityCode, postId, fromCreate, detailContext);
+        return "redirect:" + postRedirectPathBuilder.detailPath(communityCode, postId, fromCreate, detailContext);
     }
 }

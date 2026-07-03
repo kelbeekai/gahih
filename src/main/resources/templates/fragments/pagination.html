@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="pager(pageObj, basePath, queryString)" class="actions"
+     th:if="${pageObj != null and pageObj.totalPages > 0}"
+     th:with="
+        currentPage=${pageObj.number + 1},
+        totalPages=${pageObj.totalPages},
+        windowSize=${5},
+        startPage=${T(java.lang.Math).max(1, T(java.lang.Math).min(currentPage - ((windowSize - 1) / 2), totalPages - windowSize + 1))},
+        endPage=${T(java.lang.Math).min(totalPages, startPage + windowSize - 1)},
+        qs=${queryString != null and !#strings.isEmpty(queryString) ? '&' + queryString : ''}
+     ">
+    <!--숫자창 개수 변경 포인트 windowSize=${10}-->
+    <a th:if="${currentPage > 1}"
+       th:href="${basePath + '?page=1' + qs}">
+        맨 앞으로
+    </a>
+
+    <a th:if="${pageObj.hasPrevious()}"
+       th:href="${basePath + '?page=' + (currentPage - 1) + qs}">
+        이전
+    </a>
+
+    <span th:each="pageNumber : ${#numbers.sequence(startPage, endPage)}">
+        <a th:if="${pageNumber != currentPage}"
+           th:href="${basePath + '?page=' + pageNumber + qs}"
+           th:text="${pageNumber}"></a>
+        <strong th:if="${pageNumber == currentPage}"
+                th:text="${pageNumber}"></strong>
+    </span>
+
+    <a th:if="${pageObj.hasNext()}"
+       th:href="${basePath + '?page=' + (currentPage + 1) + qs}">
+        다음
+    </a>
+
+    <a th:if="${currentPage < totalPages}"
+       th:href="${basePath + '?page=' + totalPages + qs}">
+        맨 뒤로
+    </a>
+</div>
+
+<div th:fragment="namedPager(pageObj, basePath, pageParamName, queryString)" class="actions"
+     th:if="${pageObj != null and pageObj.totalPages > 0}"
+     th:with="
+        currentPage=${pageObj.number + 1},
+        totalPages=${pageObj.totalPages},
+        windowSize=${5},
+        startPage=${T(java.lang.Math).max(1, T(java.lang.Math).min(currentPage - ((windowSize - 1) / 2), totalPages - windowSize + 1))},
+        endPage=${T(java.lang.Math).min(totalPages, startPage + windowSize - 1)},
+        qs=${queryString != null and !#strings.isEmpty(queryString) ? '&' + queryString : ''}
+     ">
+    <!--숫자창 개수 변경 포인트 windowSize=${10}-->
+    <a th:if="${currentPage > 1}"
+       th:href="${basePath + '?' + pageParamName + '=1' + qs}">
+        맨 앞으로
+    </a>
+
+    <a th:if="${pageObj.hasPrevious()}"
+       th:href="${basePath + '?' + pageParamName + '=' + (currentPage - 1) + qs}">
+        이전
+    </a>
+
+    <span th:each="pageNumber : ${#numbers.sequence(startPage, endPage)}">
+        <a th:if="${pageNumber != currentPage}"
+           th:href="${basePath + '?' + pageParamName + '=' + pageNumber + qs}"
+           th:text="${pageNumber}"></a>
+        <strong th:if="${pageNumber == currentPage}"
+                th:text="${pageNumber}"></strong>
+    </span>
+
+    <a th:if="${pageObj.hasNext()}"
+       th:href="${basePath + '?' + pageParamName + '=' + (currentPage + 1) + qs}">
+        다음
+    </a>
+
+    <a th:if="${currentPage < totalPages}"
+       th:href="${basePath + '?' + pageParamName + '=' + totalPages + qs}">
+        맨 뒤로
+    </a>
+</div>
+
+</body>
+</html>

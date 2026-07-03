@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="adminLogTable">
+    <section class="card context-list-card">
+        <div class="table-wrapper admin-table-wrap">
+            <table class="common-table">
+                <thead>
+                <tr>
+                    <th class="table-cell-id">ID</th>
+                    <th class="table-cell-writer">관리자</th>
+                    <th class="table-cell-status">액션</th>
+                    <th class="table-cell-status">대상 타입</th>
+                    <th class="table-cell-category">국가</th>
+                    <th class="table-cell-id">대상 ID</th>
+                    <th class="table-cell-title">대상 이름</th>
+                    <th class="table-cell-reason">사유</th>
+                    <th class="table-cell-snapshot">변경</th>
+                    <th class="table-cell-date">시간</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${logPage.isEmpty()}">
+                    <td colspan="10">저장된 관리자 로그가 없습니다.</td>
+                </tr>
+
+                <tr th:each="log : ${logPage.content}">
+                    <td class="table-cell-id" th:text="${log.id}"></td>
+
+                    <td class="table-cell-writer">
+                        <span class="table-title-text">
+                            <span th:text="${log.adminNickname}"></span>
+                            (<span th:text="${log.adminUsername}"></span>)
+                        </span>
+                    </td>
+
+                    <td class="table-cell-status" th:text="${log.action}"></td>
+                    <td class="table-cell-status" th:text="${log.targetType != null ? log.targetType.displayName : '-'}"></td>
+                    <td class="table-cell-category" th:text="${log.displayTargetCommunityName}">전역</td>
+                    <td class="table-cell-id" th:text="${log.targetId != null ? log.targetId : '-'}"></td>
+
+                    <td class="table-cell-title">
+                        <span class="table-title-text" th:text="${log.targetName != null ? log.targetName : '-'}"></span>
+                    </td>
+
+                    <td class="table-cell-reason">
+                        <span th:if="${!log.hasReason}" class="field-info">-</span>
+
+                        <button th:if="${log.hasReason}"
+                                type="button"
+                                class="btn btn-secondary btn-small admin-log-snapshot-open-btn"
+                                th:attr="data-snapshot-target=|adminLogReason-${log.id}|,
+                                data-snapshot-title=|관리자 로그 #${log.id} 사유|">
+                            확인
+                        </button>
+
+                        <template th:if="${log.hasReason}"
+                                  th:id="|adminLogReason-${log.id}|"
+                                  th:text="${log.reason}">
+                        </template>
+                    </td>
+                    <td class="table-cell-snapshot">
+                        <div class="admin-log-snapshot-actions">
+                            <button th:if="${log.hasBeforeSnapshot}"
+                                    type="button"
+                                    class="btn btn-secondary btn-small admin-log-snapshot-open-btn"
+                                    th:attr="data-snapshot-target=|adminLogBeforeSnapshot-${log.id}|,
+                                    data-snapshot-title=|관리자 로그 #${log.id} 변경 전|">
+                                전
+                            </button>
+
+                            <button th:if="${log.hasAfterSnapshot}"
+                                    type="button"
+                                    class="btn btn-secondary btn-small admin-log-snapshot-open-btn"
+                                    th:attr="data-snapshot-target=|adminLogAfterSnapshot-${log.id}|,
+                                   data-snapshot-title=|관리자 로그 #${log.id} 변경 후|">
+                                후
+                            </button>
+
+                            <span th:if="${!log.hasBeforeSnapshot and !log.hasAfterSnapshot}"
+                                  class="field-info">-</span>
+                        </div>
+
+                        <template th:if="${log.hasBeforeSnapshot}"
+                                  th:id="|adminLogBeforeSnapshot-${log.id}|"
+                                  th:text="${log.prettyBeforeSnapshot}">
+                        </template>
+
+                        <template th:if="${log.hasAfterSnapshot}"
+                                  th:id="|adminLogAfterSnapshot-${log.id}|"
+                                  th:text="${log.prettyAfterSnapshot}">
+                        </template>
+                    </td>
+                    <td class="table-cell-date" th:text="${#temporals.format(log.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</th:block>
+
+</html>

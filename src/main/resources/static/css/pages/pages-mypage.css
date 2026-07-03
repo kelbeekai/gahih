@@ -1,0 +1,127 @@
+/* =========================================================
+   Page: 마이페이지 통계 카드
+   ========================================================= */
+
+.mypage-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    align-items: stretch;
+}
+
+.mypage-stat-card {
+    display: flex;
+    flex-direction: column;
+
+    height: 100%;
+    padding: 16px;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+}
+
+.mypage-stat-card h4 {
+    margin-top: 0;
+    margin-bottom: 12px;
+}
+
+.mypage-stat-card table {
+    width: 100%;
+    margin-top: 0;
+}
+
+.mypage-stat-card th,
+.mypage-stat-card td {
+    padding: 6px 0;
+}
+
+/* =========================================================
+   Page: 마이페이지 최근 활동 리스트
+   ========================================================= */
+
+.mypage-activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.mypage-activity-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: center;
+
+    padding: 12px 14px;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+}
+
+.mypage-activity-main {
+    min-width: 0;
+}
+
+.mypage-activity-title {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+
+    min-width: 0;
+    font-weight: 600;
+}
+
+.mypage-activity-title a {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.mypage-activity-category {
+    flex: 0 0 auto;
+    color: var(--color-text-muted);
+    font-weight: 500;
+}
+
+.mypage-activity-summary {
+    margin-top: 4px;
+    color: var(--color-text-muted);
+    font-size: 0.92rem;
+}
+
+.mypage-activity-time {
+    flex: 0 0 auto;
+    color: var(--color-text-muted);
+    font-size: 0.88rem;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   Page: 마이페이지/회원상태 작은 정보 목록
+   ========================================================= */
+
+.member-info-list {
+    display: inline-grid;
+    grid-template-columns: max-content max-content;
+    column-gap: 18px;
+    row-gap: 8px;
+
+    margin: 12px 0;
+    padding: 14px 16px;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+}
+
+.member-info-label {
+    color: var(--color-text-muted);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.member-info-value {
+    font-weight: 600;
+    white-space: nowrap;
+}

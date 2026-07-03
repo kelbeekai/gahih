@@ -2,56 +2,173 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <th:block th:fragment="postHeader">
-    <h2 class="card-title">
-        <span th:if="${postDetail.pinned}" class="icon-marker">📌</span>
-        <span th:if="${postDetail.secret}" class="icon-marker">🔒</span>
-        <span th:if="${postDetail.deletedOrBlinded}"
-              class="status-label"
-              th:text="${'[' + postDetail.statusLabel + ']'}"></span>
-        <span th:text="${postDetail.displayTitle}">제목</span>
-    </h2>
+    <div class="post-title-row detail-split-row">
+        <h2 class="card-title post-title-main detail-main-content">
+            <th:block th:if="${postDetail.pinned}">
+                <th:block th:replace="~{fragments/icons :: pinMarker}"></th:block>
+            </th:block>
+
+            <th:block th:if="${postDetail.secret}">
+                <th:block th:replace="~{fragments/icons :: lockMarker}"></th:block>
+            </th:block>
+
+            <span th:if="${postDetail.deletedOrBlinded}"
+                  class="status-label"
+                  th:classappend="${detailContext.adminPostsSource and !postDetail.currentUserDeleted} ? '' : ' status-label-muted'"
+                  th:text="${'[' + postDetail.statusLabel + ']'}"></span>
+
+            <span th:if="${postDetail.tradePost}"
+                  class="trade-status-label"
+                  th:classappend="${' ' + postDetail.tradeStatusClass}"
+                  th:text="${postDetail.tradeStatusLabel}"></span>
+
+            <span th:text="${postDetail.displayTitle}">제목</span>
+        </h2>
+
+        <div class="detail-right-actions">
+            <details th:if="${postDetail.canReportPost}"
+                     class="report-dropdown report-dropdown-inline"
+                     data-report-dropdown>
+                <summary class="report-dropdown-toggle report-icon-toggle"
+                         title="게시글 신고"
+                         aria-label="게시글 신고">
+                    <th:block th:replace="~{fragments/icons :: siren}"></th:block>
+                </summary>
+
+                <div class="report-dropdown-menu report-dropdown-menu-right">
+                    <form th:action="@{/reports}"
+                          method="post"
+                          class="inline-report-form"
+                          onsubmit="return confirm('이 게시글을 신고하시겠습니까? 취소할 수 없습니다.');">
+
+                        <input type="hidden" name="targetType" value="POST">
+                        <input type="hidden" name="targetId" th:value="${postDetail.id}">
+                        <input type="hidden" name="redirectUrl" th:value="${reportRedirectUrl}">
+
+                        <select class="form-control" name="reasonType">
+                            <option value="SPAM">스팸/광고</option>
+                            <option value="ABUSE_OR_HARASSMENT">욕설/괴롭힘</option>
+                            <option value="SEXUAL_OR_OBSCENE">음란/선정성</option>
+                            <option value="VIOLENCE_OR_ILLEGAL">폭력/불법</option>
+                            <option value="OTHER">기타</option>
+                        </select>
+
+                        <button class="btn btn-danger btn-small" type="submit">제출</button>
+                    </form>
+                </div>
+            </details>
+
+            <th:block th:if="${loginMember != null and loginMember.id == postDetail.writerId and postDetail.userActionAllowed}">
+
+                <form th:if="${postDetail.tradePost}"
+                      th:action="@{/c/{communityCode}/posts/{id}/trade-status/toggle(
+                            communityCode=${currentCommunity.code},
+                            id=${postDetail.id}
+                          )}"
+                      method="post"
+                      class="inline-form trade-status-toggle-form"
+                      onsubmit="return confirm('거래 상태를 변경하시겠습니까?');">
+
+                    <input type="hidden" name="fromCreate" th:value="${fromCreate}">
+                    <th:block th:replace="~{posts/post-detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
+
+                    <button class="btn btn-secondary btn-small"
+                            type="submit"
+                            th:text="${postDetail.tradeStatusToggleLabel}">
+                        거래상태 변경
+                    </button>
+                </form>
+
+                <a class="btn btn-secondary btn-small"
+                   th:href="@{/c/{communityCode}/posts/{id}/edit(
+                            communityCode=${currentCommunity.code},
+                            id=${postDetail.id},
+                            fromCreate=${fromCreate},
+                            source=${detailContext.source},
+                            returnUrl=${detailContext.returnUrl},
+                            categoryId=${detailContext.categoryId},
+                            keyword=${detailContext.keyword},
+                            secret=${detailContext.secret},
+                            tradeType=${detailContext.tradeType},
+                            tradeStatus=${detailContext.tradeStatus},
+                            sort=${detailContext.sort},
+                            onlyWithAttachments=${detailContext.onlyWithAttachments},
+                            page=${detailContext.safePage},
+                            size=${detailContext.safeSize}
+                        )}">
+                    수정
+                </a>
+
+                <form th:action="@{/c/{communityCode}/posts/{id}/delete(
+                            communityCode=${currentCommunity.code},
+                            id=${postDetail.id}
+                          )}"
+                      method="post"
+                      class="inline-form"
+                      onsubmit="return confirm('정말 게시글을 삭제하시겠습니까?');">
+                    <input type="hidden" name="fromCreate" th:value="${fromCreate}">
+                    <th:block th:replace="~{posts/post-detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
+                    <button class="btn btn-danger btn-small" type="submit">삭제</button>
+                </form>
+            </th:block>
+        </div>
+    </div>
 
     <p th:if="${postDetail.pinned}" class="detail-muted">
         고정글로 등록된 게시글입니다.
     </p>
 
-    <p>
-        작성자:
-        <button th:if="${postDetail.mentionableWriter}"
-                type="button"
-                class="mention-insert-btn mention-text-btn"
-                th:attr="data-mention=${postDetail.writerNickname}"
-                th:text="${postDetail.writerNickname}">
-        </button>
-        <span th:unless="${postDetail.mentionableWriter}"
-              class="text-strong"
-              th:text="${postDetail.writerNickname}"></span>
-    </p>
+    <div class="post-meta-line detail-split-row">
+        <span class="post-meta-main detail-main-content">
+            <span>작성자:</span>
 
-    <div th:if="${loginMember != null
-                 and !postDetail.writerAdmin
-                 and loginMember.id != postDetail.writerId
-                 and postDetail.canReportWriter}"
-         class="detail-block-small-spaced">
-        <details class="inline-details">
-            <summary>작성자 신고</summary>
-            <form th:action="@{/reports}"
-                  method="post"
-                  class="inline-report-form"
-                  onsubmit="return confirm('이 회원을 신고하시겠습니까? 취소할 수 없습니다.');">
+            <button th:if="${postDetail.mentionableWriter}"
+                    type="button"
+                    class="mention-insert-btn mention-text-btn"
+                    th:attr="data-mention=${postDetail.writerNickname}"
+                    th:text="${postDetail.writerNickname}">
+            </button>
 
-                <input type="hidden" name="targetType" value="MEMBER">
-                <input type="hidden" name="targetId" th:value="${postDetail.writerId}">
-                <input type="hidden" name="redirectUrl" th:value="${reportRedirectUrl}">
-                <select class="form-control" name="reasonType">
-                    <option value="ABUSE_OR_HARASSMENT">욕설/괴롭힘</option>
-                    <option value="INAPPROPRIATE_NICKNAME">부적절한 닉네임</option>
-                    <option value="IMPERSONATION_OR_FRAUD">사칭/사기</option>
-                    <option value="OTHER">기타</option>
-                </select>
-                <button class="btn btn-danger btn-small" type="submit">제출</button>
-            </form>
-        </details>
+            <span th:unless="${postDetail.mentionableWriter}"
+                  class="text-strong"
+                  th:text="${postDetail.writerNickname}"></span>
+        </span>
+
+        <div th:if="${loginMember != null
+             and !postDetail.writerAdmin
+             and loginMember.id != postDetail.writerId
+             and postDetail.canReportWriter}"
+             class="detail-right-actions">
+            <details class="report-dropdown report-dropdown-inline"
+                     data-report-dropdown>
+                <summary class="report-dropdown-toggle report-icon-toggle"
+                         title="작성자 신고"
+                         aria-label="작성자 신고">
+                    <th:block th:replace="~{fragments/icons :: siren}"></th:block>
+                </summary>
+
+                <div class="report-dropdown-menu report-dropdown-menu-right">
+                    <form th:action="@{/reports}"
+                          method="post"
+                          class="inline-report-form"
+                          onsubmit="return confirm('이 회원을 신고하시겠습니까? 취소할 수 없습니다.');">
+
+                        <input type="hidden" name="targetType" value="MEMBER">
+                        <input type="hidden" name="targetId" th:value="${postDetail.writerId}">
+                        <input type="hidden" name="redirectUrl" th:value="${reportRedirectUrl}">
+
+                        <select class="form-control" name="reasonType">
+                            <option value="ABUSE_OR_HARASSMENT">욕설/괴롭힘</option>
+                            <option value="INAPPROPRIATE_NICKNAME">부적절한 닉네임</option>
+                            <option value="IMPERSONATION_OR_FRAUD">사칭/사기</option>
+                            <option value="OTHER">기타</option>
+                        </select>
+
+                        <button class="btn btn-danger btn-small" type="submit">제출</button>
+                    </form>
+                </div>
+            </details>
+        </div>
     </div>
 
     <p>
@@ -63,30 +180,6 @@
     </p>
     <p>카테고리: <span th:text="${postDetail.categoryName}"></span></p>
     <p>조회수: <span th:text="${postDetail.viewCount}"></span></p>
-
-    <div th:if="${postDetail.canReportPost}"
-         class="detail-block-small-spaced">
-        <details class="inline-details">
-            <summary>게시글 신고</summary>
-            <form th:action="@{/reports}"
-                  method="post"
-                  class="inline-report-form"
-                  onsubmit="return confirm('이 게시글을 신고하시겠습니까? 취소할 수 없습니다.');">
-
-                <input type="hidden" name="targetType" value="POST">
-                <input type="hidden" name="targetId" th:value="${postDetail.id}">
-                <input type="hidden" name="redirectUrl" th:value="${reportRedirectUrl}">
-                <select class="form-control" name="reasonType">
-                    <option value="SPAM">스팸/광고</option>
-                    <option value="ABUSE_OR_HARASSMENT">욕설/괴롭힘</option>
-                    <option value="SEXUAL_OR_OBSCENE">음란/선정성</option>
-                    <option value="VIOLENCE_OR_ILLEGAL">폭력/불법</option>
-                    <option value="OTHER">기타</option>
-                </select>
-                <button class="btn btn-danger btn-small" type="submit">제출</button>
-            </form>
-        </details>
-    </div>
 
     <div class="detail-block-spaced">
         <div th:if="${postDetail.blockedSecretPost}">

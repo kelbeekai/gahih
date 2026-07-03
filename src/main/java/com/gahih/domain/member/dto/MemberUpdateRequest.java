@@ -1,4 +1,40 @@
 package com.gahih.domain.member.dto;
 
+import com.gahih.domain.member.policy.MemberValidationPolicy;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
 public class MemberUpdateRequest {
+
+    @NotBlank(message = "닉네임은 필수입니다.")
+    @Size(
+            min = MemberValidationPolicy.NICKNAME_MIN_LENGTH,
+            max = MemberValidationPolicy.NICKNAME_MAX_LENGTH,
+            message = "닉네임은 2자 이상 12자 이하여야 합니다."
+    )
+    @Pattern(
+            regexp = MemberValidationPolicy.NICKNAME_REGEX,
+            message = "닉네임은 한글, 영문, 숫자, 밑줄(_)만 사용할 수 있습니다."
+    )
+    private String nickname;
+
+    @NotBlank(message = "이메일은 필수입니다.")
+    @Email(message = "올바른 이메일 형식이어야 합니다.")
+    @Size(
+            min = MemberValidationPolicy.EMAIL_MIN_LENGTH,
+            max = MemberValidationPolicy.EMAIL_MAX_LENGTH,
+            message = "이메일은 5자 이상 100자 이하여야 합니다."
+    )
+    private String email;
+
+    @NotBlank(message = "현재 비밀번호를 입력해주세요.")
+    private String currentPassword;
 }

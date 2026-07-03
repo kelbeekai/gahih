@@ -6,8 +6,10 @@ import com.gahih.domain.category.repository.CategoryRepository;
 import com.gahih.domain.category.service.CategoryService;
 import com.gahih.domain.member.dto.MemberMyPageResponse;
 import com.gahih.domain.member.dto.MyPostSearchCondition;
-import com.gahih.domain.member.service.MemberService;
+import com.gahih.domain.member.service.account.MemberAccountService;
 import com.gahih.domain.member.session.LoginMember;
+import com.gahih.domain.post.enumtype.TradeStatus;
+import com.gahih.domain.post.enumtype.TradeType;
 import com.gahih.domain.post.repository.PostRepository;
 import com.gahih.global.argumentresolver.Login;
 import com.gahih.global.exception.BusinessException;
@@ -19,9 +21,9 @@ import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequiredArgsConstructor
-public class MyPostWebController {
+public class MyPostController {
 
-    private final MemberService memberService;
+    private final MemberAccountService memberAccountService;
     private final CategoryService categoryService;
     private final CategoryRepository categoryRepository;
     private final PostRepository postRepository;
@@ -39,7 +41,7 @@ public class MyPostWebController {
         model.addAttribute("currentCommunity", categoryService.findCommunity(communityCode));
         model.addAttribute("headerCategories", categoryService.findHeaderCategories(communityCode));
 
-        MemberMyPageResponse member = memberService.getMyPage(loginMember.getId());
+        MemberMyPageResponse member = memberAccountService.getMyPage(loginMember.getId());
 
         Long effectiveCategoryId = condition.getCategoryId();
 
@@ -55,6 +57,25 @@ public class MyPostWebController {
             condition.setCategoryId(effectiveCategoryId);
         }
 
+        Category selectedCategory = categoryService.findByIdOrNull(effectiveCategoryId);
+
+        boolean inquiryCategory = selectedCategory != null && selectedCategory.isCode(CategoryCode.INQUIRY);
+        boolean marketCategory = selectedCategory != null && selectedCategory.isCode(CategoryCode.MARKET);
+
+        if (!inquiryCategory) {
+            condition.setSecret(null);
+        }
+
+        if (!marketCategory) {
+            condition.setTradeType(null);
+            condition.setTradeStatus(null);
+        }
+
+        model.addAttribute("selectedCategory", selectedCategory);
+        model.addAttribute("inquiryCategory", inquiryCategory);
+        model.addAttribute("marketCategory", marketCategory);
+        model.addAttribute("tradeTypes", TradeType.values());
+        model.addAttribute("tradeStatuses", TradeStatus.values());
         model.addAttribute("member", member);
         model.addAttribute("categories",
                 member.isSuspended()
@@ -69,6 +90,9 @@ public class MyPostWebController {
                 effectiveCategoryId,
                 condition.getKeywordOrNull(),
                 condition.getSecretOrNull(),
+                condition.getOnlyWithAttachmentsOrNull(),
+                condition.getTradeType(),
+                condition.getTradeStatus(),
                 condition.getSort(),
                 PageRequest.of(condition.getSafePage() - 1, condition.getSafeSize())
         ));

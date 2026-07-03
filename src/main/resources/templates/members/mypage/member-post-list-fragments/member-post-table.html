@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="memberPostTable">
+    <section class="card context-list-card">
+        <div class="table-wrapper">
+            <table class="common-table">
+                <thead>
+                <tr>
+                    <th class="table-cell-category">카테고리</th>
+                    <th class="table-cell-title">제목</th>
+                    <th class="table-cell-number">조회수</th>
+                    <th class="table-cell-number">좋아요</th>
+                    <th class="table-cell-number">싫어요</th>
+                    <th class="table-cell-date">작성일</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${postPage.isEmpty()}">
+                    <td colspan="6">작성한 게시글이 없습니다.</td>
+                </tr>
+
+                <tr th:each="post : ${postPage.content}">
+                    <td class="table-cell-category" th:text="${post.categoryName}"></td>
+
+                    <td class="table-cell-title">
+                        <div class="table-title-line">
+                            <th:block th:if="${post.deletedOrBlinded}">
+                                <a class="table-title-status-link"
+                                   th:href="@{/c/{communityCode}/posts/{id}(
+                                        communityCode=${currentCommunity.code},
+                                        id=${post.postId},
+                                        source=${T(com.gahih.domain.post.enumtype.PostDetailSource).MY_POSTS},
+                                        categoryId=${condition.categoryId},
+                                        keyword=${condition.keyword},
+                                        secret=${condition.secret},
+                                        onlyWithAttachments=${condition.onlyWithAttachments},
+                                        tradeType=${condition.tradeType},
+                                        tradeStatus=${condition.tradeStatus},
+                                        sort=${condition.sort},
+                                        page=${condition.safePage},
+                                        size=${condition.safeSize}
+                                   )}">
+                                    <span class="status-label status-label-muted"
+                                          th:text="${'[' + post.statusLabel + ']'}"></span>
+                                </a>
+                            </th:block>
+
+                            <th:block th:unless="${post.deletedOrBlinded}">
+                                <span th:if="${post.tradePost}"
+                                      class="trade-status-label"
+                                      th:classappend="${' ' + post.tradeStatusClass}"
+                                      th:text="${post.tradeStatusLabel}"></span>
+
+                                <th:block th:if="${post.pinned}">
+                                    <th:block th:replace="~{fragments/icons :: pinMarker}"></th:block>
+                                </th:block>
+                                <th:block th:if="${post.secret}">
+                                    <th:block th:replace="~{fragments/icons :: lockMarker}"></th:block>
+                                </th:block>
+
+                                <span class="table-title-text">
+                                    <a th:href="@{/c/{communityCode}/posts/{id}(
+                                            communityCode=${currentCommunity.code},
+                                            id=${post.postId},
+                                            source=${T(com.gahih.domain.post.enumtype.PostDetailSource).MY_POSTS},
+                                            categoryId=${condition.categoryId},
+                                            keyword=${condition.keyword},
+                                            secret=${condition.secret},
+                                            onlyWithAttachments=${condition.onlyWithAttachments},
+                                            tradeType=${condition.tradeType},
+                                            tradeStatus=${condition.tradeStatus},
+                                            sort=${condition.sort},
+                                            page=${condition.safePage},
+                                            size=${condition.safeSize}
+                                        )}"
+                                       th:text="${post.displayTitle}"></a>
+                                </span>
+
+                                <th:block th:if="${post.hasAttachments}">
+                                    <th:block th:replace="~{fragments/icons :: attachmentMarker}"></th:block>
+                                </th:block>
+                                <span th:if="${post.hasComments}" class="title-meta" th:text="| (${post.commentCount})|"></span>
+                            </th:block>
+                        </div>
+                    </td>
+
+                    <td class="table-cell-number" th:text="${post.viewCount}"></td>
+                    <td class="table-cell-number" th:text="${post.likeCount}"></td>
+                    <td class="table-cell-number" th:text="${post.dislikeCount}"></td>
+
+                    <td class="table-cell-date">
+                        <span th:text="${#temporals.format(post.displayTime, 'yyyy-MM-dd HH:mm')}"></span>
+                        <span th:if="${post.edited}"
+                              class="detail-small-muted detail-inline-spaced">
+                            (수정됨)
+                        </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</th:block>
+
+</html>

@@ -12,154 +12,9 @@
         <h2 class="card-title">게시글 수정</h2>
     </section>
 
-    <section class="card">
-        <h3 class="card-title">현재 첨부파일</h3>
+    <th:block th:replace="~{posts/post-form-fragments/post-edit-attachments :: postEditAttachments}"></th:block>
 
-        <div th:if="${#lists.isEmpty(attachments)}">첨부파일이 없습니다.</div>
-
-        <div th:each="attachment : ${attachments}"
-             style="margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
-
-            <div th:if="${!attachment.deleted and attachment.image}" style="margin-bottom: 8px;">
-                <img th:src="@{/c/{communityCode}/posts/attachments/{attachmentId}/preview(
-                        communityCode=${currentCommunity.code},
-                        attachmentId=${attachment.id}
-                     )}"
-                     th:alt="${attachment.originalFileName}"
-                     style="max-width: 220px; max-height: 220px; border-radius: 6px;">
-            </div>
-
-            <th:block th:if="${attachment.deleted}">
-                <span th:text="${attachment.originalFileName}"></span>
-            </th:block>
-
-            <th:block th:if="${!attachment.deleted}">
-                <span th:text="${attachment.icon}" style="margin-right: 6px;">📎</span>
-
-                <a th:href="@{/c/{communityCode}/posts/attachments/{attachmentId}/download(
-                        communityCode=${currentCommunity.code},
-                        attachmentId=${attachment.id}
-                   )}"
-                   th:text="${attachment.originalFileName}"></a>
-
-                <span th:if="${attachment.extension != ''}"
-                      th:text="|[${attachment.extension}]|"
-                      style="margin-left: 6px; color: #666;"></span>
-
-                <span th:text="|(${attachment.fileSize} bytes)|"
-                      style="margin-left: 6px;"></span>
-
-                <span th:text="|다운로드 ${attachment.downloadCount}회|"
-                      style="margin-left: 8px; color: #666;"></span>
-
-                <form th:action="@{/c/{communityCode}/posts/{postId}/attachments/{attachmentId}/delete(
-                        communityCode=${currentCommunity.code},
-                        postId=${postId},
-                        attachmentId=${attachment.id}
-                      )}"
-                      method="post"
-                      style="display:inline; margin-left: 8px;">
-
-                    <input type="hidden" name="fromCreate" th:value="${fromCreate}">
-                    <input type="hidden" name="source" th:value="${detailContext.source}">
-                    <input type="hidden" name="returnUrl" th:value="${detailContext.returnUrl}">
-                    <input type="hidden" name="categoryId" th:value="${detailContext.categoryId}">
-                    <input type="hidden" name="keyword" th:value="${detailContext.keyword}">
-                    <input type="hidden" name="secret" th:value="${detailContext.secret}">
-                    <input type="hidden" name="sort" th:value="${detailContext.sort}">
-                    <input type="hidden" name="onlyWithAttachments" th:value="${detailContext.onlyWithAttachments}">
-                    <input type="hidden" name="page" th:value="${detailContext.safePage}">
-                    <input type="hidden" name="size" th:value="${detailContext.safeSize}">
-                    <button class="btn btn-danger btn-small" type="submit">첨부파일 삭제</button>
-                </form>
-            </th:block>
-        </div>
-    </section>
-
-    <section class="card">
-        <form id="post-edit-form"
-              th:action="@{/c/{communityCode}/posts/{id}/edit(
-                    communityCode=${currentCommunity.code},
-                    id=${postId}
-              )}"
-              th:object="${postUpdateRequest}"
-              method="post"
-              enctype="multipart/form-data">
-
-            <input type="hidden" name="fromCreate" th:value="${fromCreate}">
-            <input type="hidden" name="source" th:value="${detailContext.source}">
-            <input type="hidden" name="detailReturnUrl" th:value="${detailContext.returnUrl}">
-            <input type="hidden" name="detailKeyword" th:value="${detailContext.keyword}">
-            <input type="hidden" name="detailSecret" th:value="${detailContext.secret}">
-            <input type="hidden" name="detailSort" th:value="${detailContext.sort}">
-            <input type="hidden" name="detailOnlyWithAttachments" th:value="${detailContext.onlyWithAttachments}">
-            <input type="hidden" name="detailPage" th:value="${detailContext.safePage}">
-            <input type="hidden" name="detailSize" th:value="${detailContext.safeSize}">
-            <input type="hidden" name="detailCategoryId" th:value="${detailContext.categoryId}">
-
-            <div class="global-error" th:if="${#fields.hasGlobalErrors()}">
-                <div th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
-            </div>
-
-            <div class="form-group" th:if="${fixedCategory}">
-                <label class="form-label">게시판</label>
-                <div class="text-muted" th:text="${selectedCategory.name}">게시판명</div>
-                <input type="hidden" th:field="*{categoryId}">
-                <div class="field-error" th:errors="*{categoryId}"></div>
-            </div>
-
-            <div class="form-group" th:if="${!fixedCategory}">
-                <label class="form-label" for="categoryId">카테고리</label>
-                <select class="form-control" id="categoryId" th:field="*{categoryId}">
-                    <option value="">카테고리 선택</option>
-                    <option th:each="category : ${categories}"
-                            th:value="${category.id}"
-                            th:text="${category.name}">
-                    </option>
-                </select>
-                <div class="field-error" th:errors="*{categoryId}"></div>
-            </div>
-
-            <div class="form-group" th:if="${secretAllowed}">
-                <label>
-                    <input type="checkbox" th:field="*{secret}">
-                    비밀글
-                </label>
-                <p class="text-muted">비밀글은 이용문의 게시판에서만 사용할 수 있습니다.</p>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="title">제목</label>
-                <input class="form-control" type="text" id="title" th:field="*{title}">
-                <div class="field-error" th:errors="*{title}"></div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="content">내용</label>
-                <textarea class="form-control" id="content" th:field="*{content}"></textarea>
-                <div class="field-error" th:errors="*{content}"></div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="attachments">새 첨부파일 추가</label>
-                <input class="form-control" type="file" id="attachments" th:field="*{attachments}" multiple>
-                <p class="text-muted">
-                    기존 첨부파일은 삭제할 수 있고, 새 파일을 다시 추가할 수 있습니다.
-                    최대 3개까지 업로드 가능합니다.
-                </p>
-
-                <div id="attachment-summary">
-                    새로 선택한 파일: <span id="attachment-count">0</span>개 /
-                    총 용량: <span id="attachment-size">0 B</span>
-                </div>
-
-                <div id="attachment-warning" class="field-error"></div>
-                <div id="selected-attachments"></div>
-            </div>
-
-            <button class="btn btn-primary" type="submit">수정 완료</button>
-        </form>
-    </section>
+    <th:block th:replace="~{posts/post-form-fragments/post-edit-form-fields :: postEditFormFields}"></th:block>
 
     <section class="card">
         <a class="btn btn-secondary"
@@ -182,7 +37,7 @@
     </section>
 </main>
 
-<script defer th:src="@{/js/posts/post-file-form.js}"></script>
+<script th:src="@{/js/posts/post-file-form.js}"></script>
 <script th:inline="javascript">
     PostFileForm.init({
         formId: 'post-edit-form',
@@ -193,7 +48,8 @@
         attachmentWarningId: 'attachment-warning',
         maxFileCount: 3,
         maxTotalSize: 30 * 1024 * 1024,
-        existingAttachmentCount: /*[[${activeAttachmentCount}]]*/ 0
+        existingAttachmentCount: /*[[${activeAttachmentCount}]]*/ 0,
+        existingAttachmentTotalSize: /*[[${activeAttachmentTotalSize}]]*/ 0
     });
 </script>
 

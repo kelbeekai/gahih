@@ -5,21 +5,35 @@ window.AdminLogSearchManager = {
             return;
         }
 
-        const periodSelect = form.querySelector('#period');
+        const periodSelect = form.querySelector('[data-role="period-control"]');
         const customDateRange = document.getElementById('custom-date-range');
+        const pageInput = form.querySelector('input[name="page"]');
 
-        function toggleCustomDateRange() {
-            if (!periodSelect || !customDateRange) {
+        if (!periodSelect || !customDateRange) {
+            return;
+        }
+
+        function isCustomPeriod() {
+            return periodSelect.value === 'CUSTOM';
+        }
+
+        function showCustomDateRange() {
+            customDateRange.classList.toggle('is-visible', isCustomPeriod());
+        }
+
+        periodSelect.addEventListener('change', function () {
+            if (pageInput) {
+                pageInput.value = 1;
+            }
+
+            if (isCustomPeriod()) {
+                showCustomDateRange();
                 return;
             }
 
-            const isCustom = periodSelect.value === 'CUSTOM';
-            customDateRange.style.display = isCustom ? 'block' : 'none';
-        }
+            form.submit();
+        });
 
-        if (periodSelect) {
-            periodSelect.addEventListener('change', toggleCustomDateRange);
-            toggleCustomDateRange();
-        }
+        showCustomDateRange();
     }
 };

@@ -1,7 +1,7 @@
 package com.gahih.domain.member.controller;
 
 import com.gahih.domain.member.dto.MemberPasswordResetRequest;
-import com.gahih.domain.member.service.PasswordRecoveryFacade;
+import com.gahih.domain.member.service.recovery.PasswordRecoveryFacade;
 import com.gahih.global.exception.BusinessException;
 import com.gahih.global.exception.DomainValidationException;
 import jakarta.servlet.http.HttpSession;
@@ -19,7 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/members")
-public class MemberRecoveryWebController {
+public class MemberRecoveryController {
 
     private final PasswordRecoveryFacade passwordRecoveryFacade;
 

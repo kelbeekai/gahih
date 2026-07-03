@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<header th:fragment="siteHeader(loginMember)" class="site-header">
+
+    <div class="site-utility-bar">
+        <div class="site-utility-inner">
+
+            <details class="header-dropdown community-dropdown">
+                <summary th:text="${currentCommunity != null ? currentCommunity.name + ' 커뮤니티' : '국가 선택'}">
+                    국가 선택
+                </summary>
+
+                <div class="header-dropdown-menu">
+                    <a th:each="community : ${globalCommunities}"
+                       th:if="${currentCommunity == null or community.code != currentCommunity.code}"
+                       th:href="@{/c/{communityCode}(communityCode=${community.code})}"
+                       th:text="|${community.name} 커뮤니티|">
+                        국가 커뮤니티
+                    </a>
+
+                    <span th:if="${currentCommunity != null and #lists.size(globalCommunities) <= 1}"
+                          class="dropdown-empty">
+                        선택 가능한 다른 국가가 없습니다.
+                    </span>
+                </div>
+            </details>
+
+            <div class="site-utility-user">
+                <th:block th:if="${loginMember == null}">
+                    <a th:href="@{/members/login}">로그인</a>
+                    <a th:href="@{/members/signup}">회원가입</a>
+                </th:block>
+
+                <th:block th:if="${loginMember != null}">
+                    <details class="header-dropdown user-dropdown">
+                        <summary>
+                            <strong th:text="${loginMember.nickname}">닉네임</strong>님
+                        </summary>
+
+                        <div class="header-dropdown-menu">
+                            <a th:if="${currentCommunity != null}"
+                               th:href="@{/c/{communityCode}/mypage(communityCode=${currentCommunity.code})}">
+                                마이페이지
+                            </a>
+
+                            <a th:if="${currentCommunity == null}"
+                               th:href="@{/mypage}">
+                                마이페이지
+                            </a>
+
+                            <a th:if="${loginMember.role.name() == 'ADMIN' and currentCommunity != null}"
+                               th:href="@{/c/{communityCode}/admin(communityCode=${currentCommunity.code})}">
+                                관리자페이지
+                            </a>
+
+                            <a th:if="${loginMember.role.name() == 'ADMIN' and currentCommunity == null}"
+                               th:href="@{/admin}">
+                                관리자페이지
+                            </a>
+                        </div>
+                    </details>
+
+                    <form th:action="@{/members/logout}" method="post" class="inline-form">
+                        <button type="submit" class="utility-logout-button">로그아웃</button>
+                    </form>
+                </th:block>
+
+                <div class="site-visitor-stats" th:if="${visitorStatistics != null}">
+                    <span th:text="|TODAY ${visitorStatistics.todayCount} / TOTAL ${visitorStatistics.totalCount}|">
+                        TODAY 0 / TOTAL 0
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="site-main-header">
+        <div class="site-main-header-inner">
+            <h1 class="site-title">
+                <a th:href="@{/}">가힣</a>
+            </h1>
+
+            <nav class="board-nav" aria-label="게시판 메뉴" th:if="${currentCommunity != null}">
+                <button type="button"
+                        class="board-nav-scroll-button"
+                        data-board-scroll-button="left"
+                        aria-label="게시판 메뉴 왼쪽으로 이동">
+                    ‹
+                </button>
+
+                <div class="board-nav-scroll" data-board-scroll>
+                    <a th:href="@{/c/{communityCode}(communityCode=${currentCommunity.code})}">
+                        홈
+                    </a>
+
+                    <a th:href="@{/c/{communityCode}/posts(communityCode=${currentCommunity.code})}">
+                        전체글
+                    </a>
+
+                    <th:block th:each="category : ${headerCategories}">
+                        <a th:href="@{/c/{communityCode}/posts(communityCode=${currentCommunity.code}, categoryId=${category.id})}"
+                           class="board-nav-link"
+                           data-board-menu-item="true"
+                           th:attr="data-board-name=${category.name},data-board-description=${category.description}"
+                           th:text="${category.name}">
+                            게시판
+                        </a>
+                    </th:block>
+                </div>
+
+                <button type="button"
+                        class="board-nav-scroll-button"
+                        data-board-scroll-button="right"
+                        aria-label="게시판 메뉴 오른쪽으로 이동">
+                    ›
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <div class="floating-scroll-buttons" aria-label="화면 이동 버튼">
+        <button type="button" data-page-scroll="top" aria-label="최상단으로 이동">▲</button>
+        <button type="button" data-page-scroll="bottom" aria-label="최하단으로 이동">▼</button>
+    </div>
+</header>
+
+<footer th:fragment="siteFooter" class="site-footer">
+    <nav class="site-footer-links" aria-label="서비스 안내">
+        <a th:href="@{/terms}">이용약관</a>
+        <a th:href="@{/privacy}">개인정보 처리방침</a>
+        <a th:href="@{/policy}">운영정책</a>
+        <a th:href="@{/disclaimer}">면책조항</a>
+        <a th:href="@{/contact}">운영문의</a>
+    </nav>
+    <p class="site-footer-notice">
+        가힣는 작지만 운영 가능한 한인 커뮤니티 서비스를 목표로 합니다.
+    </p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: commonHeadContent('서버 오류')}"></th:block>
+</head>
+<body>
+<div th:replace="~{fragments/header :: siteHeader(null)}"></div>
+<main class="error-page">
+    <div th:replace="~{fragments/layout :: errorCard('500', '서버 오류가 발생했습니다.', ${message})}"></div>
+    <div class="actions error-actions">
+        <a class="btn btn-primary" th:href="@{/}">홈으로</a>
+        <a class="btn btn-secondary" href="javascript:location.reload()">다시 시도</a>
+    </div>
+</main>
+<div th:replace="~{fragments/header :: siteFooter}"></div>
+</body>
+</html>

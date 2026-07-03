@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="adminLogFilterForm">
+    <section class="card search-card search-card-top-card">
+        <form id="adminLogFilterForm"
+              th:action="@{/admin/logs}"
+              method="get"
+              class="search-toolbar-form">
+
+            <input type="hidden" name="page" th:value="${logPage.number + 1}">
+            <input type="hidden" data-role="current-page" th:value="${logPage.number + 1}">
+            <input type="hidden" data-role="current-size" th:value="${logPage.size}">
+
+            <input type="hidden" name="searchType" th:value="${condition.searchType}">
+            <input type="hidden" name="keyword" th:value="${condition.keyword}">
+
+            <div class="search-toolbar-left">
+                <span class="filter-label">로그 타입</span>
+                <select class="form-control search-control-compact"
+                        id="action"
+                        name="action"
+                        data-role="instant-search-control">
+                    <option value="">전체</option>
+                    <option th:each="action : ${actions}"
+                            th:value="${action}"
+                            th:text="${action}"
+                            th:selected="${condition.action == action}">
+                    </option>
+                </select>
+
+                <span class="filter-label">대상 타입</span>
+                <select class="form-control search-control-compact"
+                        id="targetType"
+                        name="targetType"
+                        data-role="instant-search-control">
+                    <option value="">전체</option>
+                    <option th:each="targetType : ${targetTypes}"
+                            th:value="${targetType.name()}"
+                            th:text="${targetType.displayName}"
+                            th:selected="${condition.targetType == targetType}">
+                    </option>
+                </select>
+
+                <span class="filter-label">국가</span>
+                <select class="form-control search-control-compact"
+                        id="targetCommunityCode"
+                        name="targetCommunityCode"
+                        data-role="instant-search-control">
+                    <option value="" th:selected="${condition.targetCommunityCode == null or condition.targetCommunityCode == ''}">
+                        전체
+                    </option>
+                    <option th:each="community : ${communities}"
+                            th:value="${community.code}"
+                            th:text="${community.name}"
+                            th:selected="${condition.targetCommunityCode == community.code}">
+                    </option>
+                </select>
+
+                <span class="filter-label">기간</span>
+                <div class="filter-popover-wrap">
+                    <select class="form-control search-control-compact"
+                            id="period"
+                            name="period"
+                            data-role="period-control">
+                        <option th:each="periodType : ${periodTypes}"
+                                th:value="${periodType.name()}"
+                                th:text="${periodType.displayName}"
+                                th:selected="${condition.period == periodType}">
+                        </option>
+                    </select>
+
+                    <div id="custom-date-range"
+                         class="admin-log-date-popover"
+                         th:classappend="${condition.customPeriod} ? ' is-visible'">
+                        <input class="form-control search-date-input"
+                               id="startDate"
+                               type="date"
+                               name="startDate"
+                               th:value="${condition.startDate}">
+
+                        <span class="filter-label">~</span>
+
+                        <input class="form-control search-date-input"
+                               id="endDate"
+                               type="date"
+                               name="endDate"
+                               th:value="${condition.endDate}">
+
+                        <button class="btn btn-primary btn-small search-nowrap-button"
+                                type="submit">
+                            적용
+                        </button>
+                    </div>
+                </div>
+
+                <select class="form-control search-control-compact"
+                        id="sort"
+                        name="sort"
+                        data-role="instant-search-control">
+                    <option value="LATEST"
+                            th:selected="${condition.sort == T(com.gahih.domain.admin.enumtype.AdminLogSortType).LATEST}">
+                        최신순
+                    </option>
+                    <option value="OLDEST"
+                            th:selected="${condition.sort == T(com.gahih.domain.admin.enumtype.AdminLogSortType).OLDEST}">
+                        오래된순
+                    </option>
+                </select>
+
+                <select class="form-control search-control-compact"
+                        id="size"
+                        name="size"
+                        data-role="page-size-select">
+                    <option value="20" th:selected="${condition.safeSize == 20}">20개씩</option>
+                    <option value="40" th:selected="${condition.safeSize == 40}">40개씩</option>
+                    <option value="60" th:selected="${condition.safeSize == 60}">60개씩</option>
+                </select>
+            </div>
+
+            <div class="search-toolbar-right"></div>
+        </form>
+    </section>
+</th:block>
+
+<th:block th:fragment="adminLogKeywordSearchForm">
+    <section class="card search-card search-card-bottom-card">
+        <form id="adminLogKeywordSearchForm"
+              th:action="@{/admin/logs}"
+              method="get"
+              class="search-keyword-form">
+
+            <input type="hidden" name="page" value="1">
+            <input type="hidden" name="action" th:value="${condition.action}">
+            <input type="hidden" name="targetType" th:value="${condition.targetType}">
+            <input type="hidden" name="targetCommunityCode" th:value="${condition.targetCommunityCode}">
+            <input type="hidden" name="period" th:value="${condition.period}">
+            <input type="hidden" name="startDate" th:value="${condition.startDate}">
+            <input type="hidden" name="endDate" th:value="${condition.endDate}">
+            <input type="hidden" name="sort" th:value="${condition.sort}">
+            <input type="hidden" name="size" th:value="${condition.safeSize}">
+
+            <div class="search-keyword-row">
+                <select class="form-control search-control-compact search-type-control"
+                        id="searchType"
+                        name="searchType">
+                    <option th:each="searchType : ${searchTypes}"
+                            th:value="${searchType.name()}"
+                            th:text="${searchType.displayName}"
+                            th:selected="${condition.searchType == searchType}">
+                    </option>
+                </select>
+
+                <input class="form-control search-keyword-input"
+                       id="keyword"
+                       type="text"
+                       name="keyword"
+                       th:value="${condition.keyword}"
+                       placeholder="선택한 조건으로 검색">
+
+                <button class="btn btn-primary btn-small search-nowrap-button" type="submit">검색</button>
+
+                <a class="btn btn-secondary btn-small search-nowrap-button"
+                   th:href="@{/admin/logs}">
+                    초기화
+                </a>
+            </div>
+        </form>
+    </section>
+</th:block>
+
+</html>

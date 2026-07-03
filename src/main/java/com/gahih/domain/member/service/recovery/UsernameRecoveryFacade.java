@@ -1,4 +1,4 @@
-package com.gahih.domain.member.service;
+package com.gahih.domain.member.service.recovery;
 
 import com.gahih.domain.member.dto.EmailAuthApiResponse;
 import com.gahih.domain.member.entity.Member;
@@ -6,7 +6,6 @@ import com.gahih.domain.member.enumtype.EmailAuthPurpose;
 import com.gahih.domain.member.repository.MemberRepository;
 import com.gahih.domain.member.service.email.AsyncEmailSender;
 import com.gahih.domain.member.service.email.EmailAuthService;
-import com.gahih.domain.member.service.email.EmailSender;
 import com.gahih.domain.member.service.email.RecoveryResponseDelayService;
 import com.gahih.global.exception.BusinessException;
 import com.gahih.global.exception.DomainValidationException;
@@ -20,10 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 public class UsernameRecoveryFacade {
 
     private static final String SEND_RESPONSE_MESSAGE =
-            "입력한 정보가 유효할 경우 안내 메일을 받을 수 있습니다. 메일함을 확인해주세요."; // 입력한 정보가 유효하면 안내 메일을 보냈습니다. 메일함을 확인해주세요.
+            "입력하신 이메일로 인증 안내 메일을 보냈습니다. 메일함을 확인해주세요.";
 
     private static final String VERIFY_RESPONSE_MESSAGE =
-            "입력한 정보가 유효할 경우 안내 메일을 받을 수 있습니다. 메일함을 확인해주세요."; // 입력한 정보가 유효하면 안내 메일을 보냈습니다. 메일함을 확인해주세요.
+            "입력하신 이메일로 인증 안내 메일을 보냈습니다. 메일함을 확인해주세요.";
 
     private final MemberRepository memberRepository;
     private final EmailAuthService emailAuthService;

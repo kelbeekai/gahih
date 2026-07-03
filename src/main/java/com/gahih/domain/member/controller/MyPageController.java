@@ -3,10 +3,10 @@ package com.gahih.domain.member.controller;
 import com.gahih.domain.category.service.CategoryService;
 import com.gahih.domain.community.service.CountryCommunityService;
 import com.gahih.domain.member.dto.MemberMyPageResponse;
-import com.gahih.domain.member.service.MemberService;
-import com.gahih.domain.member.service.MyActivityStatisticsService;
-import com.gahih.domain.member.service.MyMentionedCommentService;
-import com.gahih.domain.member.service.MyRecentInteractionService;
+import com.gahih.domain.member.service.account.MemberAccountService;
+import com.gahih.domain.member.service.account.MyActivityStatisticsService;
+import com.gahih.domain.member.service.account.MyMentionedCommentService;
+import com.gahih.domain.member.service.account.MyRecentInteractionService;
 import com.gahih.domain.member.session.LoginMember;
 import com.gahih.global.argumentresolver.Login;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 @RequiredArgsConstructor
-public class MyPageWebController {
+public class MyPageController {
 
-    private final MemberService memberService;
+    private final MemberAccountService memberAccountService;
     private final MyActivityStatisticsService myActivityStatisticsService;
     private final MyRecentInteractionService myRecentInteractionService;
     private final MyMentionedCommentService myMentionedCommentService;
@@ -28,7 +28,7 @@ public class MyPageWebController {
 
     @GetMapping("/mypage")
     public String myPage(@Login LoginMember loginMember, Model model) {
-        MemberMyPageResponse member = memberService.getMyPage(loginMember.getId());
+        MemberMyPageResponse member = memberAccountService.getMyPage(loginMember.getId());
 
         model.addAttribute("communities", countryCommunityService.findEnabledCommunities());
         model.addAttribute("loginMember", loginMember);
@@ -55,7 +55,7 @@ public class MyPageWebController {
             @Login LoginMember loginMember,
             Model model
     ) {
-        MemberMyPageResponse member = memberService.getMyPage(loginMember.getId());
+        MemberMyPageResponse member = memberAccountService.getMyPage(loginMember.getId());
 
         model.addAttribute("loginMember", loginMember);
         model.addAttribute("currentCommunity", categoryService.findCommunity(communityCode));

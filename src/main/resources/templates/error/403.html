@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: commonHeadContent('접근 권한 없음')}"></th:block>
+</head>
+<body>
+<div th:replace="~{fragments/header :: siteHeader(null)}"></div>
+<main class="error-page">
+    <div th:replace="~{fragments/layout :: errorCard('403', '접근 권한이 없습니다.', ${message})}"></div>
+    <div class="actions error-actions">
+        <a class="btn btn-primary" th:href="@{/}">홈으로</a>
+        <a class="btn btn-secondary" th:href="@{/}">국가 선택으로</a>
+    </div>
+</main>
+<div th:replace="~{fragments/header :: siteFooter}"></div>
+</body>
+</html>

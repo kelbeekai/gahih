@@ -1,5 +1,6 @@
 package com.gahih.domain.post.entity;
 
+import com.gahih.domain.post.enumtype.AttachmentStatus;
 import com.gahih.global.exception.DomainValidationException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -36,6 +37,13 @@ public class PostAttachment {
     @Column(nullable = false)
     private Long fileSize;
 
+    @Column(nullable = false)
+    private Long downloadCount;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private AttachmentStatus status;
+
     private LocalDateTime createdAt;
 
     private PostAttachment(Post post, String originalFileName, String storedFileName, String contentType, Long fileSize) {
@@ -49,6 +57,8 @@ public class PostAttachment {
         this.storedFileName = storedFileName;
         this.contentType = contentType;
         this.fileSize = fileSize;
+        this.downloadCount = 0L;
+        this.status = AttachmentStatus.ACTIVE;
     }
 
     public static PostAttachment create(Post post, String originalFileName, String storedFileName, String contentType, Long fileSize) {
@@ -59,9 +69,25 @@ public class PostAttachment {
         this.post = post;
     }
 
+    public void increaseDownloadCount() {
+
+        if (!isDownloadAllowed()) {
+            return;
+        }
+
+        if (this.downloadCount == null) {
+            this.downloadCount = 0L;
+        }
+        this.downloadCount++;
+    }
+
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
+
+        if (this.status == null) {
+            this.status = AttachmentStatus.ACTIVE;
+        }
     }
 
     private void validatePost(Post post) {
@@ -91,6 +117,40 @@ public class PostAttachment {
     private void validateFileSize(Long fileSize) {
         if (fileSize == null || fileSize < 0) {
             throw new DomainValidationException("파일 크기는 0 이상이어야 합니다.");
+        }
+    }
+
+    public void deleteByUser() {
+        validateActiveForStateChange();
+        this.status = AttachmentStatus.USER_DELETED;
+    }
+
+    public void deleteByAdmin() {
+        if (this.status == AttachmentStatus.ADMIN_DELETED) {
+            throw new DomainValidationException("이미 관리자 삭제 처리된 첨부파일입니다.");
+        }
+        this.status = AttachmentStatus.ADMIN_DELETED;
+    }
+
+    public boolean isActive() {
+        return this.status == AttachmentStatus.ACTIVE;
+    }
+
+    public boolean isDownloadAllowed() {
+        return this.status == AttachmentStatus.ACTIVE;
+    }
+
+    public String getStatusMessage() {
+        return switch (this.status) {
+            case USER_DELETED -> "사용자가 삭제한 첨부파일입니다.";
+            case ADMIN_DELETED -> "운영 정책에 의해 삭제된 첨부파일입니다.";
+            case ACTIVE -> "";
+        };
+    }
+
+    private void validateActiveForStateChange() {
+        if (this.status != AttachmentStatus.ACTIVE) {
+            throw new DomainValidationException("이미 삭제 처리된 첨부파일입니다.");
         }
     }
 }

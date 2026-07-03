@@ -1,10 +1,15 @@
 package com.gahih.domain.admin.controller;
 
 import com.gahih.domain.admin.dto.AdminPostSearchCondition;
-import com.gahih.domain.admin.service.AdminService;
+import com.gahih.domain.admin.service.AdminPostService;
+import com.gahih.domain.category.entity.Category;
+import com.gahih.domain.category.enumtype.CategoryCode;
+import com.gahih.domain.category.repository.CategoryRepository;
 import com.gahih.domain.category.service.CategoryService;
 import com.gahih.domain.member.session.LoginMember;
 import com.gahih.domain.post.dto.PostDetailContext;
+import com.gahih.domain.post.enumtype.TradeStatus;
+import com.gahih.domain.post.enumtype.TradeType;
 import com.gahih.global.argumentresolver.Login;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -17,13 +22,189 @@ import java.nio.charset.StandardCharsets;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/c/{communityCode}/admin/posts")
 public class AdminPostController {
 
-    private final AdminService adminService;
+    private final AdminPostService adminPostService;
     private final CategoryService categoryService;
+    private final CategoryRepository categoryRepository;
 
-    @GetMapping
+    @GetMapping("/admin/posts")
+    public String globalPostList(
+            @Login LoginMember loginMember,
+            @ModelAttribute("condition") AdminPostSearchCondition condition,
+            Model model
+    ) {
+        condition.setCommunityCode(null);
+        normalizeTradeAndSecretFilters(condition);
+        addTradeAndSecretFilterAttributes(condition, model);
+
+        model.addAttribute("loginMember", loginMember);
+        model.addAttribute("categories",
+                categoryRepository.findAllByOrderByCountryCommunity_DisplayOrderAscDisplayOrderAsc());
+        model.addAttribute("postPage", adminPostService.searchPosts(condition));
+        model.addAttribute("pinnedPosts", adminPostService.findPinnedPosts(null, condition));
+        model.addAttribute("globalAdminPostMode", true);
+
+        return "admin/posts/admin-post-list";
+    }
+
+    @PostMapping("/admin/posts/{postId}/pin")
+    public String globalPinPost(
+            @Login LoginMember loginMember,
+            @PathVariable Long postId,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Boolean secret,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) Boolean onlyWithAttachments,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) TradeType tradeType,
+            @RequestParam(required = false) TradeStatus tradeStatus,
+            RedirectAttributes redirectAttributes
+    ) {
+        adminPostService.pinPost(loginMember.getId(), postId);
+        addGlobalAdminPostSearchRedirectAttributes(
+                categoryId, keyword, secret, sort, onlyWithAttachments, tradeType, tradeStatus, size, page, redirectAttributes
+        );
+        return "redirect:/admin/posts";
+    }
+
+    @PostMapping("/admin/posts/{postId}/unpin")
+    public String globalUnpinPost(
+            @Login LoginMember loginMember,
+            @PathVariable Long postId,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Boolean secret,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) Boolean onlyWithAttachments,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) TradeType tradeType,
+            @RequestParam(required = false) TradeStatus tradeStatus,
+            RedirectAttributes redirectAttributes
+    ) {
+        adminPostService.unpinPost(loginMember.getId(), postId);
+        addGlobalAdminPostSearchRedirectAttributes(
+                categoryId, keyword, secret, sort, onlyWithAttachments, tradeType, tradeStatus, size, page, redirectAttributes
+        );
+        return "redirect:/admin/posts";
+    }
+
+    @PostMapping("/admin/posts/{postId}/blind")
+    public String globalBlindPost(
+            @Login LoginMember loginMember,
+            @PathVariable Long postId,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Boolean secret,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) Boolean onlyWithAttachments,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) TradeType tradeType,
+            @RequestParam(required = false) TradeStatus tradeStatus,
+            RedirectAttributes redirectAttributes
+    ) {
+        adminPostService.blindPost(loginMember.getId(), postId);
+        addGlobalAdminPostSearchRedirectAttributes(
+                categoryId, keyword, secret, sort, onlyWithAttachments, tradeType, tradeStatus, size, page, redirectAttributes
+        );
+        return "redirect:/admin/posts";
+    }
+
+    @PostMapping("/admin/posts/{postId}/restore")
+    public String globalRestorePost(
+            @Login LoginMember loginMember,
+            @PathVariable Long postId,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Boolean secret,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) Boolean onlyWithAttachments,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) TradeType tradeType,
+            @RequestParam(required = false) TradeStatus tradeStatus,
+            RedirectAttributes redirectAttributes
+    ) {
+        adminPostService.restorePost(loginMember.getId(), postId);
+        addGlobalAdminPostSearchRedirectAttributes(
+                categoryId, keyword, secret, sort, onlyWithAttachments, tradeType, tradeStatus, size, page, redirectAttributes
+        );
+        return "redirect:/admin/posts";
+    }
+
+    @PostMapping("/admin/posts/{postId}/delete")
+    public String globalDeletePost(
+            @Login LoginMember loginMember,
+            @PathVariable Long postId,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Boolean secret,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) Boolean onlyWithAttachments,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) TradeType tradeType,
+            @RequestParam(required = false) TradeStatus tradeStatus,
+            RedirectAttributes redirectAttributes
+    ) {
+        adminPostService.deletePost(loginMember.getId(), postId);
+        addGlobalAdminPostSearchRedirectAttributes(
+                categoryId, keyword, secret, sort, onlyWithAttachments, tradeType, tradeStatus, size, page, redirectAttributes
+        );
+        return "redirect:/admin/posts";
+    }
+
+    @PostMapping("/admin/posts/{postId}/hard-delete")
+    public String globalHardDeletePost(
+            @Login LoginMember loginMember,
+            @PathVariable Long postId,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Boolean secret,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) Boolean onlyWithAttachments,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) String reason,
+            @RequestParam(required = false) TradeType tradeType,
+            @RequestParam(required = false) TradeStatus tradeStatus,
+            RedirectAttributes redirectAttributes
+    ) {
+        adminPostService.hardDeletePost(loginMember.getId(), postId, reason);
+        addGlobalAdminPostSearchRedirectAttributes(
+                categoryId, keyword, secret, sort, onlyWithAttachments, tradeType, tradeStatus, size, page, redirectAttributes
+        );
+        return "redirect:/admin/posts";
+    }
+
+    private void addGlobalAdminPostSearchRedirectAttributes(
+            Long categoryId,
+            String keyword,
+            Boolean secret,
+            String sort,
+            Boolean onlyWithAttachments,
+            TradeType tradeType,
+            TradeStatus tradeStatus,
+            Integer size,
+            Integer page,
+            RedirectAttributes redirectAttributes
+    ) {
+        redirectAttributes.addAttribute("categoryId", categoryId);
+        redirectAttributes.addAttribute("keyword", (keyword == null || keyword.isBlank()) ? null : keyword.trim());
+        redirectAttributes.addAttribute("secret", secret);
+        redirectAttributes.addAttribute("sort", sort);
+        redirectAttributes.addAttribute("onlyWithAttachments", onlyWithAttachments);
+        redirectAttributes.addAttribute("tradeType", tradeType);
+        redirectAttributes.addAttribute("tradeStatus", tradeStatus);
+        redirectAttributes.addAttribute("size", size == null ? 20 : size);
+        redirectAttributes.addAttribute("page", page == null || page < 1 ? 1 : page);
+    }
+
+    @GetMapping("/c/{communityCode}/admin/posts")
     public String postList(
             @PathVariable String communityCode,
             @Login LoginMember loginMember,
@@ -31,18 +212,20 @@ public class AdminPostController {
             Model model
     ) {
         condition.setCommunityCode(communityCode);
+        normalizeTradeAndSecretFilters(condition);
+        addTradeAndSecretFilterAttributes(condition, model);
 
         model.addAttribute("loginMember", loginMember);
         model.addAttribute("currentCommunity", categoryService.findCommunity(communityCode));
         model.addAttribute("headerCategories", categoryService.findHeaderCategories(communityCode));
         model.addAttribute("categories", categoryService.findAllCategories(communityCode));
-        model.addAttribute("postPage", adminService.searchPosts(condition));
-        model.addAttribute("pinnedPosts", adminService.findPinnedPosts(communityCode, condition.getCategoryId()));
+        model.addAttribute("postPage", adminPostService.searchPosts(condition));
+        model.addAttribute("pinnedPosts", adminPostService.findPinnedPosts(communityCode, condition));
 
-        return "admin/posts";
+        return "admin/posts/admin-post-list";
     }
 
-    @PostMapping("/{postId}/delete")
+    @PostMapping("/c/{communityCode}/admin/posts/{postId}/delete")
     public String deletePost(
             @PathVariable String communityCode,
             @Login LoginMember loginMember,
@@ -50,12 +233,12 @@ public class AdminPostController {
             @ModelAttribute("condition") AdminPostSearchCondition condition,
             RedirectAttributes redirectAttributes
     ) {
-        adminService.deletePost(loginMember.getId(), postId);
+        adminPostService.deletePost(loginMember.getId(), postId);
         addAdminPostSearchRedirectAttributes(condition, redirectAttributes);
         return "redirect:/c/" + communityCode + "/admin/posts";
     }
 
-    @PostMapping("/{postId}/blind")
+    @PostMapping("/c/{communityCode}/admin/posts/{postId}/blind")
     public String blindPost(
             @PathVariable String communityCode,
             @Login LoginMember loginMember,
@@ -63,12 +246,12 @@ public class AdminPostController {
             @ModelAttribute("condition") AdminPostSearchCondition condition,
             RedirectAttributes redirectAttributes
     ) {
-        adminService.blindPost(loginMember.getId(), postId);
+        adminPostService.blindPost(loginMember.getId(), postId);
         addAdminPostSearchRedirectAttributes(condition, redirectAttributes);
         return "redirect:/c/" + communityCode + "/admin/posts";
     }
 
-    @PostMapping("/{postId}/restore")
+    @PostMapping("/c/{communityCode}/admin/posts/{postId}/restore")
     public String restorePost(
             @PathVariable String communityCode,
             @Login LoginMember loginMember,
@@ -76,12 +259,12 @@ public class AdminPostController {
             @ModelAttribute("condition") AdminPostSearchCondition condition,
             RedirectAttributes redirectAttributes
     ) {
-        adminService.restorePost(loginMember.getId(), postId);
+        adminPostService.restorePost(loginMember.getId(), postId);
         addAdminPostSearchRedirectAttributes(condition, redirectAttributes);
         return "redirect:/c/" + communityCode + "/admin/posts";
     }
 
-    @PostMapping("/{postId}/hard-delete")
+    @PostMapping("/c/{communityCode}/admin/posts/{postId}/hard-delete")
     public String hardDeletePost(
             @PathVariable String communityCode,
             @Login LoginMember loginMember,
@@ -90,12 +273,12 @@ public class AdminPostController {
             @RequestParam(required = false) String reason,
             RedirectAttributes redirectAttributes
     ) {
-        adminService.hardDeletePost(loginMember.getId(), postId, reason);
+        adminPostService.hardDeletePost(loginMember.getId(), postId, reason);
         addAdminPostSearchRedirectAttributes(condition, redirectAttributes);
         return "redirect:/c/" + communityCode + "/admin/posts";
     }
 
-    @PostMapping("/{postId}/pin")
+    @PostMapping("/c/{communityCode}/admin/posts/{postId}/pin")
     public String pinPost(
             @PathVariable String communityCode,
             @Login LoginMember loginMember,
@@ -103,12 +286,12 @@ public class AdminPostController {
             @ModelAttribute("condition") AdminPostSearchCondition condition,
             RedirectAttributes redirectAttributes
     ) {
-        adminService.pinPost(loginMember.getId(), postId);
+        adminPostService.pinPost(loginMember.getId(), postId);
         addAdminPostSearchRedirectAttributes(condition, redirectAttributes);
         return "redirect:/c/" + communityCode + "/admin/posts";
     }
 
-    @PostMapping("/{postId}/unpin")
+    @PostMapping("/c/{communityCode}/admin/posts/{postId}/unpin")
     public String unpinPost(
             @PathVariable String communityCode,
             @Login LoginMember loginMember,
@@ -116,12 +299,12 @@ public class AdminPostController {
             @ModelAttribute("condition") AdminPostSearchCondition condition,
             RedirectAttributes redirectAttributes
     ) {
-        adminService.unpinPost(loginMember.getId(), postId);
+        adminPostService.unpinPost(loginMember.getId(), postId);
         addAdminPostSearchRedirectAttributes(condition, redirectAttributes);
         return "redirect:/c/" + communityCode + "/admin/posts";
     }
 
-    @PostMapping("/{postId}/blind-from-detail")
+    @PostMapping("/c/{communityCode}/admin/posts/{postId}/blind-from-detail")
     public String blindPostFromDetail(
             @PathVariable String communityCode,
             @Login LoginMember loginMember,
@@ -129,11 +312,11 @@ public class AdminPostController {
             @RequestParam(name = "fromCreate", defaultValue = "false") boolean fromCreate,
             @ModelAttribute("detailContext") PostDetailContext detailContext
     ) {
-        adminService.blindPost(loginMember.getId(), postId);
+        adminPostService.blindPost(loginMember.getId(), postId);
         return redirectToPostDetail(communityCode, postId, fromCreate, detailContext);
     }
 
-    @PostMapping("/{postId}/restore-from-detail")
+    @PostMapping("/c/{communityCode}/admin/posts/{postId}/restore-from-detail")
     public String restorePostFromDetail(
             @PathVariable String communityCode,
             @Login LoginMember loginMember,
@@ -141,11 +324,11 @@ public class AdminPostController {
             @RequestParam(name = "fromCreate", defaultValue = "false") boolean fromCreate,
             @ModelAttribute("detailContext") PostDetailContext detailContext
     ) {
-        adminService.restorePost(loginMember.getId(), postId);
+        adminPostService.restorePost(loginMember.getId(), postId);
         return redirectToPostDetail(communityCode, postId, fromCreate, detailContext);
     }
 
-    @PostMapping("/{postId}/delete-from-detail")
+    @PostMapping("/c/{communityCode}/admin/posts/{postId}/delete-from-detail")
     public String deletePostFromDetail(
             @PathVariable String communityCode,
             @Login LoginMember loginMember,
@@ -153,11 +336,11 @@ public class AdminPostController {
             @RequestParam(name = "fromCreate", defaultValue = "false") boolean fromCreate,
             @ModelAttribute("detailContext") PostDetailContext detailContext
     ) {
-        adminService.deletePost(loginMember.getId(), postId);
+        adminPostService.deletePost(loginMember.getId(), postId);
         return redirectToPostDetail(communityCode, postId, fromCreate, detailContext);
     }
 
-    @PostMapping("/{postId}/hard-delete-from-detail")
+    @PostMapping("/c/{communityCode}/admin/posts/{postId}/hard-delete-from-detail")
     public String hardDeletePostFromDetail(
             @PathVariable String communityCode,
             @Login LoginMember loginMember,
@@ -166,8 +349,23 @@ public class AdminPostController {
             @ModelAttribute("detailContext") PostDetailContext detailContext,
             @RequestParam(required = false) String reason
     ) {
-        adminService.hardDeletePost(loginMember.getId(), postId, reason);
+        adminPostService.hardDeletePost(loginMember.getId(), postId, reason);
         return "redirect:" + listPath(communityCode, detailContext);
+    }
+
+    private void addAdminPostSearchRedirectAttributes(
+            AdminPostSearchCondition condition,
+            RedirectAttributes redirectAttributes
+    ) {
+        redirectAttributes.addAttribute("categoryId", condition.getCategoryId());
+        redirectAttributes.addAttribute("keyword", condition.getKeywordOrNull());
+        redirectAttributes.addAttribute("secret", condition.getSecret());
+        redirectAttributes.addAttribute("sort", condition.getSort());
+        redirectAttributes.addAttribute("onlyWithAttachments", condition.getOnlyWithAttachments());
+        redirectAttributes.addAttribute("tradeType", condition.getTradeType());
+        redirectAttributes.addAttribute("tradeStatus", condition.getTradeStatus());
+        redirectAttributes.addAttribute("size", condition.getSafeSize());
+        redirectAttributes.addAttribute("page", condition.getSafePage());
     }
 
     private String redirectToPostDetail(
@@ -197,6 +395,13 @@ public class AdminPostController {
             first = false;
         }
 
+        if (detailContext.getReturnUrlOrNull() != null) {
+            sb.append(first ? "?" : "&")
+                    .append("returnUrl=")
+                    .append(UriUtils.encode(detailContext.getReturnUrlOrNull(), StandardCharsets.UTF_8));
+            first = false;
+        }
+
         if (detailContext.getCategoryId() != null) {
             sb.append(first ? "?" : "&").append("categoryId=").append(detailContext.getCategoryId());
             first = false;
@@ -211,6 +416,16 @@ public class AdminPostController {
 
         if (detailContext.getSecretOrNull() != null) {
             sb.append(first ? "?" : "&").append("secret=").append(detailContext.getSecretOrNull());
+            first = false;
+        }
+
+        if (detailContext.getTradeType() != null) {
+            sb.append(first ? "?" : "&").append("tradeType=").append(detailContext.getTradeType().name());
+            first = false;
+        }
+
+        if (detailContext.getTradeStatus() != null) {
+            sb.append(first ? "?" : "&").append("tradeStatus=").append(detailContext.getTradeStatus().name());
             first = false;
         }
 
@@ -256,6 +471,16 @@ public class AdminPostController {
             first = false;
         }
 
+        if (detailContext.getTradeType() != null) {
+            sb.append(first ? "?" : "&").append("tradeType=").append(detailContext.getTradeType().name());
+            first = false;
+        }
+
+        if (detailContext.getTradeStatus() != null) {
+            sb.append(first ? "?" : "&").append("tradeStatus=").append(detailContext.getTradeStatus().name());
+            first = false;
+        }
+
         if (detailContext.getSort() != null && !detailContext.getSort().isBlank()) {
             sb.append(first ? "?" : "&").append("sort=").append(detailContext.getSort());
             first = false;
@@ -274,16 +499,32 @@ public class AdminPostController {
         return sb.toString();
     }
 
-    private void addAdminPostSearchRedirectAttributes(
-            AdminPostSearchCondition condition,
-            RedirectAttributes redirectAttributes
-    ) {
-        redirectAttributes.addAttribute("categoryId", condition.getCategoryId());
-        redirectAttributes.addAttribute("keyword", condition.getKeywordOrNull());
-        redirectAttributes.addAttribute("secret", condition.getSecret());
-        redirectAttributes.addAttribute("sort", condition.getSort());
-        redirectAttributes.addAttribute("onlyWithAttachments", condition.isOnlyWithAttachments());
-        redirectAttributes.addAttribute("size", condition.getSafeSize());
-        redirectAttributes.addAttribute("page", condition.getSafePage());
+    private void normalizeTradeAndSecretFilters(AdminPostSearchCondition condition) {
+        Category selectedCategory = categoryService.findByIdOrNull(condition.getCategoryId());
+
+        boolean inquiryCategory = selectedCategory != null && selectedCategory.isCode(CategoryCode.INQUIRY);
+        boolean marketCategory = selectedCategory != null && selectedCategory.isCode(CategoryCode.MARKET);
+
+        if (!inquiryCategory) {
+            condition.setSecret(null);
+        }
+
+        if (!marketCategory) {
+            condition.setTradeType(null);
+            condition.setTradeStatus(null);
+        }
+    }
+
+    private void addTradeAndSecretFilterAttributes(AdminPostSearchCondition condition, Model model) {
+        Category selectedCategory = categoryService.findByIdOrNull(condition.getCategoryId());
+
+        boolean inquiryCategory = selectedCategory != null && selectedCategory.isCode(CategoryCode.INQUIRY);
+        boolean marketCategory = selectedCategory != null && selectedCategory.isCode(CategoryCode.MARKET);
+
+        model.addAttribute("selectedCategory", selectedCategory);
+        model.addAttribute("inquiryCategory", inquiryCategory);
+        model.addAttribute("marketCategory", marketCategory);
+        model.addAttribute("tradeTypes", TradeType.values());
+        model.addAttribute("tradeStatuses", TradeStatus.values());
     }
 }

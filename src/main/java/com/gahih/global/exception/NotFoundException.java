@@ -1,4 +1,8 @@
 package com.gahih.global.exception;
 
-public class NotFoundException {
+public class NotFoundException extends BusinessException {
+
+    public NotFoundException(String message) {
+        super(message);
+    }
 }

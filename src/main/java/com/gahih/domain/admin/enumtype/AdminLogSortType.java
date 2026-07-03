@@ -1,4 +1,6 @@
 package com.gahih.domain.admin.enumtype;
 
-public class AdminLogSortType {
+public enum AdminLogSortType {
+    LATEST,
+    OLDEST
 }

@@ -1,99 +1,58 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 
-<th:block th:fragment="postActions">
+<th:block th:fragment="postAdminActions">
+    <form th:if="${postDetail.status.name() == 'ACTIVE' or postDetail.status.name() == 'USER_DELETED' or postDetail.status.name() == 'ADMIN_DELETED'}"
+          th:action="@{/c/{communityCode}/admin/posts/{postId}/blind-from-detail(
+                                communityCode=${currentCommunity.code},
+                                postId=${postDetail.id}
+                            )}"
+          method="post"
+          class="inline-form">
+        <input type="hidden" name="fromCreate" th:value="${fromCreate}">
+        <th:block th:replace="~{posts/post-detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
+        <button class="btn btn-danger btn-small" type="submit">관리자 게시글 블라인드</button>
+    </form>
 
-    <div class="actions"
-         th:if="${loginMember != null and loginMember.id == postDetail.writerId and postDetail.userActionAllowed}">
-        <a class="btn btn-secondary"
-           th:href="@{/c/{communityCode}/posts/{id}/edit(
-                        communityCode=${currentCommunity.code},
-                        id=${postDetail.id},
-                        fromCreate=${fromCreate},
-                        source=${detailContext.source},
-                        returnUrl=${detailContext.returnUrl},
-                        categoryId=${detailContext.categoryId},
-                        keyword=${detailContext.keyword},
-                        secret=${detailContext.secret},
-                        sort=${detailContext.sort},
-                        onlyWithAttachments=${detailContext.onlyWithAttachments},
-                        page=${detailContext.safePage},
-                        size=${detailContext.safeSize}
-                    )}">
-            수정
-        </a>
-        <form th:action="@{/c/{communityCode}/posts/{id}/delete(
-                        communityCode=${currentCommunity.code},
-                        id=${postDetail.id}
-                      )}"
-              method="post"
-              class="inline-form"
-              onsubmit="return confirm('정말 게시글을 삭제하시겠습니까?');">
-            <input type="hidden" name="fromCreate" th:value="${fromCreate}">
+    <form th:if="${postDetail.status.name() == 'ADMIN_BLINDED'}"
+          th:action="@{/c/{communityCode}/admin/posts/{postId}/restore-from-detail(
+                                communityCode=${currentCommunity.code},
+                                postId=${postDetail.id}
+                            )}"
+          method="post"
+          class="inline-form">
+        <input type="hidden" name="fromCreate" th:value="${fromCreate}">
+        <th:block th:replace="~{posts/post-detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
+        <button class="btn btn-secondary btn-small" type="submit">게시글 복구</button>
+    </form>
 
-            <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
-            <button class="btn btn-danger" type="submit">삭제</button>
-        </form>
-    </div>
+    <form th:if="${postDetail.status.name() == 'ACTIVE' or postDetail.status.name() == 'USER_DELETED' or postDetail.status.name() == 'ADMIN_BLINDED'}"
+          th:action="@{/c/{communityCode}/admin/posts/{postId}/delete-from-detail(
+                                communityCode=${currentCommunity.code},
+                                postId=${postDetail.id}
+                            )}"
+          method="post"
+          class="inline-form">
+        <input type="hidden" name="fromCreate" th:value="${fromCreate}">
+        <th:block th:replace="~{posts/post-detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
+        <button class="btn btn-danger btn-small" type="submit">관리자 게시글 삭제</button>
+    </form>
 
-    <div class="actions detail-block-small-spaced" th:if="${isAdmin}">
-        <form th:if="${postDetail.status.name() == 'ACTIVE' or postDetail.status.name() == 'USER_DELETED' or postDetail.status.name() == 'ADMIN_DELETED'}"
-              th:action="@{/c/{communityCode}/admin/posts/{postId}/blind-from-detail(
-                                    communityCode=${currentCommunity.code},
-                                    postId=${postDetail.id}
-                                )}"
-              method="post"
-              class="inline-form">
-            <input type="hidden" name="fromCreate" th:value="${fromCreate}">
-
-            <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
-            <button class="btn btn-danger btn-small" type="submit">관리자 게시글 블라인드</button>
-        </form>
-
-        <form th:if="${postDetail.status.name() == 'ADMIN_BLINDED'}"
-              th:action="@{/c/{communityCode}/admin/posts/{postId}/restore-from-detail(
-                                    communityCode=${currentCommunity.code},
-                                    postId=${postDetail.id}
-                                )}"
-              method="post"
-              class="inline-form detail-inline-spaced">
-            <input type="hidden" name="fromCreate" th:value="${fromCreate}">
-
-            <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
-            <button class="btn btn-secondary btn-small" type="submit">게시글 복구</button>
-        </form>
-
-        <form th:if="${postDetail.status.name() == 'ACTIVE' or postDetail.status.name() == 'USER_DELETED' or postDetail.status.name() == 'ADMIN_BLINDED'}"
-              th:action="@{/c/{communityCode}/admin/posts/{postId}/delete-from-detail(
-                                    communityCode=${currentCommunity.code},
-                                    postId=${postDetail.id}
-                                )}"
-              method="post"
-              class="inline-form detail-inline-spaced">
-            <input type="hidden" name="fromCreate" th:value="${fromCreate}">
-
-            <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
-            <button class="btn btn-danger btn-small" type="submit">관리자 게시글 삭제</button>
-        </form>
-
-        <form th:if="${postDetail.status.name() == 'ADMIN_DELETED'}"
-              th:action="@{/c/{communityCode}/admin/posts/{postId}/hard-delete-from-detail(
-                                    communityCode=${currentCommunity.code},
-                                    postId=${postDetail.id}
-                                )}"
-              method="post"
-              class="inline-form detail-inline-spaced"
-              data-reason-required="true"
-              data-reason-label="게시글 영구삭제 사유"
-              data-reason-message="게시글 영구삭제 사유를 입력해주세요."
-              data-confirm-message="이 게시글을 영구 삭제하시겠습니까? 되돌릴 수 없습니다.">
-            <input type="hidden" name="fromCreate" th:value="${fromCreate}">
-
-            <th:block th:replace="~{posts/detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
-            <button class="btn btn-danger btn-small" type="submit">영구삭제</button>
-        </form>
-    </div>
-
+    <form th:if="${postDetail.status.name() == 'ADMIN_DELETED'}"
+          th:action="@{/c/{communityCode}/admin/posts/{postId}/hard-delete-from-detail(
+                                communityCode=${currentCommunity.code},
+                                postId=${postDetail.id}
+                            )}"
+          method="post"
+          class="inline-form"
+          data-reason-required="true"
+          data-reason-label="게시글 영구삭제 사유"
+          data-reason-message="게시글 영구삭제 사유를 입력해주세요."
+          data-confirm-message="이 게시글을 영구 삭제하시겠습니까? 되돌릴 수 없습니다.">
+        <input type="hidden" name="fromCreate" th:value="${fromCreate}">
+        <th:block th:replace="~{posts/post-detail-fragments/post-detail-context-fields :: detailContextHiddenFields(${detailContext})}"></th:block>
+        <button class="btn btn-danger btn-small" type="submit">영구삭제</button>
+    </form>
 </th:block>
 
 </html>

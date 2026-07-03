@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="memberMypageStatistics">
+    <div class="card" th:if="${member.suspended and activityStatistics != null}">
+        <h3>지금까지의 활동 요약</h3>
+
+        <div class="member-info-list">
+            <div class="member-info-label">총 게시글</div>
+            <div class="member-info-value" th:text="${activityStatistics.totalPostCount}"></div>
+
+            <div class="member-info-label">총 댓글</div>
+            <div class="member-info-value" th:text="${activityStatistics.totalCommentCount}"></div>
+
+            <div class="member-info-label">받은 총 좋아요</div>
+            <div class="member-info-value" th:text="${activityStatistics.totalReceivedLikeCount}"></div>
+        </div>
+    </div>
+
+    <div class="card" th:if="${!member.suspended and activityStatistics != null}">
+        <h3>활동 통계</h3>
+
+        <div class="mypage-stat-grid">
+            <div class="mypage-stat-card">
+                <h4>활동량</h4>
+                <table>
+                    <tbody>
+                    <tr>
+                        <th>총 게시글</th>
+                        <td th:text="${activityStatistics.totalPostCount}"></td>
+                    </tr>
+                    <tr>
+                        <th>오늘 게시글</th>
+                        <td th:text="${activityStatistics.todayPostCount}"></td>
+                    </tr>
+                    <tr>
+                        <th>총 댓글</th>
+                        <td th:text="${activityStatistics.totalCommentCount}"></td>
+                    </tr>
+                    <tr>
+                        <th>오늘 댓글</th>
+                        <td th:text="${activityStatistics.todayCommentCount}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mypage-stat-card">
+                <h4>좋아요</h4>
+                <table>
+                    <tbody>
+                    <tr>
+                        <th>받은 총 좋아요</th>
+                        <td th:text="${activityStatistics.totalReceivedLikeCount}"></td>
+                    </tr>
+                    <tr>
+                        <th>오늘 받은 좋아요</th>
+                        <td th:text="${activityStatistics.todayReceivedLikeCount}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mypage-stat-card">
+                <h4>조회수 / 다운로드</h4>
+                <table>
+                    <tbody>
+                    <tr>
+                        <th>총 조회수</th>
+                        <td th:text="${activityStatistics.totalViewCount}"></td>
+                    </tr>
+                    <tr>
+                        <th>총 첨부 다운로드</th>
+                        <td th:text="${activityStatistics.totalAttachmentDownloadCount}"></td>
+                    </tr>
+                    <tr>
+                        <th>총 ZIP 다운로드</th>
+                        <td th:text="${activityStatistics.totalZipDownloadCount}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+</html>

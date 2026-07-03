@@ -8,61 +8,68 @@
         <div th:if="${#lists.isEmpty(attachments)}">첨부파일이 없습니다.</div>
 
         <div th:each="attachment : ${attachments}"
-             style="margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+             class="form-attachment-card">
 
-            <div th:if="${!attachment.deleted and attachment.image}" style="margin-bottom: 8px;">
+            <div th:if="${!attachment.deleted and attachment.image}" class="form-attachment-preview">
                 <img th:src="@{/c/{communityCode}/posts/attachments/{attachmentId}/preview(
-                        communityCode=${currentCommunity.code},
-                        attachmentId=${attachment.id}
-                     )}"
-                     th:alt="${attachment.originalFileName}"
-                     style="max-width: 220px; max-height: 220px; border-radius: 6px;">
+                communityCode=${currentCommunity.code},
+                attachmentId=${attachment.id}
+             )}"
+                     th:alt="${attachment.originalFileName}">
             </div>
 
-            <th:block th:if="${attachment.deleted}">
-                <span th:text="${attachment.originalFileName}"></span>
-            </th:block>
+            <div class="form-attachment-row">
+                <div class="form-attachment-main">
+                    <th:block th:if="${attachment.deleted}">
+                        <span class="attachment-file-name" th:text="${attachment.originalFileName}"></span>
+                    </th:block>
 
-            <th:block th:if="${!attachment.deleted}">
-                <span th:text="${attachment.icon}" style="margin-right: 6px;">📎</span>
+                    <th:block th:if="${!attachment.deleted}">
+                        <th:block th:replace="~{fragments/icons :: attachmentIcon(${attachment})}"></th:block>
 
-                <a th:href="@{/c/{communityCode}/posts/attachments/{attachmentId}/download(
-                        communityCode=${currentCommunity.code},
-                        attachmentId=${attachment.id}
-                   )}"
-                   th:text="${attachment.originalFileName}"></a>
+                        <a class="attachment-file-name"
+                           th:href="@{/c/{communityCode}/posts/attachments/{attachmentId}/download(
+                                communityCode=${currentCommunity.code},
+                                attachmentId=${attachment.id}
+                           )}"
+                           th:text="${attachment.originalFileName}"></a>
 
-                <span th:if="${attachment.extension != ''}"
-                      th:text="|[${attachment.extension}]|"
-                      style="margin-left: 6px; color: #666;"></span>
+                        <span th:if="${attachment.extension != ''}"
+                              class="detail-small-muted detail-inline-spaced"
+                              th:text="|[${attachment.extension}]|"></span>
 
-                <span th:text="|(${attachment.fileSize} bytes)|"
-                      style="margin-left: 6px;"></span>
+                        <span class="detail-small-muted detail-inline-spaced"
+                              th:text="|(${attachment.fileSize} bytes)|"></span>
 
-                <span th:text="|다운로드 ${attachment.downloadCount}회|"
-                      style="margin-left: 8px; color: #666;"></span>
+                        <span class="detail-small-muted detail-inline-spaced"
+                              th:text="|다운로드 ${attachment.downloadCount}회|"></span>
+                    </th:block>
+                </div>
 
-                <form th:action="@{/c/{communityCode}/posts/{postId}/attachments/{attachmentId}/delete(
-                        communityCode=${currentCommunity.code},
-                        postId=${postId},
-                        attachmentId=${attachment.id}
-                      )}"
-                      method="post"
-                      style="display:inline; margin-left: 8px;">
+                <div th:if="${!attachment.deleted}" class="form-attachment-actions">
+                    <form th:action="@{/c/{communityCode}/posts/{postId}/attachments/{attachmentId}/delete(
+                            communityCode=${currentCommunity.code},
+                            postId=${postId},
+                            attachmentId=${attachment.id}
+                          )}"
+                          method="post"
+                          class="inline-form">
 
-                    <input type="hidden" name="fromCreate" th:value="${fromCreate}">
-                    <input type="hidden" name="source" th:value="${detailContext.source}">
-                    <input type="hidden" name="returnUrl" th:value="${detailContext.returnUrl}">
-                    <input type="hidden" name="categoryId" th:value="${detailContext.categoryId}">
-                    <input type="hidden" name="keyword" th:value="${detailContext.keyword}">
-                    <input type="hidden" name="secret" th:value="${detailContext.secret}">
-                    <input type="hidden" name="sort" th:value="${detailContext.sort}">
-                    <input type="hidden" name="onlyWithAttachments" th:value="${detailContext.onlyWithAttachments}">
-                    <input type="hidden" name="page" th:value="${detailContext.safePage}">
-                    <input type="hidden" name="size" th:value="${detailContext.safeSize}">
-                    <button class="btn btn-danger btn-small" type="submit">첨부파일 삭제</button>
-                </form>
-            </th:block>
+                        <input type="hidden" name="fromCreate" th:value="${fromCreate}">
+                        <input type="hidden" name="source" th:value="${detailContext.source}">
+                        <input type="hidden" name="returnUrl" th:value="${detailContext.returnUrl}">
+                        <input type="hidden" name="categoryId" th:value="${detailContext.categoryId}">
+                        <input type="hidden" name="keyword" th:value="${detailContext.keyword}">
+                        <input type="hidden" name="secret" th:value="${detailContext.secret}">
+                        <input type="hidden" name="sort" th:value="${detailContext.sort}">
+                        <input type="hidden" name="onlyWithAttachments" th:value="${detailContext.onlyWithAttachments}">
+                        <input type="hidden" name="page" th:value="${detailContext.safePage}">
+                        <input type="hidden" name="size" th:value="${detailContext.safeSize}">
+
+                        <button class="btn btn-danger btn-small" type="submit">첨부파일 삭제</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </section>
 </th:block>

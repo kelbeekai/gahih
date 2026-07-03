@@ -1,4 +1,7 @@
-package com.gahih.domain.comment.dto;
+package com.gahih.domain.comment.enumtype;
 
-public class CommentSortType {
+public enum CommentSortType {
+    LIKE_COUNT,
+    LATEST,
+    OLDEST
 }

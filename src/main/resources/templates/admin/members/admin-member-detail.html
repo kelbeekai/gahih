@@ -14,15 +14,15 @@
         <h2 class="card-title">회원 상세</h2>
     </section>
 
-    <th:block th:replace="~{admin/member-detail-fragments/basic-info :: basicInfo}"></th:block>
+    <th:block th:replace="~{admin/members/member-detail-fragments/admin-member-detail-basic-info :: basicInfo}"></th:block>
 
-    <th:block th:replace="~{admin/member-detail-fragments/member-actions :: memberActions}"></th:block>
+    <th:block th:replace="~{admin/members/member-detail-fragments/admin-member-detail-actions :: memberActions}"></th:block>
 
-    <th:block th:replace="~{admin/member-detail-fragments/recent-posts :: recentPosts}"></th:block>
+    <th:block th:replace="~{admin/members/member-detail-fragments/admin-member-detail-recent-posts :: recentPosts}"></th:block>
 
-    <th:block th:replace="~{admin/member-detail-fragments/recent-comments :: recentComments}"></th:block>
+    <th:block th:replace="~{admin/members/member-detail-fragments/admin-member-detail-recent-comments :: recentComments}"></th:block>
 
-    <th:block th:replace="~{admin/member-detail-fragments/footer-actions :: footerActions}"></th:block>
+    <th:block th:replace="~{admin/members/member-detail-fragments/admin-member-detail-footer-actions :: footerActions}"></th:block>
 </main>
 
 <div th:replace="~{fragments/header :: siteFooter}"></div>

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:replace="~{fragments/layout :: commonHeadContent('닉네임 이력 조회')}"></th:block>
-    <script defer th:src="@{/js/page-size.js}"></script>
+    <script defer th:src="@{/js/common/page-size.js}"></script>
 </head>
 <body>
 
@@ -13,71 +13,56 @@
         <h2 class="card-title">닉네임 이력 조회</h2>
     </section>
 
-    <section class="card">
-        <form id="adminNicknameHistorySearchForm" th:action="@{/admin/nickname-histories}" method="get" class="search-form">
+    <section class="card search-card search-card-top-card">
+        <form id="adminNicknameHistoryFilterForm"
+              th:action="@{/admin/nickname-histories}"
+              method="get"
+              class="search-toolbar-form">
+
             <input type="hidden" name="page" th:value="${historyPage.number + 1}">
             <input type="hidden" data-role="current-page" th:value="${historyPage.number + 1}">
             <input type="hidden" data-role="current-size" th:value="${historyPage.size}">
 
-            <div class="form-group">
-                <label class="form-label" for="searchType">검색 항목</label>
-                <select class="form-control" id="searchType" name="searchType">
-                    <option th:each="searchType : ${searchTypes}"
-                            th:value="${searchType.name()}"
-                            th:text="${searchType.displayName}"
-                            th:selected="${condition.searchType == searchType}">
-                    </option>
-                </select>
-            </div>
+            <input type="hidden" name="searchType" th:value="${condition.searchType}">
+            <input type="hidden" name="keyword" th:value="${condition.keyword}">
 
-            <div class="form-group">
-                <label class="form-label" for="keyword">검색어</label>
-                <input class="form-control"
-                       id="keyword"
-                       type="text"
-                       name="keyword"
-                       th:value="${condition.keyword}"
-                       placeholder="회원 ID, 현재/이전/변경 후 닉네임 검색">
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="changeType">구분</label>
-                <select class="form-control" id="changeType" name="changeType">
+            <div class="search-toolbar-left">
+                <span class="filter-label">구분</span>
+                <select class="form-control search-control-compact"
+                        id="changeType"
+                        name="changeType"
+                        data-role="instant-search-control">
                     <option value="">전체</option>
                     <option value="INITIAL" th:selected="${condition.changeType == 'INITIAL'}">최초 설정</option>
                     <option value="CHANGE" th:selected="${condition.changeType == 'CHANGE'}">닉네임 변경</option>
                 </select>
-            </div>
 
-            <div class="form-group">
-                <label class="form-label" for="sort">정렬</label>
-                <select class="form-control" id="sort" name="sort">
+                <select class="form-control search-control-compact"
+                        id="sort"
+                        name="sort"
+                        data-role="instant-search-control">
                     <option th:each="sortType : ${sortTypes}"
                             th:value="${sortType.name()}"
                             th:text="${sortType.displayName}"
                             th:selected="${condition.sort == sortType}">
                     </option>
                 </select>
-            </div>
 
-            <div class="form-group">
-                <label class="form-label" for="size">목록 수</label>
-                <select class="form-control" id="size" name="size" data-role="page-size-select">
+                <select class="form-control search-control-compact"
+                        id="size"
+                        name="size"
+                        data-role="page-size-select">
                     <option value="20" th:selected="${condition.safeSize == 20}">20개씩</option>
                     <option value="40" th:selected="${condition.safeSize == 40}">40개씩</option>
                     <option value="60" th:selected="${condition.safeSize == 60}">60개씩</option>
                 </select>
             </div>
 
-            <div class="actions">
-                <button class="btn btn-primary" type="submit">검색</button>
-                <a class="btn btn-secondary" th:href="@{/admin/nickname-histories}">초기화</a>
-                <a class="btn btn-secondary" th:href="@{/admin}">관리자 홈</a>
-            </div>
+            <div class="search-toolbar-right"></div>
         </form>
     </section>
 
-    <section class="card">
+    <section class="card context-list-card">
         <div class="table-wrapper admin-table-wrap">
             <table class="common-table">
                 <thead>
@@ -136,11 +121,64 @@
              )}">
         </div>
     </section>
+
+    <section class="card search-card search-card-bottom-card">
+        <form id="adminNicknameHistoryKeywordSearchForm"
+              th:action="@{/admin/nickname-histories}"
+              method="get"
+              class="search-keyword-form">
+
+            <input type="hidden" name="page" value="1">
+            <input type="hidden" name="changeType" th:value="${condition.changeType}">
+            <input type="hidden" name="sort" th:value="${condition.sort}">
+            <input type="hidden" name="size" th:value="${condition.safeSize}">
+
+            <div class="search-keyword-row">
+                <select class="form-control search-control-compact search-type-control"
+                        id="searchType"
+                        name="searchType">
+                    <option th:each="searchType : ${searchTypes}"
+                            th:value="${searchType.name()}"
+                            th:text="${searchType.displayName}"
+                            th:selected="${condition.searchType == searchType}">
+                    </option>
+                </select>
+
+                <input class="form-control search-keyword-input"
+                       id="keyword"
+                       type="text"
+                       name="keyword"
+                       th:value="${condition.keyword}"
+                       placeholder="선택한 조건으로 검색">
+
+                <button class="btn btn-primary btn-small search-nowrap-button"
+                        type="submit">
+                    검색
+                </button>
+
+                <a class="btn btn-secondary btn-small search-nowrap-button"
+                   th:href="@{/admin/nickname-histories}">
+                    초기화
+                </a>
+            </div>
+        </form>
+    </section>
+
+    <section class="card">
+        <div class="actions">
+            <a class="btn btn-secondary" th:href="@{/admin}">
+                관리자 홈으로
+            </a>
+        </div>
+    </section>
 </main>
+
 
 <script th:inline="javascript">
     window.addEventListener('DOMContentLoaded', function () {
-        PageSizeManager.initPageSizeForm('adminNicknameHistorySearchForm');
+        if (window.PageSizeManager) {
+            PageSizeManager.initPageSizeForm('adminNicknameHistoryFilterForm');
+        }
     });
 </script>
 

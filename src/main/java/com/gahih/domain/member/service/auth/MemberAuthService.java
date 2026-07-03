@@ -1,4 +1,4 @@
-package com.gahih.domain.member.service;
+package com.gahih.domain.member.service.auth;
 
 import com.gahih.domain.member.dto.MemberLoginRequest;
 import com.gahih.domain.member.dto.MemberSignUpRequest;

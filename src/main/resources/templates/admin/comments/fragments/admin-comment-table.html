@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="adminCommentTable">
+    <section class="card context-list-card">
+        <div class="table-wrapper admin-table-wrap">
+            <table class="common-table">
+                <thead>
+                <tr>
+                    <th class="table-cell-id">댓글 ID</th>
+                    <th class="table-cell-category" th:if="${currentCommunity == null}">국가</th>
+                    <th class="table-cell-id">게시글 ID</th>
+                    <th class="table-cell-title">게시글 제목</th>
+                    <th class="table-cell-writer">작성자</th>
+                    <th class="table-cell-text">댓글</th>
+                    <th class="table-cell-number">좋아요</th>
+                    <th class="table-cell-number">싫어요</th>
+                    <th class="table-cell-status">상태</th>
+                    <th class="table-cell-status">신고(미조치/총)</th>
+                    <th class="table-cell-date">작성일</th>
+                    <th class="table-cell-action">관리</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${commentPage.isEmpty()}">
+                    <td colspan="12">등록된 댓글이 없습니다.</td>
+                </tr>
+
+                <tr th:each="comment : ${commentPage.content}">
+                    <td class="table-cell-id" th:text="${comment.id}"></td>
+                    <td class="table-cell-category" th:if="${currentCommunity == null}" th:text="${comment.communityName}">국가</td>
+                    <td class="table-cell-id" th:text="${comment.postId}"></td>
+
+                    <td class="table-cell-title">
+                        <span class="table-title-text">
+                            <a th:href="@{/c/{communityCode}/posts/{id}(
+                                    communityCode=${currentCommunity != null ? currentCommunity.code : comment.communityCode},
+                                    id=${comment.postId},
+                                    source=${T(com.gahih.domain.post.enumtype.PostDetailSource).ADMIN_COMMENTS},
+                                    returnUrl=${currentCommunity != null
+                                        ? '/c/' + currentCommunity.code + '/admin/comments?searchType=' + condition.searchType + '&keyword=' + (condition.keyword != null ? condition.keyword : '') + '&status=' + (condition.status != null ? condition.status.name() : '') + '&sort=' + condition.sort + '&size=' + condition.safeSize + '&page=' + (commentPage.number + 1)
+                                        : '/admin/comments?searchType=' + condition.searchType + '&keyword=' + (condition.keyword != null ? condition.keyword : '') + '&status=' + (condition.status != null ? condition.status.name() : '') + '&sort=' + condition.sort + '&size=' + condition.safeSize + '&page=' + (commentPage.number + 1)}
+                                )}"
+                               th:text="${comment.postTitle}">
+                            </a>
+                        </span>
+                    </td>
+
+                    <td class="table-cell-writer" th:text="${comment.writerNickname}"></td>
+
+                    <td class="table-cell-text">
+                        <span th:if="${comment.deletedOrBlinded}"
+                              class="status-label"
+                              th:classappend="${comment.currentUserDeleted} ? ' status-label-muted' : ''"
+                              th:text="${'[' + comment.displayStatusLabel + ']'}"></span>
+
+                        <span th:if="${!comment.userDeletedContext}"
+                              class="table-title-text"
+                              th:text="${comment.contentSummary}"></span>
+                    </td>
+
+                    <td class="table-cell-number" th:text="${comment.likeCount}"></td>
+                    <td class="table-cell-number" th:text="${comment.dislikeCount}"></td>
+                    <td class="table-cell-status" th:text="${comment.displayStatusLabel}"></td>
+                    <td class="table-cell-status" th:text="${comment.reportSummary}"></td>
+
+                    <td class="table-cell-date">
+                        <span th:text="${#temporals.format(comment.displayTime, 'yyyy-MM-dd HH:mm')}"></span>
+                        <span th:if="${comment.edited}"
+                              class="detail-small-muted detail-inline-spaced">
+                                (수정됨)
+                            </span>
+                    </td>
+
+                    <td class="table-cell-action">
+                        <details class="admin-action-menu">
+                            <summary class="btn btn-secondary btn-small admin-action-menu-toggle">관리</summary>
+
+                            <div class="admin-action-menu-panel">
+                                <form th:if="${comment.canAdminBlind}"
+                                      th:action="${currentCommunity != null}
+                                        ? @{/c/{communityCode}/admin/comments/{id}/blind-from-list(
+                                            communityCode=${currentCommunity.code},
+                                            id=${comment.id}
+                                          )}
+                                        : @{/admin/comments/{id}/blind-from-list(id=${comment.id})}"
+                                      method="post"
+                                      class="inline-form">
+
+                                    <th:block th:replace="~{admin/comments/fragments/admin-comment-hidden-fields :: commentsSearchHiddenFields(${condition}, ${commentPage})}"></th:block>
+                                    <button class="btn btn-danger btn-small" type="submit">블라인드</button>
+                                </form>
+
+                                <form th:if="${comment.canAdminRestore}"
+                                      th:action="${currentCommunity != null}
+                                        ? @{/c/{communityCode}/admin/comments/{id}/restore-from-list(
+                                            communityCode=${currentCommunity.code},
+                                            id=${comment.id}
+                                          )}
+                                        : @{/admin/comments/{id}/restore-from-list(id=${comment.id})}"
+                                      method="post"
+                                      class="inline-form">
+
+                                    <th:block th:replace="~{admin/comments/fragments/admin-comment-hidden-fields :: commentsSearchHiddenFields(${condition}, ${commentPage})}"></th:block>
+                                    <button class="btn btn-secondary btn-small" type="submit">복구</button>
+                                </form>
+
+                                <form th:if="${comment.canAdminDelete}"
+                                      th:action="${currentCommunity != null}
+                                        ? @{/c/{communityCode}/admin/comments/{id}/delete-from-list(
+                                            communityCode=${currentCommunity.code},
+                                            id=${comment.id}
+                                          )}
+                                        : @{/admin/comments/{id}/delete-from-list(id=${comment.id})}"
+                                      method="post"
+                                      class="inline-form">
+
+                                    <th:block th:replace="~{admin/comments/fragments/admin-comment-hidden-fields :: commentsSearchHiddenFields(${condition}, ${commentPage})}"></th:block>
+                                    <button class="btn btn-danger btn-small" type="submit">삭제</button>
+                                </form>
+
+                                <form th:if="${comment.canAdminHardDelete}"
+                                      th:action="${currentCommunity != null}
+                                        ? @{/c/{communityCode}/admin/comments/{id}/hard-delete-from-list(
+                                            communityCode=${currentCommunity.code},
+                                            id=${comment.id}
+                                          )}
+                                        : @{/admin/comments/{id}/hard-delete-from-list(id=${comment.id})}"
+                                      method="post"
+                                      class="inline-form"
+                                      data-reason-required="true"
+                                      data-reason-label="댓글 영구삭제 사유"
+                                      data-reason-message="댓글 영구삭제 사유를 입력해주세요."
+                                      data-confirm-message="이 댓글을 영구삭제하시겠습니까? 되돌릴 수 없습니다.">
+
+                                    <th:block th:replace="~{admin/comments/fragments/admin-comment-hidden-fields :: commentsSearchHiddenFields(${condition}, ${commentPage})}"></th:block>
+                                    <button class="btn btn-danger btn-small" type="submit">영구삭제</button>
+                                </form>
+                            </div>
+                        </details>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</th:block>
+
+</html>

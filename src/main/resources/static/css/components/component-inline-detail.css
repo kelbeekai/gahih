@@ -1,8 +1,14 @@
 /* =========================================================
    Component: 인라인 상세/신고 UI
    - details/summary 기반 보조 액션
-   - 신고 폼 인라인 표시
+   - 신고 폼 오버레이 표시
+   - 상세/댓글/첨부파일 우측 액션 정렬
    ========================================================= */
+
+/* ---------------------------------------------------------
+   Legacy inline details
+   - 기존 보조 details 호환용
+   --------------------------------------------------------- */
 
 .inline-details {
     display: inline-block;
@@ -19,8 +25,391 @@
     font-size: 0.9em;
 }
 
+/* ---------------------------------------------------------
+   Report dropdown
+   --------------------------------------------------------- */
+
 .inline-report-form {
-    display: inline-block;
-    margin-top: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    margin: 0;
 }
 
+.report-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.report-dropdown-spaced {
+    margin-left: 8px;
+}
+
+.report-dropdown-inline {
+    flex: 0 0 auto;
+}
+
+.report-dropdown summary {
+    list-style: none;
+    cursor: pointer;
+}
+
+.report-dropdown summary::-webkit-details-marker {
+    display: none;
+}
+
+.report-dropdown-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.report-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 260;
+
+    min-width: 220px;
+    max-width: calc(100vw - 32px);
+    padding: 10px;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-md);
+}
+
+.report-dropdown-menu-right,
+.attachment-action-row .report-dropdown-menu {
+    left: auto;
+    right: 0;
+}
+
+.report-dropdown-menu .form-control {
+    width: 100%;
+}
+
+.report-dropdown-menu .btn {
+    align-self: flex-end;
+}
+
+/* ---------------------------------------------------------
+   Generic split row
+   - 왼쪽 내용 / 오른쪽 액션
+   --------------------------------------------------------- */
+
+.detail-split-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.detail-main-content {
+    flex: 1 1 auto;
+    min-width: 0;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.detail-right-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+
+    flex: 0 0 auto;
+    margin-left: auto;
+    white-space: nowrap;
+}
+
+.detail-right-actions .inline-form {
+    margin: 0;
+}
+
+/* ---------------------------------------------------------
+   Post title / meta
+   --------------------------------------------------------- */
+
+.post-title-main {
+    margin: 0;
+}
+
+.post-meta-line,
+.comment-meta-line {
+    margin: 0.7em 0;
+}
+
+.post-meta-main,
+.comment-meta-main {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.post-meta-main .mention-text-btn,
+.comment-meta-main .mention-text-btn {
+    min-width: 0;
+    max-width: 180px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ---------------------------------------------------------
+   Post reaction / admin action row
+   --------------------------------------------------------- */
+
+.post-control-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.post-control-left {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.post-control-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+
+    flex: 0 0 auto;
+    align-self: flex-end;
+    margin-left: auto;
+    min-height: 32px;
+    flex-wrap: nowrap;
+}
+
+/* ---------------------------------------------------------
+   Comment reaction / action row
+   --------------------------------------------------------- */
+
+.comment-reaction-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.comment-action-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    flex-wrap: nowrap;
+}
+
+.comment-action-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 100%;
+    flex-wrap: nowrap;
+}
+
+.comment-action-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+
+    flex: 0 0 auto;
+    margin-left: auto;
+    flex-wrap: nowrap;
+}
+
+.comment-action-row .inline-form,
+.admin-action-row .inline-form {
+    flex: 0 0 auto;
+    margin: 0;
+}
+
+.comment-edit-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.comment-edit-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 32px;
+    min-height: 32px;
+    line-height: 1;
+    box-sizing: border-box;
+}
+
+/* ---------------------------------------------------------
+   Detail attachment row
+   --------------------------------------------------------- */
+
+.attachment-meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    flex: 1 1 100%;
+}
+
+.attachment-meta-item .attachment-meta-row {
+    width: 100%;
+    flex: 1 1 100%;
+}
+
+.attachment-meta-main {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 100%;
+    flex-wrap: nowrap;
+}
+
+.attachment-meta-main .attachment-file-name {
+    min-width: 0;
+    max-width: 360px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.attachment-action-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+
+    flex: 0 0 auto;
+    margin-left: auto;
+    flex-wrap: nowrap;
+}
+
+.attachment-action-row .inline-form {
+    flex: 0 0 auto;
+    margin: 0;
+}
+
+/* ---------------------------------------------------------
+   Post form attachment row
+   - 작성/수정 화면 첨부파일
+   --------------------------------------------------------- */
+
+.form-attachment-card {
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+}
+
+.form-attachment-preview {
+    margin-bottom: 8px;
+}
+
+.form-attachment-preview img {
+    max-width: 220px;
+    max-height: 220px;
+    border-radius: 6px;
+}
+
+.form-attachment-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+
+    width: 100%;
+    min-width: 0;
+}
+
+.form-attachment-main,
+.form-attachment-name {
+    min-width: 0;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.form-attachment-main {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    flex: 1 1 auto;
+}
+
+.form-attachment-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+
+    flex: 0 0 auto;
+    margin-left: auto;
+}
+
+.form-attachment-actions .inline-form {
+    margin: 0;
+}
+
+/* ---------------------------------------------------------
+   Responsive
+   --------------------------------------------------------- */
+
+@media (max-width: 720px) {
+    .post-control-row,
+    .comment-action-row,
+    .attachment-meta-row,
+    .form-attachment-row {
+        align-items: flex-start;
+        overflow-x: auto;
+    }
+
+    .report-dropdown-menu {
+        min-width: 210px;
+    }
+
+    .attachment-meta-main .attachment-file-name,
+    .form-attachment-name {
+        max-width: 180px;
+    }
+}

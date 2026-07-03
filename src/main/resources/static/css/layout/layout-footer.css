@@ -4,20 +4,17 @@
 
 .site-footer {
     margin-top: 60px;
-
     padding: 32px 20px;
-
+    text-align: center;
     border-top: 1px solid var(--color-border);
-
     background: var(--color-surface);
 }
 
 .site-footer-links {
     display: flex;
     gap: 16px;
-
+    justify-content: center;
     flex-wrap: wrap;
-
     margin-bottom: 16px;
 }
 

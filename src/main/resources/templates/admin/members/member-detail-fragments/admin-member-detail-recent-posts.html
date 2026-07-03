@@ -23,7 +23,9 @@
                     <td class="table-cell-category" th:text="${post.communityName}"></td>
                     <td class="table-cell-category" th:text="${post.categoryName}"></td>
                     <td class="table-cell-title">
-                        <span th:if="${post.secret}" class="icon-marker">🔒</span>
+                        <th:block th:if="${post.secret}">
+                            <th:block th:replace="~{fragments/icons :: lockMarker}"></th:block>
+                        </th:block>
                         <a th:href="@{/c/{communityCode}/posts/{id}(
                                     communityCode=${post.communityCode},
                                     id=${post.id},

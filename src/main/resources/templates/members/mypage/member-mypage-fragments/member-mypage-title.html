@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="memberMypageTitle">
+    <div class="card" th:if="${currentCommunity != null}">
+        <div class="detail-header-row">
+            <div>
+                <h2 class="card-title" th:text="|${currentCommunity.name} 커뮤니티 마이페이지|">커뮤니티 마이페이지</h2>
+                <p class="text-muted">현재 커뮤니티 안에서의 내 활동을 보여줍니다.</p>
+            </div>
+
+            <a class="btn btn-primary"
+               th:href="@{/c/{communityCode}/mypage/posts(communityCode=${currentCommunity.code})}">
+                내가 쓴 글
+            </a>
+        </div>
+    </div>
+
+    <div class="card" th:if="${currentCommunity == null}">
+        <h2 class="card-title">통합 마이페이지</h2>
+        <p class="text-muted">전체 커뮤니티를 합산한 내 활동과 계정 정보를 보여줍니다.</p>
+    </div>
+</th:block>
+
+</html>

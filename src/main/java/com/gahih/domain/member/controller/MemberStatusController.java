@@ -2,7 +2,7 @@ package com.gahih.domain.member.controller;
 
 import com.gahih.domain.category.enumtype.CategoryCode;
 import com.gahih.domain.category.repository.CategoryRepository;
-import com.gahih.domain.member.service.MemberService;
+import com.gahih.domain.member.service.status.MemberStatusService;
 import com.gahih.domain.member.session.LoginMember;
 import com.gahih.global.argumentresolver.Login;
 import lombok.RequiredArgsConstructor;
@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/members")
-public class MemberStatusWebController {
+public class MemberStatusController {
 
-    private final MemberService memberService;
+    private final MemberStatusService memberStatusService;
     private final CategoryRepository categoryRepository;
 
     @GetMapping("/withdrawn")
@@ -27,7 +27,7 @@ public class MemberStatusWebController {
         }
 
         model.addAttribute("loginMember", loginMember);
-        model.addAttribute("withdrawnInfo", memberService.getWithdrawnInfo(loginMember.getId()));
+        model.addAttribute("withdrawnInfo", memberStatusService.getWithdrawnInfo(loginMember.getId()));
         model.addAttribute("serverNow", java.time.LocalDateTime.now());
         return "members/member-withdrawn";
     }
@@ -38,7 +38,7 @@ public class MemberStatusWebController {
             return "redirect:/members/login";
         }
 
-        memberService.restoreWithdrawnMember(loginMember.getId());
+        memberStatusService.restoreWithdrawnMember(loginMember.getId());
         return "redirect:/";
     }
 
@@ -52,7 +52,7 @@ public class MemberStatusWebController {
         }
 
         model.addAttribute("loginMember", loginMember);
-        model.addAttribute("suspendedInfo", memberService.getSuspendedInfo(loginMember.getId()));
+        model.addAttribute("suspendedInfo", memberStatusService.getSuspendedInfo(loginMember.getId()));
 
         model.addAttribute("inquiryCategories",
                 categoryRepository.findAll().stream()

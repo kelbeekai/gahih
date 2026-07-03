@@ -4,11 +4,11 @@
 
 .post-preview-image {
     display: block;
-    width: 100%;
-    max-width: 520px;
-    max-height: 520px;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: none;
     object-fit: contain;
     border-radius: var(--radius-sm);
-    margin-bottom: 8px;
 }
 

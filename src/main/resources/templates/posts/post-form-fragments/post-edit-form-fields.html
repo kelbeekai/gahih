@@ -22,6 +22,9 @@
             <input type="hidden" name="detailPage" th:value="${detailContext.safePage}">
             <input type="hidden" name="detailSize" th:value="${detailContext.safeSize}">
             <input type="hidden" name="detailCategoryId" th:value="${detailContext.categoryId}">
+            <input type="hidden" name="detailTradeType" th:value="${detailContext.tradeType}">
+            <input type="hidden" name="detailTradeStatus" th:value="${detailContext.tradeStatus}">
+            <input type="hidden" name="detailDimClosedTrade" th:value="${detailContext.dimClosedTrade}">
 
             <div class="global-error" th:if="${#fields.hasGlobalErrors()}">
                 <div th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
@@ -54,6 +57,29 @@
                 <p class="text-muted">비밀글은 이용문의 게시판에서만 사용할 수 있습니다.</p>
             </div>
 
+            <div class="form-group" th:if="${marketCategory}">
+
+                <div th:if="${marketCategory}" class="trade-guide-box">
+                    <p class="trade-guide-title">나눔·매매 글 작성 안내</p>
+                    <ul class="trade-guide-list">
+                        <li>나눔해요, 판매해요, 구매해요 중 글의 성격에 맞는 거래 유형을 선택해주세요.</li>
+                        <li>새 글은 자동으로 진행중 상태로 등록됩니다.</li>
+                        <li>거래가 완료되면 상세 화면에서 완료 상태로 변경 가능합니다.</li>
+                    </ul>
+                </div>
+
+                <label class="form-label" for="tradeType">거래 유형</label>
+                <select class="form-control" id="tradeType" th:field="*{tradeType}">
+                    <option value="">거래 유형 선택</option>
+                    <option th:each="tradeType : ${tradeTypes}"
+                            th:value="${tradeType.name()}"
+                            th:text="${tradeType.displayName}">
+                    </option>
+                </select>
+                <p class="text-muted">거래 유형은 수정할 수 있지만, 진행 상태는 상세 화면에서 따로 변경합니다.</p>
+                <div class="field-error" th:errors="*{tradeType}"></div>
+            </div>
+
             <div class="form-group">
                 <label class="form-label" for="title">제목</label>
                 <input class="form-control" type="text" id="title" th:field="*{title}">
@@ -70,6 +96,7 @@
                 <label class="form-label" for="attachments">새 첨부파일 추가</label>
                 <input class="form-control" type="file" id="attachments" th:field="*{attachments}" multiple>
                 <p class="text-muted">
+                    jpg, jpeg, png, gif, pdf, txt, zip / 최대 3개 / 파일 1개당 최대 10MB / 총 30MB
                     기존 첨부파일은 삭제할 수 있고, 새 파일을 다시 추가할 수 있습니다.
                     최대 3개까지 업로드 가능합니다.
                 </p>

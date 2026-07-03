@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="postListFilterForm">
+
+    <section th:if="${marketCategory}" class="trade-guide-box">
+        <p class="trade-guide-title">나눔·매매 게시판 안내</p>
+        <ul class="trade-guide-list">
+            <li>개인 간 나눔, 판매, 구매 글을 올릴 수 있는 공간입니다.</li>
+            <li>거래가 완료되면 상세 화면에서 완료 상태로 변경 가능합니다.</li>
+            <li>거래 상태 필터를 ‘진행중’을 선택하면 거래가 완료된 항목을 제외시킬 수 있습니다.</li>
+        </ul>
+    </section>
+
+    <section class="card search-card search-card-top-card">
+        <form id="postFilterForm"
+              th:action="@{/c/{communityCode}/posts(communityCode=${currentCommunity.code})}"
+              method="get"
+              class="search-toolbar-form">
+
+            <input type="hidden" name="page" th:value="${postPage.number + 1}">
+            <input type="hidden" data-role="current-page" th:value="${postPage.number + 1}">
+            <input type="hidden" data-role="current-size" th:value="${postPage.size}">
+            <input type="hidden" name="keyword" th:value="${condition.keyword}">
+
+            <input th:if="${selectedCategory != null}"
+                   type="hidden"
+                   name="categoryId"
+                   th:value="${selectedCategory.id}">
+
+            <div class="search-toolbar-left">
+                <select th:if="${selectedCategory == null}"
+                        class="form-control search-control-compact"
+                        id="categoryId"
+                        name="categoryId"
+                        aria-label="게시판"
+                        data-role="instant-search-control">
+                    <option value="">전체 게시판</option>
+                    <option th:each="category : ${categories}"
+                            th:value="${category.id}"
+                            th:text="${category.name}"
+                            th:selected="${condition.categoryId != null and condition.categoryId == category.id}">
+                    </option>
+                </select>
+
+                <select class="form-control search-control-compact"
+                        id="sort"
+                        name="sort"
+                        aria-label="정렬"
+                        data-role="instant-search-control">
+                    <option value="LATEST"
+                            th:selected="${condition.sort == T(com.gahih.domain.post.enumtype.PostSortType).LATEST}">
+                        최신순
+                    </option>
+                    <option value="OLDEST"
+                            th:selected="${condition.sort == T(com.gahih.domain.post.enumtype.PostSortType).OLDEST}">
+                        오래된순
+                    </option>
+                    <option value="VIEWS"
+                            th:selected="${condition.sort == T(com.gahih.domain.post.enumtype.PostSortType).VIEWS}">
+                        조회수순
+                    </option>
+                    <option value="LIKE_COUNT"
+                            th:selected="${condition.sort == T(com.gahih.domain.post.enumtype.PostSortType).LIKE_COUNT}">
+                        좋아요순
+                    </option>
+                    <option value="COMMENT_COUNT"
+                            th:selected="${condition.sort == T(com.gahih.domain.post.enumtype.PostSortType).COMMENT_COUNT}">
+                        댓글순
+                    </option>
+                </select>
+
+                <select class="form-control search-control-compact"
+                        id="size"
+                        name="size"
+                        aria-label="목록 수"
+                        data-role="page-size-select">
+                    <option value="20" th:selected="${condition.safeSize == 20}">20개씩</option>
+                    <option value="40" th:selected="${condition.safeSize == 40}">40개씩</option>
+                    <option value="60" th:selected="${condition.safeSize == 60}">60개씩</option>
+                </select>
+
+                <select class="form-control search-control-compact"
+                        id="onlyWithAttachments"
+                        name="onlyWithAttachments"
+                        aria-label="첨부파일"
+                        data-role="instant-search-control">
+                    <option value="" th:selected="${condition.onlyWithAttachments == null}">첨부파일</option>
+                    <option value="true" th:selected="${condition.onlyWithAttachments == true}">첨부있음</option>
+                    <option value="false" th:selected="${condition.onlyWithAttachments == false}">첨부없음</option>
+                </select>
+
+                <select th:if="${inquiryCategory}"
+                        class="form-control search-control-compact"
+                        id="secret"
+                        name="secret"
+                        aria-label="비밀글"
+                        data-role="instant-search-control">
+                    <option value="" th:selected="${condition.secret == null}">전체글</option>
+                    <option value="true" th:selected="${condition.secret == true}">비밀글</option>
+                    <option value="false" th:selected="${condition.secret == false}">일반글</option>
+                </select>
+
+                <th:block th:if="${marketCategory}">
+                    <select class="form-control search-control-compact"
+                            id="tradeType"
+                            name="tradeType"
+                            aria-label="거래 유형"
+                            data-role="instant-search-control">
+                        <option value="" th:selected="${condition.tradeType == null}">거래 유형</option>
+                        <option th:each="tradeType : ${tradeTypes}"
+                                th:value="${tradeType.name()}"
+                                th:text="${tradeType.displayName}"
+                                th:selected="${condition.tradeType == tradeType}">
+                        </option>
+                    </select>
+
+                    <select class="form-control search-control-compact"
+                            id="tradeStatus"
+                            name="tradeStatus"
+                            aria-label="거래 상태"
+                            data-role="instant-search-control">
+                        <option value="" th:selected="${condition.tradeStatus == null}">거래 상태</option>
+                        <option th:each="tradeStatus : ${tradeStatuses}"
+                                th:value="${tradeStatus.name()}"
+                                th:text="${tradeStatus.displayName}"
+                                th:selected="${condition.tradeStatus == tradeStatus}">
+                        </option>
+                    </select>
+
+                    <select class="form-control search-control-compact"
+                            id="dimClosedTrade"
+                            name="dimClosedTrade"
+                            aria-label="완료 글 흐림"
+                            data-role="instant-search-control">
+                        <option value="true" th:selected="${condition.dimClosedTradeEnabled}">완료 흐리게</option>
+                        <option value="false" th:selected="${!condition.dimClosedTradeEnabled}">완료 선명히</option>
+                    </select>
+                </th:block>
+            </div>
+
+            <div class="search-toolbar-right">
+                <a class="btn btn-primary btn-small"
+                   th:if="${selectedCategory != null
+                       and (loginMember == null
+                            or !selectedCategory.adminWriteOnly
+                            or loginMember.role.name() == 'ADMIN')}"
+                   th:href="@{/c/{communityCode}/posts/new(
+                        communityCode=${currentCommunity.code},
+                        source=${T(com.gahih.domain.post.enumtype.PostDetailSource).POST_LIST},
+                        categoryId=${selectedCategory.id},
+                        keyword=${condition.keyword},
+                        secret=${condition.secret},
+                        onlyWithAttachments=${condition.onlyWithAttachments},
+                        tradeType=${condition.tradeType},
+                        tradeStatus=${condition.tradeStatus},
+                        dimClosedTrade=${condition.dimClosedTrade},
+                        sort=${condition.sort},
+                        page=${condition.safePage},
+                        size=${condition.safeSize}
+                   )}">
+                    글 작성
+                </a>
+            </div>
+        </form>
+    </section>
+</th:block>
+
+<th:block th:fragment="postListKeywordSearchForm">
+    <section class="card search-card search-card-bottom-card">
+        <form id="postKeywordSearchForm"
+              th:action="@{/c/{communityCode}/posts(communityCode=${currentCommunity.code})}"
+              method="get"
+              class="search-keyword-form">
+
+            <input type="hidden" name="page" value="1">
+            <input type="hidden" name="sort" th:value="${condition.sort}">
+            <input type="hidden" name="size" th:value="${condition.safeSize}">
+            <input type="hidden" name="onlyWithAttachments" th:value="${condition.onlyWithAttachments}">
+            <input th:if="${inquiryCategory}" type="hidden" name="secret" th:value="${condition.secret}">
+            <input th:if="${marketCategory}" type="hidden" name="tradeType" th:value="${condition.tradeType}">
+            <input th:if="${marketCategory}" type="hidden" name="tradeStatus" th:value="${condition.tradeStatus}">
+            <input th:if="${marketCategory}" type="hidden" name="dimClosedTrade" th:value="${condition.dimClosedTrade}">
+
+            <input th:if="${selectedCategory != null}"
+                   type="hidden"
+                   name="categoryId"
+                   th:value="${selectedCategory.id}">
+
+            <input th:if="${selectedCategory == null and condition.categoryId != null}"
+                   type="hidden"
+                   name="categoryId"
+                   th:value="${condition.categoryId}">
+
+            <div class="search-keyword-row">
+                <input class="form-control search-keyword-input"
+                       id="keyword"
+                       type="text"
+                       name="keyword"
+                       th:value="${condition.keyword}"
+                       placeholder="제목, 내용, 작성자 검색"
+                       aria-label="검색어">
+
+                <button class="btn btn-primary btn-small search-nowrap-button" type="submit">검색</button>
+
+                <a class="btn btn-secondary btn-small search-nowrap-button"
+                   th:href="@{/c/{communityCode}/posts(communityCode=${currentCommunity.code})}">
+                    초기화
+                </a>
+            </div>
+        </form>
+    </section>
+</th:block>
+
+</html>

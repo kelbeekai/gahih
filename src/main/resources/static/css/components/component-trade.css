@@ -21,10 +21,22 @@
     white-space: nowrap;
 }
 
-.trade-status-open {
+.trade-status-open.trade-type-give {
     border-color: rgba(31, 111, 97, 0.35);
     background: rgba(31, 111, 97, 0.08);
     color: var(--color-primary);
+}
+
+.trade-status-open.trade-type-sell {
+    border-color: rgba(37, 99, 235, 0.35);
+    background: rgba(37, 99, 235, 0.08);
+    color: #2563eb;
+}
+
+.trade-status-open.trade-type-wanted {
+    border-color: rgba(124, 58, 237, 0.35);
+    background: rgba(124, 58, 237, 0.08);
+    color: #7c3aed;
 }
 
 .trade-status-closed {
@@ -36,4 +48,121 @@
 .trade-status-closed + .table-title-text a,
 .trade-status-closed ~ .table-title-text a {
     color: var(--color-muted);
+}
+
+.trade-status-toggle-form {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+}
+
+/* ---------------------------------------------------------
+   Trade guide
+   --------------------------------------------------------- */
+
+.trade-guide-box {
+    margin-bottom: 12px;
+    padding: 12px 14px;
+
+    border: 1px solid rgba(31, 111, 97, 0.22);
+    border-radius: var(--radius-sm);
+    background: rgba(31, 111, 97, 0.06);
+}
+
+.trade-guide-title {
+    margin: 0 0 6px;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.trade-guide-list {
+    margin: 0;
+    padding-left: 18px;
+    color: var(--color-text-muted);
+    font-size: 0.92em;
+    line-height: 1.6;
+}
+
+.trade-guide-list li {
+    margin: 0;
+}
+
+/* ---------------------------------------------------------
+   Closed trade row liquid-glass dimming
+   - 일반 목록에서 완료 거래글을 흐릿하게 표시
+   - hover 시 원래 가독성으로 복귀
+   --------------------------------------------------------- */
+
+.trade-row-closed {
+    position: relative;
+}
+
+.trade-row-closed td {
+    position: relative;
+    transition:
+            background-color 0.14s ease-in-out,
+            opacity 0.14s ease-in-out;
+}
+
+.trade-row-closed .table-title-line,
+.trade-row-closed .table-cell-writer,
+.trade-row-closed .table-cell-number,
+.trade-row-closed .table-cell-date {
+    position: relative;
+    z-index: 2;
+
+    filter: blur(2.2px) saturate(0.72);
+    opacity: 0.48;
+
+    transition:
+            filter 0.14s ease-in-out,
+            opacity 0.14s ease-in-out;
+}
+
+.trade-row-closed .trade-status-label {
+    filter: none;
+    opacity: 0.9;
+}
+
+.trade-row-closed .table-title-text a {
+    color: var(--color-muted);
+}
+
+.trade-row-closed td::after {
+    content: "";
+    pointer-events: none;
+
+    position: absolute;
+    inset: 5px 6px;
+    z-index: 1;
+
+    border-radius: 10px;
+    background:
+            linear-gradient(
+                    135deg,
+                    rgba(255, 255, 255, 0.42),
+                    rgba(255, 255, 255, 0.12)
+            );
+    box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.45),
+            0 1px 5px rgba(15, 23, 42, 0.06);
+
+    opacity: 0.72;
+    transition: opacity 0.14s ease-in-out;
+}
+
+.trade-row-closed:hover .table-title-line,
+.trade-row-closed:hover .table-cell-writer,
+.trade-row-closed:hover .table-cell-number,
+.trade-row-closed:hover .table-cell-date {
+    filter: none;
+    opacity: 1;
+}
+
+.trade-row-closed:hover .table-title-text a {
+    color: inherit;
+}
+
+.trade-row-closed:hover td::after {
+    opacity: 0;
 }

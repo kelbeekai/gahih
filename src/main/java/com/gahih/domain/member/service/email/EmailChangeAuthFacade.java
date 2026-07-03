@@ -1,13 +1,9 @@
-package com.gahih.domain.member.service;
+package com.gahih.domain.member.service.email;
 
 import com.gahih.domain.member.dto.EmailAuthApiResponse;
 import com.gahih.domain.member.entity.Member;
 import com.gahih.domain.member.enumtype.EmailAuthPurpose;
 import com.gahih.domain.member.repository.MemberRepository;
-import com.gahih.domain.member.service.email.AsyncEmailSender;
-import com.gahih.domain.member.service.email.EmailAuthService;
-import com.gahih.domain.member.service.email.EmailSender;
-import com.gahih.domain.member.service.email.RecoveryResponseDelayService;
 import com.gahih.global.exception.BusinessException;
 import com.gahih.global.exception.DomainValidationException;
 import com.gahih.global.exception.NotFoundException;
@@ -21,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class EmailChangeAuthFacade {
 
     private static final String SEND_RESPONSE_MESSAGE =
-            "입력한 이메일로 인증 안내를 보냈습니다. 메일함을 확인해주세요.";
+            "입력하신 이메일로 인증 안내 메일을 보냈습니다. 메일함을 확인해주세요.";
 
     private final MemberRepository memberRepository;
     private final EmailAuthService emailAuthService;

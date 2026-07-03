@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 @RequiredArgsConstructor
-public class CommunityAdminHomeController {
+public class AdminCommunityHomeController {
 
     private final CategoryService categoryService;
 
@@ -25,6 +25,6 @@ public class CommunityAdminHomeController {
         model.addAttribute("currentCommunity", categoryService.findCommunity(communityCode));
         model.addAttribute("headerCategories", categoryService.findHeaderCategories(communityCode));
 
-        return "admin/community-home";
+        return "admin/admin-community-home";
     }
 }

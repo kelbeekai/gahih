@@ -91,17 +91,35 @@ document.addEventListener("DOMContentLoaded", function () {
         return new RegExp(regexSource, "g");
     }
 
-    function extractMentionTokens(textarea) {
+    function resolveMentionNickname(rawNickname, targets) {
+        if (!rawNickname || !targets || targets.size === 0) {
+            return rawNickname;
+        }
+
+        if (targets.has(rawNickname)) {
+            return rawNickname;
+        }
+
+        return Array.from(targets)
+            .filter(target => rawNickname.startsWith(target))
+            .sort((a, b) => b.length - a.length)[0] || rawNickname;
+    }
+
+    function extractMentionTokens(textarea, targets) {
         const text = textarea.value || "";
         const regex = getMentionRegex(textarea);
         const matches = [];
         let match;
 
         while ((match = regex.exec(text)) !== null) {
+            const rawNickname = match[1];
+            const nickname = resolveMentionNickname(rawNickname, targets);
+            const mentionLength = nickname ? nickname.length : rawNickname.length;
+
             matches.push({
-                nickname: match[1],
+                nickname,
                 start: match.index,
-                end: match.index + match[0].length
+                end: match.index + 1 + mentionLength
             });
         }
 
@@ -111,7 +129,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function analyzeMentions(textarea) {
         const text = textarea.value || "";
         const targets = new Set(getMentionTargets(textarea));
-        const tokens = extractMentionTokens(textarea);
+        const tokens = extractMentionTokens(textarea, targets);
 
         const uniqueValidNicknames = new Set();
         const seenHighlightNicknames = new Set();
@@ -148,24 +166,22 @@ document.addEventListener("DOMContentLoaded", function () {
             return "";
         }
 
-        let cursor = 0;
-        let html = "";
+        const limitEnabled = textarea.dataset.mentionLimitEnabled === "true";
+        const maxMentions = Number(textarea.dataset.maxMentions || "3");
 
-        analysis.tokens.forEach(token => {
-            html += escapeHtml(analysis.text.substring(cursor, token.start));
+        let previewTokens = analysis.tokens
+            .filter(token => token.highlight);
 
-            const rawMentionText = analysis.text.substring(token.start, token.end);
-            if (token.highlight) {
-                html += `<span class="comment-mention">${escapeHtml(rawMentionText)}</span>`;
-            } else {
-                html += escapeHtml(rawMentionText);
-            }
+        if (limitEnabled && maxMentions > 0) {
+            previewTokens = previewTokens.slice(0, maxMentions);
+        }
 
-            cursor = token.end;
-        });
-
-        html += escapeHtml(analysis.text.substring(cursor));
-        return html;
+        return previewTokens
+            .map(token => {
+                const mentionText = "@" + token.nickname;
+                return `<span class="comment-mention">${escapeHtml(mentionText)}</span>`;
+            })
+            .join(" ");
     }
 
     function updateMentionState(container) {
@@ -174,6 +190,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         const textarea = container.querySelector(".mention-aware-textarea");
+        const statusRow = container.querySelector(".mention-status-row");
         const guideBox = container.querySelector(".mention-guide");
         const errorBox = container.querySelector(".mention-limit-error");
         const countText = container.querySelector(".mention-count-text");
@@ -199,10 +216,16 @@ document.addEventListener("DOMContentLoaded", function () {
         const hasValidMentions = analysis.validCount > 0;
 
         if (hasValidMentions) {
+            if (statusRow) {
+                statusRow.classList.remove("hidden");
+            }
             guideBox.classList.remove("hidden");
             previewBox.classList.remove("hidden");
             previewContent.innerHTML = renderMentionPreview(textarea);
         } else {
+            if (statusRow) {
+                statusRow.classList.add("hidden");
+            }
             guideBox.classList.add("hidden");
             previewBox.classList.add("hidden");
             previewContent.innerHTML = "";

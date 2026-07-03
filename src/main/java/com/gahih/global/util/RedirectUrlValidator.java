@@ -5,19 +5,25 @@ public final class RedirectUrlValidator {
     private RedirectUrlValidator() {
     }
 
-    public static String sanitize(String redirectURL) {
+    public static String validate(String redirectURL) {
         if (redirectURL == null || redirectURL.isBlank()) {
             return "/";
         }
 
-        if (!redirectURL.startsWith("/")) {
+        String trimmed = redirectURL.trim();
+
+        if (!trimmed.startsWith("/")) {
             return "/";
         }
 
-        if (redirectURL.startsWith("//")) {
+        if (trimmed.startsWith("//")) {
             return "/";
         }
 
-        return redirectURL;
+        if (trimmed.contains("\r") || trimmed.contains("\n")) {
+            return "/";
+        }
+
+        return trimmed;
     }
 }

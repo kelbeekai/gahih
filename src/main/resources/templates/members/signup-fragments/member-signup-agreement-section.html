@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="memberSignupAgreementSection">
+    <section class="card">
+        <h3 class="card-title">필수 동의</h3>
+
+        <div id="signupClientError" class="global-error hidden"></div>
+
+        <div class="agreement-item">
+            <div class="agreement-check-row">
+                <input type="checkbox"
+                       th:field="*{termsAgreed}"
+                       data-agreement-checkbox="terms"
+                       readonly>
+
+                <span>[필수]</span>
+
+                <button class="agreement-text-button"
+                        type="button"
+                        data-agreement-open="terms">
+                    이용약관
+                </button>
+
+                <span>에 동의합니다.</span>
+            </div>
+
+            <button class="btn btn-secondary btn-small"
+                    type="button"
+                    data-agreement-open="terms">
+                내용 보기
+            </button>
+            <div class="field-error" th:errors="*{termsAgreed}"></div>
+        </div>
+
+        <div class="agreement-item">
+            <div class="agreement-check-row">
+                <input type="checkbox"
+                       th:field="*{privacyAgreed}"
+                       data-agreement-checkbox="privacy"
+                       readonly>
+
+                <span>[필수]</span>
+
+                <button class="agreement-text-button"
+                        type="button"
+                        data-agreement-open="privacy">
+                    개인정보 처리방침
+                </button>
+
+                <span>에 동의합니다.</span>
+            </div>
+
+            <button class="btn btn-secondary btn-small"
+                    type="button"
+                    data-agreement-open="privacy">
+                내용 보기
+            </button>
+            <div class="field-error" th:errors="*{privacyAgreed}"></div>
+        </div>
+
+        <div class="agreement-item">
+            <div class="agreement-check-row">
+                <input type="checkbox"
+                       th:field="*{policyAgreed}"
+                       data-agreement-checkbox="policy"
+                       readonly>
+
+                <span>[필수]</span>
+
+                <button class="agreement-text-button"
+                        type="button"
+                        data-agreement-open="policy">
+                    커뮤니티 운영정책
+                </button>
+
+                <span>에 동의합니다.</span>
+            </div>
+
+            <button class="btn btn-secondary btn-small"
+                    type="button"
+                    data-agreement-open="policy">
+                내용 보기
+            </button>
+            <div class="field-error" th:errors="*{policyAgreed}"></div>
+        </div>
+    </section>
+</th:block>
+
+</html>

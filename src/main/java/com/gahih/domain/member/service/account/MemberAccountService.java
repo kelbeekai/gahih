@@ -1,4 +1,4 @@
-package com.gahih.domain.member.service;
+package com.gahih.domain.member.service.account;
 
 import com.gahih.domain.member.dto.MemberMyPageResponse;
 import com.gahih.domain.member.dto.MemberPasswordChangeRequest;
@@ -11,6 +11,7 @@ import com.gahih.domain.member.policy.MemberValidationPolicy;
 import com.gahih.domain.member.repository.MemberRepository;
 import com.gahih.domain.member.repository.NicknameHistoryRepository;
 import com.gahih.domain.member.repository.NicknameReservationRepository;
+import com.gahih.domain.member.service.email.EmailChangeAuthFacade;
 import com.gahih.domain.post.entity.Post;
 import com.gahih.domain.post.repository.PostRepository;
 import com.gahih.global.exception.BusinessException;

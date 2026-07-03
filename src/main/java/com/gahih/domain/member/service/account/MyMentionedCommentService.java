@@ -1,4 +1,4 @@
-package com.gahih.domain.member.service;
+package com.gahih.domain.member.service.account;
 
 import com.gahih.domain.category.enumtype.CategoryCode;
 import com.gahih.domain.comment.entity.CommentMention;

@@ -1,0 +1,203 @@
+/* =========================================================
+   Component: 아이콘 UI
+   - SVG 아이콘 공통 크기/정렬
+   - 표시용 아이콘 marker
+   - 신고/반응 아이콘 버튼
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   Base SVG icon
+   --------------------------------------------------------- */
+
+.gahih-icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.14em;
+    stroke: currentColor;
+    flex: 0 0 auto;
+}
+
+.gahih-icon-filled .gahih-icon-fill-target {
+    fill: currentColor;
+}
+
+/* ---------------------------------------------------------
+   Inline marker icons
+   - 고정글/비밀글/첨부파일/파일 타입 표시
+   --------------------------------------------------------- */
+
+.icon-marker {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+}
+
+.icon-marker-lock,
+.icon-marker-pin,
+.icon-marker-attachment,
+.icon-marker-file,
+.icon-marker-file-image {
+    color: var(--color-text-muted);
+}
+
+.icon-marker-file-pdf {
+    color: #dc2626;
+}
+
+.icon-marker-file-txt {
+    color: #475569;
+}
+
+.icon-marker-file-zip {
+    color: #7c3aed;
+}
+
+.icon-title-meta {
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+}
+
+.icon-title-meta .gahih-icon {
+    width: 0.95em;
+    height: 0.95em;
+}
+
+.icon-marker-report {
+    color: var(--color-danger);
+}
+
+/* ---------------------------------------------------------
+   Report icon button
+   - 신고 dropdown summary가 사이렌 아이콘 버튼일 때 사용
+   --------------------------------------------------------- */
+
+.report-icon-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 32px;
+    height: 32px;
+    padding: 0;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-danger);
+
+    cursor: pointer;
+    user-select: none;
+    box-sizing: border-box;
+}
+
+.report-icon-toggle:hover {
+    filter: brightness(0.97);
+}
+
+.report-icon-toggle .gahih-icon {
+    width: 1.05em;
+    height: 1.05em;
+}
+
+/* ---------------------------------------------------------
+   Reaction icon buttons
+   - 좋아요/싫어요 아이콘 + 카운트 통합 UI
+   --------------------------------------------------------- */
+
+.reaction-inline-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 32px;
+    flex-wrap: nowrap;
+}
+
+.reaction-button-form {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    margin: 0;
+}
+
+.reaction-icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 32px;
+    height: 32px;
+    padding: 0;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+
+    cursor: pointer;
+    user-select: none;
+    box-sizing: border-box;
+    line-height: 1;
+}
+
+.reaction-icon-button:hover {
+    filter: brightness(0.97);
+}
+
+.reaction-icon-button .gahih-icon {
+    width: 1.05em;
+    height: 1.05em;
+}
+
+.reaction-icon-button-active {
+    border-color: currentColor;
+    color: var(--color-primary);
+}
+
+.reaction-icon-button-negative.reaction-icon-button-active {
+    color: var(--color-danger);
+}
+
+.reaction-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 1.2em;
+    height: 32px;
+
+    color: var(--color-text-muted);
+    font-size: 0.95em;
+    line-height: 1;
+    font-weight: 600;
+}
+
+.reaction-count-active {
+    color: var(--color-primary);
+}
+
+.reaction-count-negative.reaction-count-active {
+    color: var(--color-danger);
+}
+
+/* ---------------------------------------------------------
+   Legacy reaction icon state
+   - 혹시 남아 있는 구형 reaction-icon class 호환용
+   --------------------------------------------------------- */
+
+.reaction-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+}
+
+.reaction-icon-active {
+    color: var(--color-primary);
+}
+
+.reaction-icon-negative.reaction-icon-active {
+    color: var(--color-danger);
+}

@@ -1,26 +1,138 @@
 package com.gahih.domain.admin.controller;
 
-import com.gahih.domain.admin.service.AdminService;
+import com.gahih.domain.admin.dto.AdminCommentSearchCondition;
+import com.gahih.domain.admin.enumtype.AdminCommentSearchType;
+import com.gahih.domain.admin.enumtype.AdminCommentSortType;
+import com.gahih.domain.admin.service.AdminCommentService;
+import com.gahih.domain.category.service.CategoryService;
 import com.gahih.domain.comment.dto.CommentSearchCondition;
 import com.gahih.domain.comment.enumtype.CommentSortType;
+import com.gahih.domain.comment.enumtype.CommentStatus;
 import com.gahih.domain.member.session.LoginMember;
 import com.gahih.domain.post.dto.PostDetailContext;
 import com.gahih.global.argumentresolver.Login;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.util.UriUtils;
 
 import java.nio.charset.StandardCharsets;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/c/{communityCode}/admin/comments")
 public class AdminCommentController {
 
-    private final AdminService adminService;
+    private final AdminCommentService adminCommentService;
+    private final CategoryService categoryService;
 
-    @PostMapping("/{commentId}/blind")
+    @GetMapping("/admin/comments")
+    public String globalCommentList(
+            @Login LoginMember loginMember,
+            @ModelAttribute("condition") AdminCommentSearchCondition condition,
+            Model model
+    ) {
+        condition.setCommunityCode(null);
+
+        model.addAttribute("loginMember", loginMember);
+        model.addAttribute("commentPage", adminCommentService.searchComments(condition));
+        model.addAttribute("searchTypes", AdminCommentSearchType.values());
+        model.addAttribute("sortTypes", AdminCommentSortType.values());
+        model.addAttribute("statuses", CommentStatus.values());
+        return "admin/comments/admin-comment-list";
+    }
+
+    @PostMapping("/admin/comments/{commentId}/blind-from-list")
+    public String globalBlindCommentFromList(
+            @Login LoginMember loginMember,
+            @PathVariable Long commentId,
+            @RequestParam(required = false) String searchType,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) Integer page,
+            RedirectAttributes redirectAttributes
+    ) {
+        adminCommentService.blindComment(loginMember.getId(), commentId);
+        addAdminCommentSearchRedirectAttributes(searchType, keyword, status, sort, size, page, redirectAttributes);
+        return "redirect:/admin/comments";
+    }
+
+    @PostMapping("/admin/comments/{commentId}/delete-from-list")
+    public String globalDeleteCommentFromList(
+            @Login LoginMember loginMember,
+            @PathVariable Long commentId,
+            @RequestParam(required = false) String searchType,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) Integer page,
+            RedirectAttributes redirectAttributes
+    ) {
+        adminCommentService.deleteComment(loginMember.getId(), commentId);
+        addAdminCommentSearchRedirectAttributes(searchType, keyword, status, sort, size, page, redirectAttributes);
+        return "redirect:/admin/comments";
+    }
+
+    @PostMapping("/admin/comments/{commentId}/restore-from-list")
+    public String globalRestoreCommentFromList(
+            @Login LoginMember loginMember,
+            @PathVariable Long commentId,
+            @RequestParam(required = false) String searchType,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) Integer page,
+            RedirectAttributes redirectAttributes
+    ) {
+        adminCommentService.restoreComment(loginMember.getId(), commentId);
+        addAdminCommentSearchRedirectAttributes(searchType, keyword, status, sort, size, page, redirectAttributes);
+        return "redirect:/admin/comments";
+    }
+
+    @PostMapping("/admin/comments/{commentId}/hard-delete-from-list")
+    public String globalHardDeleteCommentFromList(
+            @Login LoginMember loginMember,
+            @PathVariable Long commentId,
+            @RequestParam(required = false) String searchType,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) String reason,
+            RedirectAttributes redirectAttributes
+    ) {
+        adminCommentService.hardDeleteComment(loginMember.getId(), commentId, reason);
+        addAdminCommentSearchRedirectAttributes(searchType, keyword, status, sort, size, page, redirectAttributes);
+        return "redirect:/admin/comments";
+    }
+
+    @GetMapping("/c/{communityCode}/admin/comments")
+    public String commentList(
+            @PathVariable String communityCode,
+            @Login LoginMember loginMember,
+            @ModelAttribute("condition") AdminCommentSearchCondition condition,
+            Model model
+    ) {
+        condition.setCommunityCode(communityCode);
+
+        model.addAttribute("loginMember", loginMember);
+        model.addAttribute("currentCommunity", categoryService.findCommunity(communityCode));
+        model.addAttribute("headerCategories", categoryService.findHeaderCategories(communityCode));
+        model.addAttribute("commentPage", adminCommentService.searchComments(condition));
+        model.addAttribute("searchTypes", AdminCommentSearchType.values());
+        model.addAttribute("sortTypes", AdminCommentSortType.values());
+        model.addAttribute("statuses", CommentStatus.values());
+
+        return "admin/comments/admin-comment-list";
+    }
+
+    @PostMapping("/c/{communityCode}/admin/comments/{commentId}/blind")
     public String blindComment(
             @PathVariable String communityCode,
             @Login LoginMember loginMember,
@@ -31,11 +143,11 @@ public class AdminCommentController {
             @RequestParam(name = "commentSort", required = false) CommentSortType commentSort,
             @RequestParam(name = "commentPage", defaultValue = "1") int commentPage
     ) {
-        adminService.blindComment(loginMember.getId(), commentId);
+        adminCommentService.blindComment(loginMember.getId(), commentId);
         return redirectToPostDetail(communityCode, postId, fromCreate, detailContext, commentCondition(commentSort, commentPage));
     }
 
-    @PostMapping("/{commentId}/restore")
+    @PostMapping("/c/{communityCode}/admin/comments/{commentId}/restore")
     public String restoreComment(
             @PathVariable String communityCode,
             @Login LoginMember loginMember,
@@ -46,11 +158,11 @@ public class AdminCommentController {
             @RequestParam(name = "commentSort", required = false) CommentSortType commentSort,
             @RequestParam(name = "commentPage", defaultValue = "1") int commentPage
     ) {
-        adminService.restoreComment(loginMember.getId(), commentId);
+        adminCommentService.restoreComment(loginMember.getId(), commentId);
         return redirectToPostDetail(communityCode, postId, fromCreate, detailContext, commentCondition(commentSort, commentPage));
     }
 
-    @PostMapping("/{commentId}/delete")
+    @PostMapping("/c/{communityCode}/admin/comments/{commentId}/delete")
     public String deleteComment(
             @PathVariable String communityCode,
             @Login LoginMember loginMember,
@@ -61,11 +173,11 @@ public class AdminCommentController {
             @RequestParam(name = "commentSort", required = false) CommentSortType commentSort,
             @RequestParam(name = "commentPage", defaultValue = "1") int commentPage
     ) {
-        adminService.deleteComment(loginMember.getId(), commentId);
+        adminCommentService.deleteComment(loginMember.getId(), commentId);
         return redirectToPostDetail(communityCode, postId, fromCreate, detailContext, commentCondition(commentSort, commentPage));
     }
 
-    @PostMapping("/{commentId}/hard-delete")
+    @PostMapping("/c/{communityCode}/admin/comments/{commentId}/hard-delete")
     public String hardDeleteComment(
             @PathVariable String communityCode,
             @Login LoginMember loginMember,
@@ -77,8 +189,81 @@ public class AdminCommentController {
             @RequestParam(name = "commentSort", required = false) CommentSortType commentSort,
             @RequestParam(name = "commentPage", defaultValue = "1") int commentPage
     ) {
-        adminService.hardDeleteComment(loginMember.getId(), commentId, reason);
+        adminCommentService.hardDeleteComment(loginMember.getId(), commentId, reason);
         return redirectToPostDetail(communityCode, postId, fromCreate, detailContext, commentCondition(commentSort, commentPage));
+    }
+
+    @PostMapping("/c/{communityCode}/admin/comments/{commentId}/blind-from-list")
+    public String blindCommentFromList(
+            @PathVariable String communityCode,
+            @Login LoginMember loginMember,
+            @PathVariable Long commentId,
+            @RequestParam(required = false) String searchType,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) Integer page,
+            RedirectAttributes redirectAttributes
+    ) {
+        adminCommentService.blindComment(loginMember.getId(), commentId);
+        addAdminCommentSearchRedirectAttributes(searchType, keyword, status, sort, size, page, redirectAttributes);
+        return "redirect:/c/" + communityCode + "/admin/comments";
+    }
+
+    @PostMapping("/c/{communityCode}/admin/comments/{commentId}/delete-from-list")
+    public String deleteCommentFromList(
+            @PathVariable String communityCode,
+            @Login LoginMember loginMember,
+            @PathVariable Long commentId,
+            @RequestParam(required = false) String searchType,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) Integer page,
+            RedirectAttributes redirectAttributes
+    ) {
+        adminCommentService.deleteComment(loginMember.getId(), commentId);
+        addAdminCommentSearchRedirectAttributes(searchType, keyword, status, sort, size, page, redirectAttributes);
+        return "redirect:/c/" + communityCode + "/admin/comments";
+    }
+
+    @PostMapping("/c/{communityCode}/admin/comments/{commentId}/restore-from-list")
+    public String restoreCommentFromList(
+            @PathVariable String communityCode,
+            @Login LoginMember loginMember,
+            @PathVariable Long commentId,
+            @RequestParam(required = false) String searchType,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) Integer page,
+            RedirectAttributes redirectAttributes
+    ) {
+        adminCommentService.restoreComment(loginMember.getId(), commentId);
+        addAdminCommentSearchRedirectAttributes(searchType, keyword, status, sort, size, page, redirectAttributes);
+        return "redirect:/c/" + communityCode + "/admin/comments";
+    }
+
+    @PostMapping("/c/{communityCode}/admin/comments/{commentId}/hard-delete-from-list")
+    public String hardDeleteCommentFromList(
+            @PathVariable String communityCode,
+            @Login LoginMember loginMember,
+            @PathVariable Long commentId,
+            @RequestParam(required = false) String searchType,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) String reason,
+            RedirectAttributes redirectAttributes
+    ) {
+        adminCommentService.hardDeleteComment(loginMember.getId(), commentId, reason);
+        addAdminCommentSearchRedirectAttributes(searchType, keyword, status, sort, size, page, redirectAttributes);
+        return "redirect:/c/" + communityCode + "/admin/comments";
     }
 
     private CommentSearchCondition commentCondition(CommentSortType commentSort, int commentPage) {
@@ -170,5 +355,22 @@ public class AdminCommentController {
         sb.append("&commentPage=").append(commentCondition.getSafePage());
 
         return sb.toString();
+    }
+
+    private void addAdminCommentSearchRedirectAttributes(
+            String searchType,
+            String keyword,
+            String status,
+            String sort,
+            Integer size,
+            Integer page,
+            RedirectAttributes redirectAttributes
+    ) {
+        redirectAttributes.addAttribute("searchType", searchType);
+        redirectAttributes.addAttribute("keyword", keyword);
+        redirectAttributes.addAttribute("status", status);
+        redirectAttributes.addAttribute("sort", sort);
+        redirectAttributes.addAttribute("size", size == null ? 20 : size);
+        redirectAttributes.addAttribute("page", page == null || page < 1 ? 1 : page);
     }
 }

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="memberMypageProfile">
+    <div class="card">
+        <h2 class="card-title">내 정보</h2>
+
+        <p><strong>아이디:</strong> <span th:text="${member.username}"></span></p>
+        <p><strong>닉네임:</strong> <span th:text="${member.nickname}"></span></p>
+        <p><strong>이메일:</strong> <span th:text="${member.email}"></span></p>
+        <p><strong>권한:</strong> <span th:text="${member.role}"></span></p>
+        <p><strong>상태:</strong> <span th:text="${member.status}"></span></p>
+    </div>
+</th:block>
+
+</html>
