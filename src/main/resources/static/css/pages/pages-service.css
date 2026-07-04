@@ -1,0 +1,95 @@
+/* =========================================================
+   Page: 서비스 안내/정책 문서
+   - 이용약관, 개인정보 처리방침, 운영정책, 면책조항, 운영문의
+   - 정책 문서 내 표 가독성 개선
+   ========================================================= */
+
+.table-scroll {
+    margin: 14px 0 20px;
+
+    overflow-x: auto;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+
+    background: var(--color-surface);
+    box-shadow: var(--shadow-sm);
+}
+
+.policy-table {
+    width: 100%;
+    min-width: 640px;
+
+    border-collapse: separate;
+    border-spacing: 0;
+
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.policy-table th,
+.policy-table td {
+    padding: 13px 14px;
+
+    border-right: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+
+    text-align: left;
+    vertical-align: top;
+}
+
+.policy-table th:last-child,
+.policy-table td:last-child {
+    border-right: none;
+}
+
+.policy-table tr:last-child td {
+    border-bottom: none;
+}
+
+.policy-table thead th {
+    background: #F9FAFB;
+
+    color: var(--color-text);
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+.policy-table tbody td:first-child {
+    width: 28%;
+
+    background: rgba(31, 111, 97, 0.04);
+
+    color: var(--color-text);
+    font-weight: 600;
+}
+
+.policy-table tbody tr:hover td {
+    background: rgba(31, 111, 97, 0.03);
+}
+
+.policy-table tbody tr:hover td:first-child {
+    background: rgba(31, 111, 97, 0.07);
+}
+
+/* =========================================================
+   Page Responsive: 서비스 정책 표
+   ========================================================= */
+
+@media (max-width: 640px) {
+    .table-scroll {
+        margin: 12px 0 18px;
+        border-radius: var(--radius-sm);
+    }
+
+    .policy-table {
+        min-width: 560px;
+        font-size: 0.9rem;
+    }
+
+    .policy-table th,
+    .policy-table td {
+        padding: 11px 12px;
+    }
+}
