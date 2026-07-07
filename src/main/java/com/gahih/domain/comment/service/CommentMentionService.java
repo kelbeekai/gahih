@@ -252,6 +252,10 @@ public class CommentMentionService {
             return false;
         }
 
+        if (!post.getCategory().isCommentAllowed()) {
+            return false;
+        }
+
         if (!post.isSecret()) {
             return true;
         }
@@ -293,15 +297,7 @@ public class CommentMentionService {
     }
 
     private boolean isMentionAllowed(Post post) {
-
-/*
-        if (!isMentionAllowed(comment.getPost())) {
-            commentMentionRepository.deleteAllByCommentId(comment.getId());
-            return;
-        }
-*/
-
-        return true;
+        return post != null && post.getCategory().isCommentAllowed();
     }
 
     // 마이페이지 나를 언급한 댓글 카드 미리보기에서 태그 부분은 빼고 진짜 내용만 보여주기

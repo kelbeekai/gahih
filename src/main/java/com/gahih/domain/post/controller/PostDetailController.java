@@ -98,7 +98,7 @@ public class PostDetailController {
 
         LinkedHashSet<String> mentionableNicknames = new LinkedHashSet<>();
 
-        if (loginMember != null && postDetail.isViewable()) {
+        if (loginMember != null && postDetail.isViewable() && postDetail.isCommentAllowed()) {
             Member commentWriter = memberAccountService.getMember(loginMember.getId());
 
             if (postDetail.isMentionableWriter()) {

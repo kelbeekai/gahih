@@ -212,6 +212,10 @@ public class CommentListService {
             return false;
         }
 
+        if (!post.getCategory().isCommentAllowed()) {
+            return false;
+        }
+
         if (!post.isSecret()) {
             return true;
         }

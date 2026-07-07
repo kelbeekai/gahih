@@ -122,6 +122,7 @@ public class PostDetailService {
 
         boolean mentionableWriter = secretViewable
                 && contentAvailable
+                && post.getCategory().isCommentAllowed()
                 && isMentionableWriter(
                 post.getMember(),
                 loginMemberId,
@@ -215,6 +216,10 @@ public class PostDetailService {
 
     private boolean canUseMentionInPost(Post post, Long viewerId, boolean viewerAdmin) {
         if (post == null || viewerId == null) {
+            return false;
+        }
+
+        if (!post.getCategory().isCommentAllowed()) {
             return false;
         }
 
