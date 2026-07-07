@@ -188,6 +188,10 @@ public class CommentMentionService {
     }
 
     private Map<String, Member> getAllowedMentionMemberMap(Post post, Member commentWriter) {
+        if (!canUseMentionInPost(post, commentWriter)) {
+            return Map.of();
+        }
+
         Map<Long, Member> participantMap = new LinkedHashMap<>();
 
         Member postWriter = post.getMember();
@@ -216,7 +220,11 @@ public class CommentMentionService {
     }
 
     private boolean isMentionTargetAllowed(Member targetMember, Member commentWriter, Post post) {
-        if (targetMember == null || commentWriter == null) {
+        if (targetMember == null || commentWriter == null || post == null) {
+            return false;
+        }
+
+        if (!isMentionTargetAllowedInSecretPost(post, targetMember)) {
             return false;
         }
 
@@ -224,14 +232,48 @@ public class CommentMentionService {
             return false;
         }
 
+        boolean inquiryPost = post.getCategory().isCode(CategoryCode.INQUIRY);
+
+        if (targetMember.isAdmin()) {
+            return inquiryPost && targetMember.isActive();
+        }
+
         if (targetMember.isActive()) {
             return true;
         }
 
-        boolean inquiryPost = post.getCategory().isCode(CategoryCode.INQUIRY);
         boolean writerAdmin = commentWriter.isAdmin();
 
         return writerAdmin && inquiryPost && targetMember.isSuspended();
+    }
+
+    private boolean canUseMentionInPost(Post post, Member commentWriter) {
+        if (post == null || commentWriter == null) {
+            return false;
+        }
+
+        if (!post.isSecret()) {
+            return true;
+        }
+
+        if (commentWriter.isAdmin()) {
+            return true;
+        }
+
+        return post.getMember().getId().equals(commentWriter.getId());
+    }
+
+    private boolean isMentionTargetAllowedInSecretPost(Post post, Member targetMember) {
+        if (post == null || targetMember == null) {
+            return false;
+        }
+
+        if (!post.isSecret()) {
+            return true;
+        }
+
+        return targetMember.isAdmin()
+                || post.getMember().getId().equals(targetMember.getId());
     }
 
     private String resolveMentionDisplayNickname(Member member) {

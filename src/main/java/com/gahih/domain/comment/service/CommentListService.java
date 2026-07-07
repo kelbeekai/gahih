@@ -176,7 +176,15 @@ public class CommentListService {
      * 로그인 관리자: ACTIVE 타인 + 이용문의의 정지 회원 버튼
      */
     private boolean isMentionableWriter(Member targetMember, Long viewerId, boolean viewerAdmin, Post post, boolean commentActive) {
-        if (!commentActive || targetMember == null || viewerId == null) {
+        if (!commentActive || targetMember == null || viewerId == null || post == null) {
+            return false;
+        }
+
+        if (!canUseMentionInPost(post, viewerId, viewerAdmin)) {
+            return false;
+        }
+
+        if (!isMentionTargetAllowedInSecretPost(post, targetMember)) {
             return false;
         }
 
@@ -184,12 +192,47 @@ public class CommentListService {
             return false;
         }
 
+        boolean inquiryPost = post.getCategory().isCode(CategoryCode.INQUIRY);
+
+        if (targetMember.isAdmin()) {
+            return inquiryPost && targetMember.isActive();
+        }
+
         if (targetMember.isActive()) {
             return true;
         }
 
         return viewerAdmin
-                && post.getCategory().isCode(CategoryCode.INQUIRY)
+                && inquiryPost
                 && targetMember.isSuspended();
+    }
+
+    private boolean canUseMentionInPost(Post post, Long viewerId, boolean viewerAdmin) {
+        if (post == null || viewerId == null) {
+            return false;
+        }
+
+        if (!post.isSecret()) {
+            return true;
+        }
+
+        if (viewerAdmin) {
+            return true;
+        }
+
+        return post.getMember().getId().equals(viewerId);
+    }
+
+    private boolean isMentionTargetAllowedInSecretPost(Post post, Member targetMember) {
+        if (post == null || targetMember == null) {
+            return false;
+        }
+
+        if (!post.isSecret()) {
+            return true;
+        }
+
+        return targetMember.isAdmin()
+                || post.getMember().getId().equals(targetMember.getId());
     }
 }

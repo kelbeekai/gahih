@@ -98,7 +98,7 @@ public class PostDetailController {
 
         LinkedHashSet<String> mentionableNicknames = new LinkedHashSet<>();
 
-        if (loginMember != null) {
+        if (loginMember != null && postDetail.isViewable()) {
             Member commentWriter = memberAccountService.getMember(loginMember.getId());
 
             if (postDetail.isMentionableWriter()) {
@@ -119,7 +119,10 @@ public class PostDetailController {
         model.addAttribute("mentionableNicknames", List.copyOf(mentionableNicknames));
 
         CommentCreateRequest commentCreateRequest = new CommentCreateRequest();
-        if (loginMember != null && mention != null && !mention.isBlank()) {
+        if (loginMember != null
+                && mention != null
+                && !mention.isBlank()
+                && mentionableNicknames.contains(mention)) {
             commentCreateRequest.setContent("@" + mention + " ");
         }
 

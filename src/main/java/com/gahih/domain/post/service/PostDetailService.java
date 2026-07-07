@@ -120,7 +120,9 @@ public class PostDetailService {
 
         boolean writerAdmin = post.getMember().getRole() == MemberRole.ADMIN;
 
-        boolean mentionableWriter = isMentionableWriter(
+        boolean mentionableWriter = secretViewable
+                && contentAvailable
+                && isMentionableWriter(
                 post.getMember(),
                 loginMemberId,
                 isAdmin,
@@ -184,7 +186,11 @@ public class PostDetailService {
      * 관리자 예외 정책 유지
      */
     private boolean isMentionableWriter(Member targetMember, Long viewerId, boolean viewerAdmin, Post post) {
-        if (targetMember == null || viewerId == null) {
+        if (targetMember == null || viewerId == null || post == null) {
+            return false;
+        }
+
+        if (!canUseMentionInPost(post, viewerId, viewerAdmin)) {
             return false;
         }
 
@@ -192,13 +198,35 @@ public class PostDetailService {
             return false;
         }
 
+        boolean inquiryPost = post.getCategory().isCode(CategoryCode.INQUIRY);
+
+        if (targetMember.isAdmin()) {
+            return inquiryPost && targetMember.isActive();
+        }
+
         if (targetMember.isActive()) {
             return true;
         }
 
         return viewerAdmin
-                && post.getCategory().isCode(CategoryCode.INQUIRY)
+                && inquiryPost
                 && targetMember.isSuspended();
+    }
+
+    private boolean canUseMentionInPost(Post post, Long viewerId, boolean viewerAdmin) {
+        if (post == null || viewerId == null) {
+            return false;
+        }
+
+        if (!post.isSecret()) {
+            return true;
+        }
+
+        if (viewerAdmin) {
+            return true;
+        }
+
+        return post.getMember().getId().equals(viewerId);
     }
 
     private void validatePostInCommunity(Post post, String communityCode) {
