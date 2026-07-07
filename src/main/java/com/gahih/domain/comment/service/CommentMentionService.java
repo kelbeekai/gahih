@@ -235,7 +235,8 @@ public class CommentMentionService {
         boolean inquiryPost = post.getCategory().isCode(CategoryCode.INQUIRY);
 
         if (targetMember.isAdmin()) {
-            return inquiryPost && targetMember.isActive();
+            return targetMember.isActive()
+                    && (commentWriter.isAdmin() || inquiryPost);
         }
 
         if (targetMember.isActive()) {

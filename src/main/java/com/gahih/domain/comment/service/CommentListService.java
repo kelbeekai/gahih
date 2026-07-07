@@ -172,8 +172,9 @@ public class CommentListService {
 
     /**
      * 비로그인: 무조건 false → 댓글 작성자 버튼 안 보임
-     * 로그인 일반 회원: ACTIVE 타인만 버튼
-     * 로그인 관리자: ACTIVE 타인 + 이용문의의 정지 회원 버튼
+     * 로그인 일반 회원: ACTIVE 타인만 버튼, 관리자는 이용문의에서만 버튼
+     * 로그인 관리자: ACTIVE 타인 + ACTIVE 관리자 + 이용문의의 정지 회원 버튼
+     * 댓글 불가 게시판/비밀글 비열람자는 mention 사용 불가
      */
     private boolean isMentionableWriter(Member targetMember, Long viewerId, boolean viewerAdmin, Post post, boolean commentActive) {
         if (!commentActive || targetMember == null || viewerId == null || post == null) {
@@ -195,7 +196,8 @@ public class CommentListService {
         boolean inquiryPost = post.getCategory().isCode(CategoryCode.INQUIRY);
 
         if (targetMember.isAdmin()) {
-            return inquiryPost && targetMember.isActive();
+            return targetMember.isActive()
+                    && (viewerAdmin || inquiryPost);
         }
 
         if (targetMember.isActive()) {

@@ -202,7 +202,8 @@ public class PostDetailService {
         boolean inquiryPost = post.getCategory().isCode(CategoryCode.INQUIRY);
 
         if (targetMember.isAdmin()) {
-            return inquiryPost && targetMember.isActive();
+            return targetMember.isActive()
+                    && (viewerAdmin || inquiryPost);
         }
 
         if (targetMember.isActive()) {
