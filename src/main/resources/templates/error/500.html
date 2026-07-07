@@ -4,7 +4,7 @@
     <th:block th:replace="~{fragments/layout :: commonHeadContent('서버 오류')}"></th:block>
 </head>
 <body>
-<div th:replace="~{fragments/header :: siteHeader(null)}"></div>
+<div th:replace="~{fragments/header :: siteHeader(${loginMember})}"></div>
 <main class="error-page">
     <div th:replace="~{fragments/layout :: errorCard('500', '서버 오류가 발생했습니다.', ${message})}"></div>
     <div class="actions error-actions">

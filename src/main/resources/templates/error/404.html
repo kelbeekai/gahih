@@ -4,7 +4,7 @@
     <th:block th:replace="~{fragments/layout :: commonHeadContent('페이지를 찾을 수 없음')}"></th:block>
 </head>
 <body>
-<div th:replace="~{fragments/header :: siteHeader(null)}"></div>
+<div th:replace="~{fragments/header :: siteHeader(${loginMember})}"></div>
 <main class="error-page">
     <div th:replace="~{fragments/layout :: errorCard('404', '페이지를 찾을 수 없습니다.', ${message})}"></div>
     <div class="actions error-actions">

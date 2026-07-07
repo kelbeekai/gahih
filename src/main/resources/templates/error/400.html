@@ -4,7 +4,7 @@
     <th:block th:replace="~{fragments/layout :: commonHeadContent('잘못된 요청')}"></th:block>
 </head>
 <body>
-<div th:replace="~{fragments/header :: siteHeader(null)}"></div>
+<div th:replace="~{fragments/header :: siteHeader(${loginMember})}"></div>
 <main class="error-page">
     <div th:replace="~{fragments/layout :: errorCard('400', '잘못된 요청입니다.', ${message})}"></div>
     <div class="actions error-actions">
