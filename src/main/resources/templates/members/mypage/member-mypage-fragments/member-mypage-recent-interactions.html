@@ -69,41 +69,42 @@
          th:if="${mentionedComments != null and !#lists.isEmpty(mentionedComments)}">
         <h3>나를 언급한 댓글</h3>
 
-        <table>
-            <thead>
-            <tr>
-                <th>게시글</th>
-                <th>댓글 미리보기</th>
-                <th>시각</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="item : ${mentionedComments}">
-                <td>
-                    <span style="color:#666;" th:text="|[${item.categoryName}]|"></span>
-                    <a th:if="${currentCommunity != null}"
+        <div class="mypage-mention-list">
+            <div class="mypage-mention-item" th:each="item : ${mentionedComments}">
+                <div class="mypage-mention-post">
+                    <span class="mypage-mention-category" th:text="|[${item.categoryName}]|"></span>
+
+                    <a class="mypage-mention-title"
+                       th:if="${currentCommunity != null}"
                        th:href="@{/c/{communityCode}/posts/{id}(
-                            communityCode=${currentCommunity.code},
-                            id=${item.postId},
-                            source=${T(com.gahih.domain.post.enumtype.PostDetailSource).POST_LIST}
-                        )}"
+                    communityCode=${currentCommunity.code},
+                    id=${item.postId},
+                    source=${T(com.gahih.domain.post.enumtype.PostDetailSource).POST_LIST}
+                )}"
                        th:text="${item.postTitle}">
                     </a>
 
-                    <a th:if="${currentCommunity == null}"
+                    <a class="mypage-mention-title"
+                       th:if="${currentCommunity == null}"
                        th:href="@{/c/{communityCode}/posts/{id}(
-                            communityCode=${item.communityCode},
-                            id=${item.postId},
-                            source=${T(com.gahih.domain.post.enumtype.PostDetailSource).POST_LIST}
-                        )}"
+                    communityCode=${item.communityCode},
+                    id=${item.postId},
+                    source=${T(com.gahih.domain.post.enumtype.PostDetailSource).POST_LIST}
+                )}"
                        th:text="${item.postTitle}">
                     </a>
-                </td>
-                <td th:text="${item.commentPreview}"></td>
-                <td th:text="${#temporals.format(item.mentionedAt, 'yyyy-MM-dd HH:mm')}"></td>
-            </tr>
-            </tbody>
-        </table>
+                </div>
+
+                <div class="mypage-mention-preview" th:text="${item.commentPreview}">
+                    댓글 미리보기
+                </div>
+
+                <div class="mypage-mention-time"
+                     th:text="${#temporals.format(item.mentionedAt, 'yyyy-MM-dd HH:mm')}">
+                    2026-07-09 12:00
+                </div>
+            </div>
+        </div>
 
         <p class="text-muted" style="margin-top: 12px;"
            th:text="${member.suspended}

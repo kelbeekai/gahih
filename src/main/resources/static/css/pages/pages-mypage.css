@@ -125,3 +125,78 @@
     font-weight: 600;
     white-space: nowrap;
 }
+
+/* =========================================================
+   Page: 마이페이지 나를 언급한 댓글
+   ========================================================= */
+
+.mypage-mention-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.mypage-mention-item {
+    display: grid;
+    grid-template-columns: minmax(180px, 1.2fr) minmax(220px, 1.6fr) max-content;
+    gap: 18px;
+    align-items: center;
+
+    padding: 12px 14px;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+}
+
+.mypage-mention-post {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+
+    min-width: 0;
+}
+
+.mypage-mention-category {
+    flex: 0 0 auto;
+    color: var(--color-text-muted);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.mypage-mention-title {
+    min-width: 0;
+    overflow: hidden;
+
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.mypage-mention-preview {
+    min-width: 0;
+    overflow: hidden;
+
+    color: var(--color-text);
+    font-size: 0.94rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.mypage-mention-time {
+    color: var(--color-text-muted);
+    font-size: 0.88rem;
+    white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+    .mypage-mention-item {
+        grid-template-columns: 1fr;
+        gap: 6px;
+        align-items: start;
+    }
+
+    .mypage-mention-time {
+        font-size: 0.84rem;
+    }
+}
