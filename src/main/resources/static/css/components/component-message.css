@@ -26,6 +26,33 @@
     font-size: 0.92rem;
 }
 
+.form-guide-box {
+    margin: 0 0 16px;
+    padding: 12px 14px;
+
+    border: 1px solid rgba(31, 111, 97, 0.22);
+    border-radius: var(--radius-sm);
+    background: rgba(31, 111, 97, 0.06);
+}
+
+.form-guide-title {
+    margin: 0 0 6px;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.form-guide-list {
+    margin: 0;
+    padding-left: 18px;
+    color: var(--color-text-muted);
+    font-size: 0.92em;
+    line-height: 1.6;
+}
+
+.form-guide-list li {
+    margin: 0;
+}
+
 .hidden {
     display: none !important;
 }
