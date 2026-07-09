@@ -275,15 +275,16 @@ docs/test/
 프로젝트 문서는 다음 순서로 읽는 것을 권장한다.
 
 1. `README.md`
-2. `docs/00-overview/project-overview.md`
-3. `docs/00-overview/directory-structure.md`
-4. `docs/policies/terms.md`
-5. `docs/policies/privacy-policy.md`
-6. `docs/policies/operation-policy.md`
-7. `deploy/README.md`
-8. `docs/test/01-feature-inventory.md`
-9. `docs/test/02-core-flows.md`
-10. `docs/test/03-final-regression-checklist.md`
+2. `docs/00-overview/portfolio-summary.md`
+3. `docs/00-overview/project-overview.md`
+4. `docs/00-overview/directory-structure.md`
+5. `docs/policies/terms.md`
+6. `docs/policies/privacy-policy.md`
+7. `docs/policies/operation-policy.md`
+8. `deploy/README.md`
+9. `docs/test/01-feature-inventory.md`
+10. `docs/test/02-core-flows.md`
+11. `docs/test/03-final-regression-checklist.md`
 
 ## 11. 이 프로젝트를 통해 다룬 학습 주제
 

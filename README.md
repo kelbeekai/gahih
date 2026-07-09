@@ -175,6 +175,7 @@ docs/test/
 docs/
  ├ 00-overview/
  │  ├ project-overview.md
+ │  ├ portfolio-summary.md
  │  ├ directory-structure.md
  │  └ THIRD-PARTY-NOTICES.md
  ├ policies/
