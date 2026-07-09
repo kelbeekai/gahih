@@ -1,128 +1,223 @@
-# GAHIH
-Global Korean community platform
+# 가힣 (GAHIH)
 
-Global Asian Hub for International Hangouts
+가힣는 해외 거주 한인과 한국에 관심 있는 사용자를 위한 **국가별 커뮤니티 서비스**입니다.
 
-Named after the first and last characters of the Korean alphabet
-("가" to "힣"), symbolizing the full spectrum of Korean language and culture.
+프로젝트 이름은 한글의 시작과 끝인 `가`와 `힣`에서 가져왔으며, 다양한 국가와 상황에 놓인 사용자가 한국어 기반으로 정보를 나누는 공간을 목표로 합니다.
 
-GAHIH는 해외에 거주하는 한인 및 한국에 관심 있는 사람들을 위한
-**국제 한인 커뮤니티 플랫폼**입니다.
+## 1. 프로젝트 목표
 
-사용자들이 지역 기반으로 소통하고 정보를 공유하며
-모임, 생활 정보, 취업 정보 등을 나눌 수 있는 커뮤니티 서비스를 목표로 합니다.
+가힣는 단순 게시판 CRUD를 넘어, 실제 서비스 운영에 필요한 흐름을 직접 설계하고 구현하는 것을 목표로 한 포트폴리오 프로젝트입니다.
 
----
+주요 목표는 다음과 같습니다.
 
-# 📌 Project Overview
+* 국가별 커뮤니티 구조 설계
+* 회원가입, 로그인, 이메일 인증, 계정 복구 흐름 구현
+* 게시글, 댓글, 첨부파일, 반응, 신고 기능 구현
+* 비밀글, 고정글, 구인구직 댓글 제한 등 게시판별 운영 정책 구현
+* 관리자 조치, 신고 처리, 관리자 로그 기록 구현
+* 개발 환경과 운영 환경 분리
+* 운영 DB 스키마 검증 및 배포 전 회귀 테스트 수행
 
-GAHIH는 다음과 같은 문제를 해결하기 위해 시작된 프로젝트입니다.
-
-* 해외 거주 한인들이 정보를 얻기 어려움
-* 지역 기반 커뮤니티 부족
-* 모임 및 네트워킹 플랫폼 부족
-
-이를 해결하기 위해 **지역 기반 글로벌 한인 커뮤니티 플랫폼**을 개발합니다.
-
----
-
-# 🛠 Tech Stack (예정)
+## 2. 기술 스택
 
 ### Backend
 
-* Java
-* Spring Boot
+* Java 17
+* Spring Boot 3.5.x
 * Spring MVC
 * Spring Data JPA
+* Spring Security
+* QueryDSL
+* Thymeleaf
+* Lombok
+* Jakarta Validation
 
 ### Database
 
-* H2 (Development)
-* MySQL (Production 예정)
+* H2 Database: 개발 환경
+* MySQL 8: 운영 환경
+
+### Build / Runtime
+
+* Gradle
+* Spring Boot executable JAR
+* Session 기반 인증
+* CSRF 보호
+* 환경변수 기반 운영 설정
 
 ### Frontend
 
-* Thymeleaf (초기 버전)
-* React / Next.js (확장 가능성)
+* Thymeleaf 서버 사이드 렌더링
+* HTML / CSS / JavaScript
+* 반응형 UI 일부 적용
+* 기능별 CSS/JS 분리
 
-### Infrastructure (예정)
+## 3. 주요 기능
 
-* AWS
-* Docker
-* GitHub Actions (CI/CD)
+### 회원 및 인증
 
----
+* 회원가입
+* 로그인 / 로그아웃
+* 세션 기반 로그인 유지
+* 이메일 인증
+* 아이디 찾기
+* 비밀번호 찾기
+* 내 정보 수정
+* 비밀번호 변경
+* 회원 탈퇴
+* 닉네임 변경 제한 정책
+* 정지 / 탈퇴 / 최종 종료 회원 상태 관리
 
-# ✨ Main Features (Planned)
+### 국가별 커뮤니티
 
-### User
+* 국가 선택 게이트
+* 독일 / 일본 커뮤니티 초기 구성
+* 국가별 게시판 목록
+* 국가별 관리자 화면
+* 전역 관리자 모니터링 화면
 
-* 회원가입 / 로그인
-* 프로필 관리
-* 지역 설정
+### 게시글
 
-### Community
+* 게시글 작성 / 조회 / 수정 / 삭제
+* 카테고리별 게시판
+* 검색 / 정렬 / 페이지네이션
+* 고정글
+* 비밀글
+* 조회수 정책
+* 이전 / 다음 글 이동
+* 상세 하단 목록 컨텍스트 유지
 
-* 게시글 작성
-* 댓글 기능
-* 좋아요 기능
+### 댓글 및 반응
 
-### Regional Community
+* 댓글 작성 / 수정 / 삭제
+* 댓글 정렬 / 페이지네이션
+* 게시글 좋아요 / 싫어요
+* 댓글 좋아요 / 싫어요
+* 댓글 mention 기능
+* 게시판 정책에 따른 mention 제한
+* 구인구직 게시판 댓글 / 반응 제한
 
-* 국가 / 도시 기반 커뮤니티
-* 지역별 정보 공유
+### 첨부파일
 
-### Networking
+* 파일 업로드
+* 이미지 미리보기
+* 첨부파일 다운로드
+* ZIP 다운로드
+* 파일 크기 제한
+* 다운로드 횟수 기록
+* 첨부파일 신고
 
-* 모임 게시판
-* 이벤트 생성
+### 신고 및 관리자 기능
 
----
+* 게시글 신고
+* 댓글 신고
+* 첨부파일 신고
+* 작성자 신고
+* 중복 신고 제한
+* 신고 처리
+* 게시글 블라인드 / 복구 / 삭제 / 영구삭제
+* 댓글 블라인드 / 복구 / 삭제 / 영구삭제
+* 회원 정지 / 해제 / 역할 변경 / 최종 종료
+* 관리자 로그 기록
+* 관리자 조치 사유 기록
+* 관리자 로그 snapshot 조회
 
-# 📂 Project Structure
+### 운영 정책
+
+* 비밀글은 작성자와 관리자 중심으로 열람 제한
+* 이용문의 게시판은 비밀글과 관리자 응답 흐름 지원
+* 구인구직 게시판은 비방과 분쟁 방지를 위해 댓글과 반응 제한
+* 관리자 mention은 운영 정책에 맞게 제한
+* 탈퇴 회원 콘텐츠와 닉네임 노출 정책 분리
+* 오류 페이지에서 로그인 상태와 국가 컨텍스트 유지
+* 잘못된 요청 형식은 400 오류로 분류
+
+## 4. 운영 환경 구성
+
+운영 환경에서는 `prod` 프로필을 사용합니다.
+
+* 운영 DB: MySQL
+* Hibernate DDL: `validate`
+* 운영 스키마: `deploy/db/schema.sql`
+* 파일 업로드 경로: 환경변수 `GAHIH_UPLOAD_DIR`
+* 메일 계정: 환경변수로 관리
+* 관리자 초기 계정: 환경변수로 관리
+
+운영 실행 절차는 별도 문서에 정리되어 있습니다.
 
 ```text
-gahih
- ├ src
- │  ├ main
- │  │  ├ java
- │  │  └ resources
- │  └ test
- ├ build.gradle
- └ README.md
+deploy/README.md
 ```
 
----
+## 5. 배포 전 검증 상태
 
-# 🚀 Development Goal
+배포 전 다음 항목을 확인했습니다.
 
-이 프로젝트는 다음 목표를 가지고 진행됩니다.
+* `prod` 프로필 실행 성공
+* MySQL 운영 유사 DB 연결 성공
+* Hibernate schema validation 통과
+* `clean bootJar` 성공
+* 실행용 JAR 직접 실행 성공
+* 주요 페이지 접근 확인
+* 잘못된 path variable 요청의 400 처리 확인
+* Git working tree clean 확인
+* 수동 회귀 테스트 문서 작성
 
-* 실제 서비스 수준의 백엔드 구조 설계
-* Spring 기반 웹 애플리케이션 개발 경험
-* 글로벌 커뮤니티 플랫폼 아키텍처 설계
-* 포트폴리오 프로젝트 완성
+테스트 문서는 다음 위치에 정리되어 있습니다.
 
----
-
-# 📅 Development Status
-
-현재 상태
-
+```text
+docs/test/
 ```
-Project Initialization
+
+## 6. 문서 구조
+
+```text
+docs/
+ ├ 00-overview/
+ │  ├ project-overview.md
+ │  ├ directory-structure.md
+ │  └ THIRD-PARTY-NOTICES.md
+ ├ policies/
+ │  ├ terms.md
+ │  ├ privacy-policy.md
+ │  └ operation-policy.md
+ └ test/
+    ├ 01-feature-inventory.md
+    ├ 02-core-flows.md
+    ├ 03-final-regression-checklist.md
+    ├ 04-test-result-template.md
+    └ 05-test-priority-and-ui-polish.md
 ```
 
-향후 개발 단계
+## 7. 프로젝트에서 중점적으로 다룬 문제
 
-1. 회원 시스템
-2. 게시판 기능
-3. 댓글 시스템
-4. 지역 커뮤니티
-5. 모임 기능
+이 프로젝트는 단순히 게시글을 작성하고 조회하는 기능보다, 실제 서비스를 운영할 때 발생하는 상태와 정책을 다루는 데 초점을 두었습니다.
 
----
+예를 들어 다음 문제들을 직접 설계하고 구현했습니다.
 
-# 👨‍💻 Author
+* 탈퇴 회원의 콘텐츠를 어떻게 보존하거나 표시할 것인가
+* 관리자 삭제와 사용자 삭제를 어떻게 구분할 것인가
+* 비밀글을 누구에게 어디까지 보여줄 것인가
+* 신고 대상과 신고자를 어떻게 기록할 것인가
+* 관리자 조치의 사유와 당시 상태를 어떻게 남길 것인가
+* 게시판별로 댓글, 반응, mention 정책을 어떻게 다르게 적용할 것인가
+* 개발 환경과 운영 환경을 어떻게 분리할 것인가
+* 운영 DB 스키마를 어떻게 검증할 것인가
+
+## 8. 향후 개선 가능성
+
+현재 버전은 포트폴리오용 MVP와 운영 가능성을 목표로 합니다.
+
+향후 개선 가능한 항목은 다음과 같습니다.
+
+* 모바일 UI 추가 개선
+* 배포 서버 구성 자동화
+* Docker 기반 실행 환경 추가
+* 알림 기능 고도화
+* 검색 기능 고도화
+* 관리자 대시보드 지표 확장
+* 테스트 코드 보강
+
+## 9. 작성자
 
 Kibaek Lee
