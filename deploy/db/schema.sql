@@ -169,7 +169,7 @@ CREATE TABLE `member` (
   UNIQUE KEY `UKhh9kg6jti4n1eoiertn2k6qsc` (`nickname`),
   UNIQUE KEY `UKgc3jmn7c2abyo3wf6syln5t2i` (`username`),
   UNIQUE KEY `UKmbmcqelty0fbrvxp1q58dn57t` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `nickname_history`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
