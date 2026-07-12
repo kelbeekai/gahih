@@ -19,6 +19,9 @@ public class EmailChangeAuthFacade {
     private static final String SEND_RESPONSE_MESSAGE =
             "입력하신 이메일로 인증 안내 메일을 보냈습니다. 메일함을 확인해주세요.";
 
+    private static final String ALREADY_VERIFIED_RESPONSE_MESSAGE =
+            "이미 인증이 완료되었습니다. 다음 단계를 진행해주세요.";
+
     private final MemberRepository memberRepository;
     private final EmailAuthService emailAuthService;
 //    private final EmailSender emailSender;
@@ -35,6 +38,24 @@ public class EmailChangeAuthFacade {
 
             Member existingMember = memberRepository.findByEmail(normalizedEmail).orElse(null);
 
+            boolean sameAsCurrent = member.getEmail().equals(normalizedEmail);
+            boolean usedByAnother = existingMember != null && !existingMember.getId().equals(memberId);
+
+            if (!sameAsCurrent
+                    && !usedByAnother
+                    && emailAuthService.isVerified(
+                    normalizedEmail,
+                    EmailAuthPurpose.EMAIL_CHANGE_VERIFY,
+                    null,
+                    memberId
+            )) {
+                return EmailAuthApiResponse.success(
+                        ALREADY_VERIFIED_RESPONSE_MESSAGE,
+                        null,
+                        true
+                );
+            }
+
             EmailAuthService.IssuedVerificationCode issued =
                     emailAuthService.issueCode(
                             normalizedEmail,
@@ -42,9 +63,6 @@ public class EmailChangeAuthFacade {
                             null,
                             memberId
                     );
-
-            boolean sameAsCurrent = member.getEmail().equals(normalizedEmail);
-            boolean usedByAnother = existingMember != null && !existingMember.getId().equals(memberId);
 
             if (!sameAsCurrent && !usedByAnother) {
 //                emailSender.sendVerificationCode(

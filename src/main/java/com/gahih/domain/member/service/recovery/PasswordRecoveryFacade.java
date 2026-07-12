@@ -28,6 +28,9 @@ public class PasswordRecoveryFacade {
     private static final String VERIFY_RESPONSE_MESSAGE =
             "인증이 완료되었습니다. 새 비밀번호를 설정해주세요.";
 
+    private static final String ALREADY_VERIFIED_RESPONSE_MESSAGE =
+            "이미 인증이 완료되었습니다. 다음 단계를 진행해주세요.";
+
     private final MemberRepository memberRepository;
     private final EmailAuthService emailAuthService;
 //    private final EmailSender emailSender;
@@ -43,6 +46,21 @@ public class PasswordRecoveryFacade {
 
             Member member = memberRepository.findByUsernameAndEmail(normalizedUsername, normalizedEmail)
                     .orElse(null);
+
+            if (member != null
+                    && !member.isDeleted()
+                    && emailAuthService.isVerified(
+                    normalizedEmail,
+                    EmailAuthPurpose.PASSWORD_RESET_VERIFY,
+                    normalizedUsername,
+                    null
+            )) {
+                return EmailAuthApiResponse.success(
+                        ALREADY_VERIFIED_RESPONSE_MESSAGE,
+                        null,
+                        true
+                );
+            }
 
             EmailAuthService.IssuedVerificationCode issued =
                     emailAuthService.issueCode(

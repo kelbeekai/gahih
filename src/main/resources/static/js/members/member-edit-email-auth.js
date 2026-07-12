@@ -67,6 +67,15 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
+        if (data.verified) {
+            verified = true;
+            clearTimer();
+            clearMessage();
+            applySubmitState();
+            verifiedBox.textContent = data.message;
+            return;
+        }
+
         verified = false;
         applySubmitState();
         showMessage(data.message, true);

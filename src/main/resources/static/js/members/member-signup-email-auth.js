@@ -60,6 +60,15 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
+        if (data.verified) {
+            verified = true;
+            clearTimer();
+            clearMessage();
+            applyVerifiedState();
+            verifiedBox.textContent = data.message;
+            return;
+        }
+
         verified = false;
         applyVerifiedState();
         showMessage(data.message, true);

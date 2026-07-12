@@ -24,6 +24,9 @@ public class UsernameRecoveryFacade {
     private static final String VERIFY_RESPONSE_MESSAGE =
             "입력하신 이메일로 인증 안내 메일을 보냈습니다. 메일함을 확인해주세요.";
 
+    private static final String ALREADY_VERIFIED_RESPONSE_MESSAGE =
+            "이미 인증이 완료되었습니다. 다음 단계를 진행해주세요.";
+
     private final MemberRepository memberRepository;
     private final EmailAuthService emailAuthService;
 //    private final EmailSender emailSender;
@@ -36,6 +39,14 @@ public class UsernameRecoveryFacade {
             String normalizedEmail = normalizeEmail(email);
 
             Member member = memberRepository.findByEmail(normalizedEmail).orElse(null);
+
+            if (member != null && emailAuthService.isVerified(normalizedEmail, EmailAuthPurpose.USERNAME_RECOVERY)) {
+                return EmailAuthApiResponse.success(
+                        ALREADY_VERIFIED_RESPONSE_MESSAGE,
+                        null,
+                        true
+                );
+            }
 
             EmailAuthService.IssuedVerificationCode issued =
                     emailAuthService.issueCode(normalizedEmail, EmailAuthPurpose.USERNAME_RECOVERY);
