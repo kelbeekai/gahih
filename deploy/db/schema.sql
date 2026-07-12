@@ -171,6 +171,21 @@ CREATE TABLE `member` (
   UNIQUE KEY `UKmbmcqelty0fbrvxp1q58dn57t` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `member_daily_visit`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `member_daily_visit` (
+  `created_at` datetime(6) NOT NULL,
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `member_id` bigint NOT NULL,
+  `visit_date` date NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_member_daily_visit_member_date` (`member_id`,`visit_date`),
+  KEY `idx_member_daily_visit_visit_date` (`visit_date`),
+  KEY `idx_member_daily_visit_member_id` (`member_id`),
+  CONSTRAINT `fk_member_daily_visit_member` FOREIGN KEY (`member_id`) REFERENCES `member` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `nickname_history`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
