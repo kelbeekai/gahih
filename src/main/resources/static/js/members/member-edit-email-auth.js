@@ -29,17 +29,6 @@ document.addEventListener("DOMContentLoaded", function () {
     applySubmitState();
 
     emailInput.addEventListener("input", function () {
-        const currentEmail = emailInput.value.trim().toLowerCase();
-
-        if (currentEmail === originalEmail) {
-            verified = false;
-            clearTimer();
-            clearMessage();
-            verifiedBox.textContent = "";
-            applySubmitState();
-            return;
-        }
-
         verified = false;
         clearTimer();
         clearMessage();
@@ -49,6 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     sendButton.addEventListener("click", async function () {
         clearMessage();
+        verifiedBox.textContent = "";
 
         const email = emailInput.value.trim();
         if (!email) {
@@ -78,12 +68,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         verified = false;
-        verifiedBox.textContent = "";
         applySubmitState();
         showMessage(data.message, true);
 
-        if (data.expiresAt) {
-            startTimer(data.expiresAt);
+        if (data.remainingSeconds !== null && data.remainingSeconds !== undefined) {
+            startTimer(data.remainingSeconds);
         } else {
             clearTimer();
         }
@@ -126,8 +115,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         verified = true;
         clearTimer();
+        clearMessage();
         applySubmitState();
-        showMessage("", true);
         verifiedBox.textContent = data.message;
     });
 
@@ -153,25 +142,34 @@ document.addEventListener("DOMContentLoaded", function () {
         timerBox.textContent = "";
     }
 
-    function startTimer(expiresAt) {
+    function startTimer(remainingSeconds) {
         clearTimer();
 
-        const targetTime = new Date(expiresAt).getTime();
+        let remaining = Number(remainingSeconds);
+        if (!Number.isFinite(remaining) || remaining <= 0) {
+            timerBox.textContent = "인증코드가 만료되었습니다. 다시 요청해주세요.";
+            return;
+        }
+
+        renderTimer(remaining);
 
         timerInterval = setInterval(function () {
-            const now = Date.now();
-            const diff = targetTime - now;
+            remaining -= 1;
 
-            if (diff <= 0) {
+            if (remaining <= 0) {
                 clearTimer();
                 timerBox.textContent = "인증코드가 만료되었습니다. 다시 요청해주세요.";
                 return;
             }
 
-            const minutes = Math.floor(diff / 1000 / 60);
-            const seconds = Math.floor((diff / 1000) % 60);
-
-            timerBox.textContent = "남은 시간: " + minutes + "분 " + seconds + "초";
+            renderTimer(remaining);
         }, 1000);
+    }
+
+    function renderTimer(remainingSeconds) {
+        const minutes = Math.floor(remainingSeconds / 60);
+        const seconds = Math.floor(remainingSeconds % 60);
+
+        timerBox.textContent = "남은 시간: " + minutes + "분 " + seconds + "초";
     }
 });

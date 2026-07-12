@@ -22,6 +22,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let timerInterval = null;
 
+    usernameInput.addEventListener("input", clearAuthFeedback);
+    emailInput.addEventListener("input", clearAuthFeedback);
+
     sendButton.addEventListener("click", async function () {
         clearMessage();
 
@@ -59,8 +62,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         showMessage(data.message, true);
 
-        if (data.expiresAt) {
-            startTimer(data.expiresAt);
+        if (data.remainingSeconds !== null && data.remainingSeconds !== undefined) {
+            startTimer(data.remainingSeconds);
         } else {
             clearTimer();
         }
@@ -125,6 +128,11 @@ document.addEventListener("DOMContentLoaded", function () {
         messageBox.textContent = "";
     }
 
+    function clearAuthFeedback() {
+        clearMessage();
+        clearTimer();
+    }
+
     function clearTimer() {
         if (timerInterval) {
             clearInterval(timerInterval);
@@ -133,25 +141,34 @@ document.addEventListener("DOMContentLoaded", function () {
         timerBox.textContent = "";
     }
 
-    function startTimer(expiresAt) {
+    function startTimer(remainingSeconds) {
         clearTimer();
 
-        const targetTime = new Date(expiresAt).getTime();
+        let remaining = Number(remainingSeconds);
+        if (!Number.isFinite(remaining) || remaining <= 0) {
+            timerBox.textContent = "인증코드가 만료되었습니다. 다시 요청해주세요.";
+            return;
+        }
+
+        renderTimer(remaining);
 
         timerInterval = setInterval(function () {
-            const now = Date.now();
-            const diff = targetTime - now;
+            remaining -= 1;
 
-            if (diff <= 0) {
+            if (remaining <= 0) {
                 clearTimer();
                 timerBox.textContent = "인증코드가 만료되었습니다. 다시 요청해주세요.";
                 return;
             }
 
-            const minutes = Math.floor(diff / 1000 / 60);
-            const seconds = Math.floor((diff / 1000) % 60);
-
-            timerBox.textContent = "남은 시간: " + minutes + "분 " + seconds + "초";
+            renderTimer(remaining);
         }, 1000);
+    }
+
+    function renderTimer(remainingSeconds) {
+        const minutes = Math.floor(remainingSeconds / 60);
+        const seconds = Math.floor(remainingSeconds % 60);
+
+        timerBox.textContent = "남은 시간: " + minutes + "분 " + seconds + "초";
     }
 });

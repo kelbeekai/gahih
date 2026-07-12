@@ -2,6 +2,7 @@ package com.gahih.domain.member.dto;
 
 import lombok.Getter;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Getter
@@ -25,5 +26,14 @@ public class EmailAuthApiResponse {
 
     public static EmailAuthApiResponse fail(String message) {
         return new EmailAuthApiResponse(false, message, null, false);
+    }
+
+    public Long getRemainingSeconds() {
+        if (expiresAt == null) {
+            return null;
+        }
+
+        long seconds = Duration.between(LocalDateTime.now(), expiresAt).getSeconds();
+        return Math.max(seconds, 0L);
     }
 }
