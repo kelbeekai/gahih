@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <th:block th:replace="~{fragments/layout :: commonHeadContent(${'가힣 - ' + currentCommunity.name + ' 커뮤니티'})}"></th:block>
+    <th:block th:replace="~{fragments/layout :: commonHeadContent(${'가힣 - ' + currentCommunity.name})}"></th:block>
     <script defer th:src="@{/js/common/home-board-intro.js}"></script>
 </head>
 <body>

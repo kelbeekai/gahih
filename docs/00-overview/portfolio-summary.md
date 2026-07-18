@@ -7,7 +7,7 @@
 단순 게시판 CRUD를 넘어, 회원 상태, 이메일 인증, 신고, 관리자 조치, 운영 정책, 개발/운영 환경 분리, HTTPS 배포, 운영 로그 점검까지 직접 다룬 Spring Boot 기반 포트폴리오 프로젝트입니다.
 
 - 운영 주소: https://gahih.com
-- 최종 배포 버전: `v0.1.7`
+- 현재 운영 배포 버전: `v0.1.8`
 - 초기 국가 커뮤니티: 독일(DE), 일본(JP)
 - 배포 환경: AWS Lightsail + Ubuntu + Nginx + MySQL + systemd + Let’s Encrypt
 
